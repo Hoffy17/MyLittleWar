@@ -170,7 +170,7 @@ MonoBehaviour:
   tileX: 0
   tileZ: 0
   map: {fileID: 0}
-  moveSpeed: 2
+  moves: 2
   lerpSpeed: 5
 --- !u!1 &211284078
 GameObject:
