@@ -1,40 +1,46 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+
+public enum movementState
+{
+    Unselected,
+    Selected,
+    Moved,
+    Waiting
+}
 
 public class Unit : MonoBehaviour
 {
     #region Declarations
 
-    [Header("Map Grid Position")]
+    [Header("Unit Data")]
 
-    /// <summary>
-    /// The unit's position on the map grid's X axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
-    [Tooltip("The unit's position on the map grid's X axis.")]
     [SerializeField]
-    public int tileX;
-    /// <summary>
-    /// The unit's position on the map grid's Z axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
-    [Tooltip("The unit's position on the map grid's Z axis.")]
+    public int teamNum;
     [SerializeField]
-    public int tileZ;
+    private string unitName;
+    [SerializeField]
+    private int attackDamage = 1;
+    [SerializeField]
+    private int attackRange = 1;
+    [SerializeField]
+    private int totalHealth = 5;
+    [SerializeField]
+    private int currentHealth;
+    //[SerializeField]
+    //private GameObject unitPrefab;
 
-    /// <summary>
-    /// The map grid on which this unit is moving.
-    /// </summary>
-    [Tooltip("The map grid on which this unit is moving.")]
-    [HideInInspector]
-    public TileMapSystem map;
+    [SerializeField]
+    private GameObject holder;
 
-    /// <summary>
-    /// The list of pathfinding <see cref="Node"/>s that the unit will move through to reach its destination.
-    /// </summary>
-    public List<Node> currentPath;
+    [NonSerialized]
+    private Queue<int> movementQueue;
+    [NonSerialized]
+    private Queue<int> combatQueue;
 
     [Header("Movement")]
 
@@ -55,6 +61,76 @@ public class Unit : MonoBehaviour
     [Tooltip("The speed at which this unit will move from one tile to another.")]
     [SerializeField]
     private float lerpSpeed;
+
+    [SerializeField]
+    private Transform startPoint;
+    [SerializeField]
+    private Transform endPoint;
+    [SerializeField]
+    private float journeyLength;
+    [SerializeField]
+    private bool isTravelling;
+    [SerializeField]
+    private movementState unitMovementState;
+
+    [Header("Animation & Particles")]
+
+    [SerializeField]
+    private Animator animator;
+    [SerializeField]
+    private GameObject particleDamage;
+
+    [Header("UI")]
+
+    [SerializeField]
+    private Canvas healthBarCanvas;
+    [SerializeField]
+    private TMP_Text healthText;
+    [SerializeField]
+    private Image healthBar;
+
+    [SerializeField]
+    private Canvas damageCanvas;
+    [SerializeField]
+    private TMP_Text damageText;
+    [SerializeField]
+    private Image damageBar;
+
+    [Header("Map Grid Position")]
+
+    /// <summary>
+    /// The unit's position on the map grid's X axis.
+    /// This is different to its position in worldspace.
+    /// </summary>
+    [Tooltip("The unit's position on the map grid's X axis.")]
+    [SerializeField]
+    public int tileX;
+    /// <summary>
+    /// The unit's position on the map grid's Z axis.
+    /// This is different to its position in worldspace.
+    /// </summary>
+    [Tooltip("The unit's position on the map grid's Z axis.")]
+    [SerializeField]
+    public int tileZ;
+
+    [NonSerialized]
+    private GameObject occupiedTile;
+
+    /// <summary>
+    /// The map grid on which this unit is moving.
+    /// </summary>
+    [Tooltip("The map grid on which this unit is moving.")]
+    [HideInInspector]
+    public MapManager map;
+
+    [Header("Pathfinding")]
+
+    /// <summary>
+    /// The list of pathfinding <see cref="Node"/>s that the unit will move through to reach its destination.
+    /// </summary>
+    public List<Node> currentPath;
+    public List<Node> movementPath;
+    public bool moveCompleted = false;
 
     #endregion
 

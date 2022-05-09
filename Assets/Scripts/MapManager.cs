@@ -6,26 +6,23 @@ using UnityEngine;
 /// <summary>
 /// The system controlling the generation and instantiation of map grids, and their pathfinding data.
 /// </summary>
-public class TileMapSystem : MonoBehaviour
+public class MapManager : MonoBehaviour
 {
     #region Declarations
 
-    /// <summary>
-    /// The current unit that has been selected to move.
-    /// </summary>
-    [Tooltip("The current unit that has been selected to move.")]
+    [Header("Components")]
     [SerializeField]
-    public GameObject selectedUnit;
+    private GameManager gameManager;
+    [SerializeField]
+    private BattleManager battleManager;
 
     [Header("Map Data")]
-
     /// <summary>
-    /// The different types of tiles that can generate on the map, e.g. grass, forest, mountain, etc.
+    /// A 2D array of the different types of tiles that can generate on the map, e.g. grass, forest, mountain, etc.
     /// </summary>
     [Tooltip("The different kinds of tiles that can generate on the map, e.g. grass, forest, mountain, etc.")]
     [SerializeField]
     public TileType[] tileTypes;
-
     /// <summary>
     /// The number of tiles generated on the map grid's X axis.
     /// </summary>
@@ -40,16 +37,82 @@ public class TileMapSystem : MonoBehaviour
     public int mapSizeZ = 10;
 
     /// <summary>
-    /// An array that represents the number of tiles in the map grid.
+    /// A 2D array that represents the number of tiles in the map grid.
     /// </summary>
     [NonSerialized]
     private int[,] tiles;
-
     /// <summary>
-    /// An array of <see cref="Node"/>s that represents all of the map grid tiles that a unit can create a path to.
+    /// A 2D array of <see cref="Node"/>s that represents all of the map grid tiles that a unit can create a path to.
     /// </summary>
     [NonSerialized]
     private Node[,] graph;
+
+    //public List<Node> currentPath = null;
+
+    [Header("Map Game Objects")]
+    [SerializeField]
+    private GameObject unitsOnMap;
+    /// <summary>
+    /// A 2D array containing the list of tile game objecs on the map.
+    /// </summary>
+    [Tooltip("A 2D array containing the list of tile game objecs on the map.")]
+    [SerializeField]
+    private GameObject[,] tilesOnMap;
+
+    [Header("Selected Unit")]
+    /// <summary>
+    /// The current unit that has been selected to move.
+    /// </summary>
+    [Tooltip("The current unit that has been selected to move.")]
+    [SerializeField]
+    public GameObject selectedUnit;
+    [SerializeField]
+    private HashSet<Node> selectedUnitMoveRange;
+    [SerializeField]
+    private HashSet<Node> selectedUnitMoveRangeTotal;
+
+    [NonSerialized]
+    private bool unitSelected;
+    [NonSerialized]
+    private int unitSelectedPrevX;
+    [NonSerialized]
+    private int unitSelectedPrevZ;
+    [NonSerialized]
+    private GameObject unitSelectedPrevTile;
+
+    [Header("Quad UI")]
+    [SerializeField]
+    private GameObject[,] quadUI;
+    [SerializeField]
+    private GameObject[,] quadUIUnitMovement;
+    [SerializeField]
+    private GameObject[,] quadUICursor;
+
+    [Header("Map UI")]
+    [SerializeField]
+    private GameObject mapUI;
+    [SerializeField]
+    private GameObject mapUICursor;
+    [SerializeField]
+    private GameObject mapUIMovementRange;
+
+    [Header("UI Materials")]
+    [SerializeField]
+    private Material uIMatGreen;
+    [SerializeField]
+    private Material uIMatRed;
+    [SerializeField]
+    private Material uIMatBlue;
+
+    [Header("Containers")]
+    [SerializeField]
+    private GameObject tileContainer;
+    [SerializeField]
+    private GameObject quadUIMovementRangeContainer;
+    [SerializeField]
+    private GameObject quadUIMovementPathContainer;
+    [SerializeField]
+    private GameObject quadUICursorContainer;
 
     #endregion
 
@@ -66,6 +129,17 @@ public class TileMapSystem : MonoBehaviour
         GeneratePathGraph();
         //Create a map of tile prefabs in the scene.
         InstantiateMap();
+    }
+
+    private void Update()
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            if (selectedUnit == null)
+            {
+                //SelectUnit();
+            }
+        }
     }
 
     #endregion
@@ -382,7 +456,7 @@ public class TileMapSystem : MonoBehaviour
         //Copy the target node into a local variable.
         Node curr = target;
 
-        //While the current target node is not empty, step through the "prev" chain and add each node to our path.
+        //While the current target node is not empty, step through the "prev" chain and add each node to the unit's path.
         while (curr != null)
         {
             currentPath.Add(curr);
@@ -390,10 +464,11 @@ public class TileMapSystem : MonoBehaviour
             curr = prev[curr];
         }
 
-        //Finally, we invert the current path.
-        //We do this because the current path describes a route from our target to our source.
+        //Finally, the unit's current path is inverted.
+        //This is because the current path describes a route from the unit's target to its source, and this logically needs to be reversed.
         currentPath.Reverse();
 
+        //Copy the path we calculated into the unit's script.
         selectedUnit.GetComponent<Unit>().currentPath = currentPath;
     }
 

@@ -43,7 +43,7 @@ public class Node
     /// <summary>
     /// Takes another Node's X and Z position on the map grid and calculates the distance to it in worldspace.
     /// </summary>
-    /// <param name="n"></param>
+    /// <param name="n">The node to which distance is being calculated.</param>
     /// <returns></returns>
     public float DistanceTo(Node n)
     {

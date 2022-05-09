@@ -29,7 +29,7 @@ public class ClickableTile : MonoBehaviour
     /// </summary>
     [Tooltip("The map grid on which this tile is placed.")]
     [HideInInspector]
-    public TileMapSystem map;
+    public MapManager map;
 
     #endregion
 
