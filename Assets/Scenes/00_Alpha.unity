@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589246, b: 0.2978263, a: 1}
+  m_IndirectSpecularColor: {r: 0.1727683, g: 0.21589214, b: 0.29782572, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -258,11 +258,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07c9c3547b8b4459a922cd7a041b17a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  teamNumber: 0
+  unitName: 
+  attackDamage: 1
+  attackRange: 1
+  totalHealth: 5
+  currentHealth: 0
+  moves: 2
+  lerpSpeed: 5
+  startPoint: {fileID: 0}
+  endPoint: {fileID: 0}
+  journeyLength: 0
+  isTravelling: 0
+  movementState: 0
+  mesh: {fileID: 211284078}
+  animator: {fileID: 0}
+  particleDamage: {fileID: 0}
+  healthBarCanvas: {fileID: 0}
+  healthText: {fileID: 0}
+  healthBar: {fileID: 0}
+  damageCanvas: {fileID: 0}
+  damageText: {fileID: 0}
+  damageBar: {fileID: 0}
   tileX: 0
   tileZ: 0
   map: {fileID: 0}
-  moves: 2
-  lerpSpeed: 5
+  moveCompleted: 0
 --- !u!1 &211284078
 GameObject:
   m_ObjectHideFlags: 0
@@ -625,23 +646,26 @@ MonoBehaviour:
   tileTypes:
   - name: Grass
     tilePrefab: {fileID: 6526617181273456909, guid: 6fdad5830cec54f6585e4fecafdd43d6, type: 3}
+    unitOccupyingTile: {fileID: 0}
     isWalkable: 1
     movementCost: 1
   - name: Forest
     tilePrefab: {fileID: 933910802878150835, guid: 64626b0c6ae2948ecbed61e2743766a8, type: 3}
+    unitOccupyingTile: {fileID: 0}
     isWalkable: 1
     movementCost: 2
   - name: Mountain
     tilePrefab: {fileID: 6065928775520897569, guid: 10ba57ac8edb743a597e89927e8503b7, type: 3}
+    unitOccupyingTile: {fileID: 0}
     isWalkable: 0
     movementCost: 1
   mapSizeX: 10
   mapSizeZ: 10
-  unitsOnMap: {fileID: 853165421}
+  mapUnits: {fileID: 0}
   selectedUnit: {fileID: 199673425}
   mapUI: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
-  mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
   mapUIMovementRange: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
+  mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
   uIMatGreen: {fileID: 2100000, guid: 8f1379dffd588d2468b8c099c63eb3a0, type: 2}
   uIMatRed: {fileID: 2100000, guid: 9e6908c0998999f45b4e34c225886345, type: 2}
   uIMatBlue: {fileID: 2100000, guid: 142921eea2c045143882021dd82442ec, type: 2}
@@ -679,6 +703,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f637ac6a2604f849be0609bfd796fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 0}
 --- !u!114 &792634050
 MonoBehaviour:
   m_ObjectHideFlags: 0

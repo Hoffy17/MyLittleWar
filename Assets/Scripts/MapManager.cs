@@ -51,13 +51,13 @@ public class MapManager : MonoBehaviour
 
     [Header("Map Game Objects")]
     [SerializeField]
-    private GameObject unitsOnMap;
+    private GameObject mapUnits;
     /// <summary>
     /// A 2D array containing the list of tile game objecs on the map.
     /// </summary>
-    [Tooltip("A 2D array containing the list of tile game objecs on the map.")]
+    [Tooltip("A 2D array containing the list of tile game objects on the map.")]
     [SerializeField]
-    private GameObject[,] tilesOnMap;
+    private GameObject[,] mapTiles;
 
     [Header("Selected Unit")]
     /// <summary>
@@ -92,9 +92,9 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private GameObject mapUI;
     [SerializeField]
-    private GameObject mapUICursor;
-    [SerializeField]
     private GameObject mapUIMovementRange;
+    [SerializeField]
+    private GameObject mapUICursor;
 
     [Header("UI Materials")]
     [SerializeField]
@@ -147,6 +147,8 @@ public class MapManager : MonoBehaviour
 
     #region Custom Functions
 
+    #region Map Generation
+
     /// <summary>
     /// Sets up an array of map grid tiles and assigns an integer value for each index in the array.
     /// </summary>
@@ -189,36 +191,6 @@ public class MapManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Calculates the movement cost for a unit to move from its current map grid position to its neighbouring, target map grid position.
-    /// </summary>
-    /// <param name="sourceX">The unit's current position on the map grid's X axis.</param>
-    /// <param name="sourceZ">The unit's current position on the map grid's Z axis.</param>
-    /// <param name="targetX">The unit's target position on the map grid's X axis.</param>
-    /// <param name="targetZ">The unit's target position on the map grid's Z axis.</param>
-    /// <returns></returns>
-    public float CostToEnterTile(int sourceX, int sourceZ, int targetX, int targetZ)
-    {
-        //Find the target tile's type (grass, forest, etc) and copy it into a local variable. 
-        TileType targetTile = tileTypes[tiles[targetX, targetZ]];
-
-        //Check if the target tile is walkable.
-        if (UnitCanEnterTile(targetX, targetZ) == false)
-            //If it is not, return a cost of infinity and exit the function.
-            return Mathf.Infinity;
-
-        //Get the target tile's movement cost and copy it into a local variable.
-        float cost = targetTile.movementCost;
-
-        //If the unit intends to move diagonally, increase cost slightly to ensure a more direct path is taken.
-        if (sourceX != targetX && sourceZ != targetZ)
-        {
-            cost += 0.001f;
-        }
-
-        return cost;
-    }
-
-    /// <summary>
     /// Calculates the map grid positions of all of the Nodes on the map, and creates a list of their neighbours.
     /// </summary>
     private void GeneratePathGraph()
@@ -246,50 +218,54 @@ public class MapManager : MonoBehaviour
 
                 #region 4-way Connected Nodes
 
-                //if (x > 0)
-                //    graph[x, z].neighbours.Add(graph[x - 1, z]);
-                //if (x < mapSizeX - 1)
-                //    graph[x, z].neighbours.Add(graph[x + 1, z]);
-                //if (z > 0)
-                //    graph[x, z].neighbours.Add(graph[x, z - 1]);
-                //if (z < mapSizeZ - 1)
-                //    graph[x, z].neighbours.Add(graph[x, z + 1]);
+                //Add the left neighbouring node.
+                if (x > 0)
+                    graph[x, z].neighbours.Add(graph[x - 1, z]);
+                //Add the right neighbouring node.
+                if (x < mapSizeX - 1)
+                    graph[x, z].neighbours.Add(graph[x + 1, z]);
+                //Add the downwards neighbouring node.
+                if (z > 0)
+                    graph[x, z].neighbours.Add(graph[x, z - 1]);
+                //Add the upwards neighbouring node.
+                if (z < mapSizeZ - 1)
+                    graph[x, z].neighbours.Add(graph[x, z + 1]);
 
                 #endregion
 
                 #region 8-way Connected Nodes (Allowing Diagonal Movement)
 
-                if (x > 0)
-                {
-                    //Left
-                    graph[x, z].neighbours.Add(graph[x - 1, z]);
-                    if (z > 0)
-                        //Diagonal left-up
-                        graph[x, z].neighbours.Add(graph[x - 1, z - 1]);
-                    if (z < mapSizeZ - 1)
-                        //Diagonal left-down
-                        graph[x, z].neighbours.Add(graph[x - 1, z + 1]);
-                }
+                //if (x > 0)
+                //{
+                //    //Left
+                //    graph[x, z].neighbours.Add(graph[x - 1, z]);
+                //    if (z > 0)
+                //        //Diagonal left-down
+                //        graph[x, z].neighbours.Add(graph[x - 1, z - 1]);
+                //    if (z < mapSizeZ - 1)
+                //        //Diagonal left-up
+                //        graph[x, z].neighbours.Add(graph[x - 1, z + 1]);
+                //}
 
-                if (x < mapSizeX - 1)
-                {
-                    //Right
-                    graph[x, z].neighbours.Add(graph[x + 1, z]);
-                    if (z > 0)
-                        //Diagonal right-up
-                        graph[x, z].neighbours.Add(graph[x + 1, z - 1]);
-                    if (z < mapSizeZ - 1)
-                        //Diagonal right-down
-                        graph[x, z].neighbours.Add(graph[x + 1, z + 1]);
-                }
+                //if (x < mapSizeX - 1)
+                //{
+                //    //Right
+                //    graph[x, z].neighbours.Add(graph[x + 1, z]);
+                //    if (z > 0)
+                //        //Diagonal right-down
+                //        graph[x, z].neighbours.Add(graph[x + 1, z - 1]);
+                //    if (z < mapSizeZ - 1)
+                //        //Diagonal right-up
+                //        graph[x, z].neighbours.Add(graph[x + 1, z + 1]);
+                //}
 
-                if (z > 0)
-                    //Up
-                    graph[x, z].neighbours.Add(graph[x, z - 1]);
+                //if (z > 0)
+                //    //Down
+                //    graph[x, z].neighbours.Add(graph[x, z - 1]);
 
-                if (z < mapSizeZ - 1)
-                    //Down
-                    graph[x, z].neighbours.Add(graph[x, z + 1]);
+                //if (z < mapSizeZ - 1)
+                //    //Up
+                //    graph[x, z].neighbours.Add(graph[x, z + 1]);
 
                 #endregion
             }
@@ -301,6 +277,12 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void InstantiateMap()
     {
+        mapTiles = new GameObject[mapSizeX, mapSizeZ];
+
+        quadUI = new GameObject[mapSizeX, mapSizeZ];
+        quadUIUnitMovement = new GameObject[mapSizeX, mapSizeZ];
+        quadUICursor = new GameObject[mapSizeX, mapSizeZ];
+
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeX; z++)
@@ -309,42 +291,37 @@ public class MapManager : MonoBehaviour
                 TileType tt = tileTypes[tiles[x, z]];
                 //Instantiate the associated prefab for each tile type in the map grid.
                 //Convert the tile's map grid position into a Vector3 to instantiate it at the correct position in worldspace.
-                GameObject go = Instantiate(tt.tilePrefab, new Vector3(x, 0, z), Quaternion.identity);
+                GameObject newTile = Instantiate(tt.tilePrefab, new Vector3(x, 0, z), Quaternion.identity);
 
                 //Get the MonoBehaviour script attached to an instantiated tile.
-                ClickableTile ct = go.GetComponent<ClickableTile>();
+                ClickableTile clickableTile = newTile.GetComponent<ClickableTile>();
                 //For each instantiated tile, assign its map grid position for the purpose of clicking on those tiles.
-                ct.tileX = x;
-                ct.tileZ = z;
+                clickableTile.tileX = x;
+                clickableTile.tileZ = z;
                 //For each instantiated tile, assign the map system that is controlling it.
-                ct.map = this;
+                clickableTile.map = this;
+
+                newTile.transform.SetParent(tileContainer.transform);
+                mapTiles[x, z] = newTile;
+
+                GameObject gridUI = Instantiate(mapUI, new Vector3(x, 0.501f, z), Quaternion.Euler(90f, 0, 0));
+                GameObject gridUIUnitMovement = Instantiate(mapUIMovementRange, new Vector3(x, 0.502f, z), Quaternion.Euler(90f, 0, 0));
+                GameObject gridUICursor = Instantiate(mapUICursor, new Vector3(x, 0.503f, z), Quaternion.Euler(90f, 0, 0));
+
+                gridUI.transform.SetParent(quadUIMovementRangeContainer.transform);
+                gridUIUnitMovement.transform.SetParent(quadUIMovementPathContainer.transform);
+                gridUICursor.transform.SetParent(quadUICursorContainer.transform);
+
+                quadUI[x, z] = gridUI;
+                quadUIUnitMovement[x, z] = gridUIUnitMovement;
+                quadUICursor[x, z] = gridUICursor;
             }
         }
     }
 
-    /// <summary>
-    /// Converts any map grid position into Unity worldspace.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="z"></param>
-    /// <returns></returns>
-    public Vector3 GetTileWorldSpace(int x, int z)
-    {
-        return new Vector3(x, 0, z);
-    }
+    #endregion
 
-    /// <summary>
-    /// Checks if a tile on the map grid is walkable.
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="z"></param>
-    /// <returns></returns>
-    public bool UnitCanEnterTile(int x, int z)
-    {
-        //Check a unit's type against terrain flags here if necessary.
-
-        return tileTypes[tiles[x,z]].isWalkable;
-    }
+    #region Pathfinding & Unit Movement
 
     /// <summary>
     /// This function represents Dijkstra's algorithm and is used to generate a path from a source tile on the map grid to a target tile.
@@ -471,6 +448,72 @@ public class MapManager : MonoBehaviour
         //Copy the path we calculated into the unit's script.
         selectedUnit.GetComponent<Unit>().currentPath = currentPath;
     }
+
+    /// <summary>
+    /// Calculates the movement cost for a unit to move from its current map grid position to its neighbouring, target map grid position.
+    /// </summary>
+    /// <param name="sourceX">The unit's current position on the map grid's X axis.</param>
+    /// <param name="sourceZ">The unit's current position on the map grid's Z axis.</param>
+    /// <param name="targetX">The unit's target position on the map grid's X axis.</param>
+    /// <param name="targetZ">The unit's target position on the map grid's Z axis.</param>
+    /// <returns></returns>
+    public float CostToEnterTile(int sourceX, int sourceZ, int targetX, int targetZ)
+    {
+        //Find the target tile's type (grass, forest, etc) and copy it into a local variable. 
+        TileType targetTile = tileTypes[tiles[targetX, targetZ]];
+
+        //Check if the target tile is walkable.
+        if (UnitCanEnterTile(targetX, targetZ) == false)
+            //If it is not, return a cost of infinity and exit the function.
+            return Mathf.Infinity;
+
+        //Get the target tile's movement cost and copy it into a local variable.
+        float cost = targetTile.movementCost;
+
+        //If the unit intends to move diagonally, increase cost slightly to ensure a more direct path is taken.
+        if (sourceX != targetX && sourceZ != targetZ)
+        {
+            cost += 0.001f;
+        }
+
+        return cost;
+    }
+
+    /// <summary>
+    /// Checks if a tile on the map grid is walkable.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>
+    public bool UnitCanEnterTile(int x, int z)
+    {
+        //Check a unit's type against terrain flags here if necessary.
+
+        return tileTypes[tiles[x, z]].isWalkable;
+    }
+
+    public void MoveUnit()
+    {
+        if (selectedUnit != null)
+            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
+    }
+
+    #endregion
+
+    #region Calculations
+
+    /// <summary>
+    /// Converts any map grid position into Unity worldspace.
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="z"></param>
+    /// <returns></returns>
+    public Vector3 GetTileWorldSpace(int x, int z)
+    {
+        return new Vector3(x, 0, z);
+    }
+
+    #endregion
 
     #endregion
 }

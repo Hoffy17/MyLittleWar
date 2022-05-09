@@ -5,14 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum movementState
-{
-    Unselected,
-    Selected,
-    Moved,
-    Waiting
-}
-
 public class Unit : MonoBehaviour
 {
     #region Declarations
@@ -20,22 +12,21 @@ public class Unit : MonoBehaviour
     [Header("Unit Data")]
 
     [SerializeField]
-    public int teamNum;
+    public int teamNumber;
     [SerializeField]
     private string unitName;
+
     [SerializeField]
-    private int attackDamage = 1;
+    public int attackDamage = 1;
     [SerializeField]
-    private int attackRange = 1;
+    public int attackRange = 1;
+
     [SerializeField]
     private int totalHealth = 5;
     [SerializeField]
-    private int currentHealth;
+    public int currentHealth;
     //[SerializeField]
     //private GameObject unitPrefab;
-
-    [SerializeField]
-    private GameObject holder;
 
     [NonSerialized]
     private Queue<int> movementQueue;
@@ -71,14 +62,17 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private bool isTravelling;
     [SerializeField]
-    private movementState unitMovementState;
+    private movementState movementState;
 
     [Header("Animation & Particles")]
 
     [SerializeField]
-    private Animator animator;
+    private GameObject mesh;
     [SerializeField]
-    private GameObject particleDamage;
+    private Animator animator;
+
+    [SerializeField]
+    public GameObject particleDamage;
 
     [Header("UI")]
 
@@ -216,6 +210,28 @@ public class Unit : MonoBehaviour
             currentPath = null;
     }
 
+    public void AdvanceNextTile()
+    {
+        if (currentPath.Count == 0)
+            return;
+        //else
+            //StartCoroutine(MoveForSeconds());
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        //UpdateHealthUI();
+    }
+
+    public void Die()
+    {
+        if (mesh.activeSelf)
+        {
+            //StartCoroutine(());
+        }
+    }
+
     /// <summary>
     /// This function should be called when the unit is to complete its movement turn.
     /// </summary>
@@ -231,4 +247,12 @@ public class Unit : MonoBehaviour
     }
 
     #endregion
+}
+
+public enum movementState
+{
+    Unselected,
+    Selected,
+    Moved,
+    Waiting
 }

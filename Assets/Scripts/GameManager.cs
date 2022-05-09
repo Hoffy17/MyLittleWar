@@ -140,7 +140,7 @@ public class GameManager : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit))
         {
-            updateUICursor();
+            UpdateUICursor();
         }
     }
 
@@ -149,10 +149,15 @@ public class GameManager : MonoBehaviour
 
     #region Custom Functions
 
+    public void CheckRemainingUnits(GameObject attacker, GameObject defender)
+    {
+
+    }
+
     /// <summary>
     /// Updates the cursor's position on the UI.
     /// </summary>
-    private void updateUICursor()
+    private void UpdateUICursor()
     {
         //If the cursor is hovering over a tile, highlight it.
         if (hit.transform.CompareTag("Tile"))
