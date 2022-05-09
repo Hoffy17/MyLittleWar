@@ -273,10 +273,10 @@ public class TileMapSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// This function represents Dijkstra's algorithm and is used to generate a path from a source tile on the map grid to a target tile.
     /// </summary>
-    /// <param name="x">The target </param>
-    /// <param name="z"></param>
+    /// <param name="x">The destination tile's position on the map grid's X axis, that a unit is generating a path to.</param>
+    /// <param name="z">The destination tile's position on the map grid's Z axis, that a unit is generating a path to.</param>
     public void GeneratePathTo(int x, int z)
     {
         //Clear the unit's previous path.
@@ -288,86 +288,110 @@ public class TileMapSystem : MonoBehaviour
             return;
         }
 
+        //This dictionary stores all of the nodes on the map grid and their distance (as a float) from the unit's current node position.
         Dictionary<Node, float> dist = new Dictionary<Node, float>();
+        //This dictionary stores nodes on the shortest path from the source node to the target node.
         Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
 
-        //List of unchecked/unvisited nodes in priority queue
+        //Create a list of unchecked or unvisited Nodes.
+        //This is a priority queue of nodes to be checked, when generating a path in Dijkstra's algorithm.
         List<Node> queue = new List<Node>();
 
+        //Store the unit's current position on the map grid in a local variable.
         Node source = graph[
             selectedUnit.GetComponent<Unit>().tileX,
             selectedUnit.GetComponent<Unit>().tileZ];
+        //Store the unit's destination on the map grid in a local variable.
         Node target = graph[x, z];
 
+        //Set the distance to the unit's current position to 0.
         dist[source] = 0;
+        //Set the source node in the path to null.
         prev[source] = null;
 
-        //Every node is initialised to have infinite distance
-        //"v" for vertex
-        foreach (Node v in graph)
+        //Every node, other than the unit's current position on the map grid, is initialised to have infinite distance.
+        foreach (Node n in graph)
         {
-            if (v != source)
+            if (n != source)
             {
-                dist[v] = Mathf.Infinity;
-                prev[v] = null;
+                dist[n] = Mathf.Infinity;
+                prev[n] = null;
             }
 
-            queue.Add(v);
+            //Every node on the map grid is added into a queue of unchecked nodes.
+            queue.Add(n);
         }
 
+        //While there are unchecked nodes in the queue...
         while(queue.Count > 0)
         {
-            //"u" is going to be the unvisited node with the smallest distance
-            Node u = null;
+            //Store a temporary node with the smallest distance.
+            Node tempNode = null;
 
-            foreach (Node possibleU in queue)
+            //For each unchecked node in the queue...
+            foreach (Node uncheckedNode in queue)
             {
-                if (u == null || dist[possibleU] < dist[u])
+                //If the temporary node is empty or the distance to the unchecked node is less than the distance to the temporary node...
+                if (tempNode == null || dist[uncheckedNode] < dist[tempNode])
                 {
-                    u = possibleU;
+                    //Copy the unchecked node into the temporary node.
+                    tempNode = uncheckedNode;
                 }
             }
 
-            if (u == target)
+            //If the temporary node is the same as the unit's destination node on the map grid...
+            if (tempNode == target)
             {
-                break; //Exit the while loop
+                //Exit the while loop.
+                break; 
             }
 
-            queue.Remove(u);
+            //Now that the unchecked node has been checked and it is not the target, remove the temporary node from the list of unchecked nodes.
+            queue.Remove(tempNode);
 
-            foreach(Node v in u.neighbours)
+            //For each node that is neighbouring the temporary node...
+            foreach(Node neighbourNode in tempNode.neighbours)
             {
                 //float alt = dist[u] + u.DistanceTo(v);
-                float alt = dist[u] + CostToEnterTile(u.x, u.z, v.x, v.z);
 
-                if (alt < dist[v])
+                //Calculate the distance to enter each neighbouring node,
+                //based on that neighbouring node's distance from the unit's current node position and the cost to enter that node.
+                float tempDist = dist[tempNode] + CostToEnterTile(tempNode.x, tempNode.z, neighbourNode.x, neighbourNode.z);
+
+                //If the distance to the temporary node is less than the distance to each neighbouring node...
+                if (tempDist < dist[neighbourNode])
                 {
-                    dist[v] = alt;
-                    prev[v] = u;
+                    //Record the temporary distance to the neighbouring node into the array.
+                    dist[neighbourNode] = tempDist;
+                    //Set the temporary node as the node that will be moved to on the unit's path.
+                    prev[neighbourNode] = tempNode;
                 }
             }
         }
 
-        //We either found the shortest route to our target,
+        //At this stage, we either found the shortest route to our target,
         //Or there is no route at all to our target.
         if (prev[target] == null)
         {
-            //No route between source and target
+            //If there is no route between the source and target, exit the function.
             return;
         }
 
+        //Create a list of nodes that represent the unit's path to its target node.
         List<Node> currentPath = new List<Node>();
+        //Copy the target node into a local variable.
         Node curr = target;
 
-        //Step through the "prev" chain and add it to our path
+        //While the current target node is not empty, step through the "prev" chain and add each node to our path.
         while (curr != null)
         {
             currentPath.Add(curr);
+
             curr = prev[curr];
         }
 
-        //currentPath describes a route from our target to our source
-        //So we need to invert it
+        //Finally, we invert the current path.
+        //We do this because the current path describes a route from our target to our source.
         currentPath.Reverse();
 
         selectedUnit.GetComponent<Unit>().currentPath = currentPath;
