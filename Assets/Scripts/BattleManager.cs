@@ -93,7 +93,7 @@ public class BattleManager : MonoBehaviour
     /// <summary>
     /// Checks if a unit's health has fallen to zero.
     /// </summary>
-    /// <param name="unit">The unit whose health is under scruity.</param>
+    /// <param name="unit">The unit whose health is under scrutiny.</param>
     /// <returns></returns>
     private bool IsUnitDead(GameObject unit)
     {
@@ -114,7 +114,7 @@ public class BattleManager : MonoBehaviour
         defender.transform.parent = null;
         defenderUnit.Die();
         isBattling = false;
-        gameManager.CheckRemainingUnits(attacker, defender);
+        StartCoroutine(gameManager.CheckVictor(attacker, defender));
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class BattleManager : MonoBehaviour
         attacker.transform.parent = null;
         attackerUnit.Die();
         isBattling = false;
-        gameManager.CheckRemainingUnits(attacker, defender);
+        StartCoroutine(gameManager.CheckVictor(attacker, defender));
     }
 
     #endregion

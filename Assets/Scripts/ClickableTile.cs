@@ -25,6 +25,11 @@ public class ClickableTile : MonoBehaviour
     [HideInInspector]
     public int tileZ;
     /// <summary>
+    /// The unit that is currently occupying this tile object.
+    /// </summary>
+    [HideInInspector]
+    public GameObject unitOccupyingTile;
+    /// <summary>
     /// The map grid on which this tile is placed.
     /// </summary>
     [Tooltip("The map grid on which this tile is placed.")]

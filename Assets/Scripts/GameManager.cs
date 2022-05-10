@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int numberOfTeams = 2;
     [SerializeField]
-    private int currentTeam;
+    public int currentTeam;
 
     [SerializeField]
     private GameObject unitsOnMap;
@@ -24,8 +24,8 @@ public class GameManager : MonoBehaviour
 
     [NonSerialized]
     private GameObject unitDisplayed;
-    [NonSerialized]
-    private GameObject tileDisplayed;
+    [HideInInspector]
+    public GameObject highlightedTile;
 
     [NonSerialized]
     private bool displayingUnitInfo;
@@ -54,12 +54,12 @@ public class GameManager : MonoBehaviour
     /// The current tile that the mouse is hovering over.
     /// </summary>
     [NonSerialized]
-    private int selectedTileX;
+    private int highlightedTileX;
     /// <summary>
     /// The current tile that the mouse is hovering over.
     /// </summary>
     [NonSerialized]
-    private int selectedTileZ;
+    private int highlightedTileZ;
 
     [NonSerialized]
     private List<Node> currentPath;
@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private TMP_Text textCurrentPlayer;
     [SerializeField]
-    private Canvas canvasDisplayWinner;
+    private Canvas canvasGameOver;
 
     [SerializeField]
     private Canvas canvasUnitInfo;
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
     private TMP_Text textUnitMovement;
 
     [SerializeField]
-    private GameObject playerTurnBlock;
+    private GameObject playerTurnMessage;
 
     [NonSerialized]
     private Animator playerTurnAnim;
@@ -123,6 +123,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        mapManager = GetComponent<MapManager>();
+
         currentTeam = 0;
 
         displayingUnitInfo = false;
@@ -130,7 +132,11 @@ public class GameManager : MonoBehaviour
         currentPathToCursor = new List<Node>();
         currentPathExists = false;
 
-        mapManager = GetComponent<MapManager>();
+        playerTurnAnim = playerTurnMessage.GetComponent<Animator>();
+        playerTurnText = playerTurnMessage.GetComponentInChildren<TextMeshProUGUI>();
+
+        UpdateUICurrentPlayer();
+        UpdateUITeamHealthBarColour();
     }
 
     private void Update()
@@ -149,9 +155,21 @@ public class GameManager : MonoBehaviour
 
     #region Custom Functions
 
-    public void CheckRemainingUnits(GameObject attacker, GameObject defender)
+    private GameObject GetCurrentTeam(int teamNumber)
     {
+        GameObject team = null;
 
+        if (teamNumber == 0)
+            team = team1;
+        else if (teamNumber == 1)
+            team = team2;
+
+        return team;
+    }
+
+    private void UpdateUICurrentPlayer()
+    {
+        textCurrentPlayer.SetText("Current Player's Turn: Player " + (currentTeam + 1).ToString());
     }
 
     /// <summary>
@@ -162,17 +180,106 @@ public class GameManager : MonoBehaviour
         //If the cursor is hovering over a tile, highlight it.
         if (hit.transform.CompareTag("Tile"))
         {
-            if (tileDisplayed == null)
+            if (highlightedTile == null)
+                HighlightTile(hit.transform.gameObject);
+            else if (highlightedTile != hit.transform.gameObject)
             {
-                selectedTileX = hit.transform.gameObject.GetComponent<ClickableTile>().tileX;
-                selectedTileZ = hit.transform.gameObject.GetComponent<ClickableTile>().tileZ;
+                highlightedTileX = highlightedTile.GetComponent<ClickableTile>().tileX;
+                highlightedTileZ = highlightedTile.GetComponent<ClickableTile>().tileZ;
 
-                cursorX = selectedTileX;
-                cursorZ = selectedTileZ;
+                mapManager.quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
 
-                //mapManager
+                HighlightTile(hit.transform.gameObject);
+
             }
         }
+        else if (hit.transform.CompareTag("Unit"))
+        {
+            if (highlightedTile == null)
+                HighlightTile(hit.transform.parent.gameObject);
+            else if (highlightedTile != hit.transform.gameObject)
+            {
+                if (hit.transform.parent.gameObject.GetComponent<Unit>().movementQueue.Count == 0)
+                {
+                    highlightedTileX = highlightedTile.GetComponent<ClickableTile>().tileX;
+                    highlightedTileZ = highlightedTile.GetComponent<ClickableTile>().tileZ;
+
+                    mapManager.quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
+
+                    HighlightTile(hit.transform.parent.gameObject);
+                }
+            }
+        }
+        else
+            mapManager.quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
+    }
+
+    private void UpdateUITeamHealthBarColour()
+    {
+        for (int i = 0; i < numberOfTeams; i++)
+        {
+            GameObject team = GetCurrentTeam(i);
+
+            if (team == GetCurrentTeam(currentTeam))
+            {
+                foreach (Transform unit in team.transform)
+                    unit.GetComponent<Unit>().healthBar.color = Color.blue;
+            }
+            else
+            {
+                foreach (Transform unit in team.transform)
+                    unit.GetComponent<Unit>().healthBar.color = Color.red;
+            }
+        }
+    }
+
+    private void HighlightTile(GameObject tile)
+    {
+        if (hit.transform.CompareTag("Tile"))
+        {
+            highlightedTileX = tile.GetComponent<ClickableTile>().tileX;
+            highlightedTileZ = tile.GetComponent<ClickableTile>().tileZ;
+        }
+        else if (hit.transform.CompareTag("Unit"))
+        {
+            highlightedTileX = tile.GetComponent<Unit>().tileX;
+            highlightedTileZ = tile.GetComponent<Unit>().tileZ;
+        }
+
+        cursorX = highlightedTileX;
+        cursorZ = highlightedTileZ;
+
+        mapManager.quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = true;
+
+        if (hit.transform.CompareTag("Tile"))
+            highlightedTile = tile;
+        else if (hit.transform.CompareTag("Unit"))
+            highlightedTile = tile.GetComponent<Unit>().occupiedTile;
+    }
+
+    private void PrintVictor(string winner)
+    {
+        canvasGameOver.enabled = true;
+        canvasGameOver.GetComponentInChildren<TextMeshProUGUI>().SetText(winner);
+    }
+
+    #endregion
+
+
+    #region Coroutines
+
+    public IEnumerator CheckVictor(GameObject attacker, GameObject defender)
+    {
+        while (attacker.GetComponent<Unit>().combatQueue.Count != 0)
+            yield return new WaitForEndOfFrame();
+
+        while (defender.GetComponent<Unit>().combatQueue.Count != 0)
+            yield return new WaitForEndOfFrame();
+
+        if (team1.transform.childCount == 0)
+            PrintVictor("Victor: Team Two!");
+        else if (team2.transform.childCount == 0)
+            PrintVictor("Victor: Team One!");
     }
 
     #endregion

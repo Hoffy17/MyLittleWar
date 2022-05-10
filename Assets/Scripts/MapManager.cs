@@ -86,7 +86,7 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     private GameObject[,] quadUIUnitMovement;
     [SerializeField]
-    private GameObject[,] quadUICursor;
+    public GameObject[,] quadUICursor;
 
     [Header("Map UI")]
     [SerializeField]
@@ -129,16 +129,15 @@ public class MapManager : MonoBehaviour
         GeneratePathGraph();
         //Create a map of tile prefabs in the scene.
         InstantiateMap();
+
+        SetTileOccupied();
     }
 
     private void Update()
     {
         if(Input.GetMouseButtonDown(0))
         {
-            if (selectedUnit == null)
-            {
-                //SelectUnit();
-            }
+            SelectUnit();
         }
     }
 
@@ -321,7 +320,7 @@ public class MapManager : MonoBehaviour
 
     #endregion
 
-    #region Pathfinding & Unit Movement
+    #region Pathfinding
 
     /// <summary>
     /// This function represents Dijkstra's algorithm and is used to generate a path from a source tile on the map grid to a target tile.
@@ -454,29 +453,37 @@ public class MapManager : MonoBehaviour
     /// </summary>
     /// <param name="sourceX">The unit's current position on the map grid's X axis.</param>
     /// <param name="sourceZ">The unit's current position on the map grid's Z axis.</param>
-    /// <param name="targetX">The unit's target position on the map grid's X axis.</param>
-    /// <param name="targetZ">The unit's target position on the map grid's Z axis.</param>
+    /// <param name="x">The unit's target position on the map grid's X axis.</param>
+    /// <param name="z">The unit's target position on the map grid's Z axis.</param>
     /// <returns></returns>
-    public float CostToEnterTile(int sourceX, int sourceZ, int targetX, int targetZ)
+    public float CostToEnterTile(int x, int z)
     {
-        //Find the target tile's type (grass, forest, etc) and copy it into a local variable. 
-        TileType targetTile = tileTypes[tiles[targetX, targetZ]];
+        ////Find the target tile's type (grass, forest, etc) and copy it into a local variable. 
+        //TileType targetTile = tileTypes[tiles[targetX, targetZ]];
 
-        //Check if the target tile is walkable.
-        if (UnitCanEnterTile(targetX, targetZ) == false)
-            //If it is not, return a cost of infinity and exit the function.
+        ////Check if the target tile is walkable.
+        //if (UnitCanEnterTile(targetX, targetZ) == false)
+        //    //If it is not, return a cost of infinity and exit the function.
+        //    return Mathf.Infinity;
+
+        ////Get the target tile's movement cost and copy it into a local variable.
+        //float cost = targetTile.movementCost;
+
+        ////If the unit intends to move diagonally, increase cost slightly to ensure a more direct path is taken.
+        //if (sourceX != targetX && sourceZ != targetZ)
+        //{
+        //    cost += 0.001f;
+        //}
+
+        //return cost;
+
+        if (UnitCanEnterTile(x, z) == false)
             return Mathf.Infinity;
 
-        //Get the target tile's movement cost and copy it into a local variable.
-        float cost = targetTile.movementCost;
+        TileType tile = tileTypes[tiles[x, z]];
+        float dist = tile.movementCost;
 
-        //If the unit intends to move diagonally, increase cost slightly to ensure a more direct path is taken.
-        if (sourceX != targetX && sourceZ != targetZ)
-        {
-            cost += 0.001f;
-        }
-
-        return cost;
+        return dist;
     }
 
     /// <summary>
@@ -488,8 +495,118 @@ public class MapManager : MonoBehaviour
     public bool UnitCanEnterTile(int x, int z)
     {
         //Check a unit's type against terrain flags here if necessary.
+        //return tileTypes[tiles[x, z]].isWalkable;
 
+        if (mapTiles[x, z].GetComponent<ClickableTile>().unitOccupyingTile != null)
+        {
+            if (mapTiles[x, z].GetComponent<ClickableTile>().unitOccupyingTile.GetComponent<Unit>().teamNumber !=
+                selectedUnit.GetComponent<Unit>().teamNumber)
+                return false;
+        }
         return tileTypes[tiles[x, z]].isWalkable;
+    }
+
+    #endregion
+
+
+    #region Unit Movement
+
+    public void SetTileOccupied()
+    {
+        foreach (Transform team in mapUnits.transform)
+        {
+            foreach (Transform unit in team)
+            {
+                int unitTileX = unit.GetComponent<Unit>().tileX;
+                int unitTileZ = unit.GetComponent<Unit>().tileZ;
+
+                unit.GetComponent<Unit>().occupiedTile = mapTiles[unitTileX, unitTileZ];
+
+                mapTiles[unitTileX, unitTileZ].GetComponent<ClickableTile>().unitOccupyingTile = unit.gameObject;
+            }
+        }
+    }
+
+    private void SelectUnit()
+    {
+        if (selectedUnit == null
+                && unitSelected == false
+                && gameManager.highlightedTile != null
+                && gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile != null)
+        {
+            GameObject tempSelectedUnit = gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile;
+
+            if (tempSelectedUnit.GetComponent<Unit>().movementState == MovementState.Unselected
+                && tempSelectedUnit.GetComponent<Unit>().teamNumber == gameManager.currentTeam)
+            {
+                DisableQuadUI();
+
+                selectedUnit.GetComponent<Unit>().map = this;
+                selectedUnit.GetComponent<Unit>().movementState = MovementState.Selected;
+                //selectedUnit.GetComponent<Unit>().animator.SetTrigger("Selected");
+                unitSelected = true;
+                HighlightMovementRange();
+            }
+        }
+    }
+
+    private void HighlightMovementRange()
+    {
+        HashSet<Node> movementRange = new HashSet<Node>();
+        HashSet<Node> attackableTiles = new HashSet<Node>();
+        HashSet<Node> enemiesInRange = new HashSet<Node>();
+
+        int attackRange = selectedUnit.GetComponent<Unit>().attackRange;
+        int movespeed = selectedUnit.GetComponent<Unit>().moveSpeed;
+
+        Node startNode = graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ];
+
+        movementRange = GetMovementRange(movementRange, movespeed, startNode);
+    }
+
+    private HashSet<Node> GetMovementRange(HashSet<Node> movementRange, int movespeed, Node startNode)
+    {
+        float[,] cost = new float[mapSizeX, mapSizeZ];
+
+        HashSet<Node> uIHighlight = new HashSet<Node>();
+        HashSet<Node> tempUIHighlight = new HashSet<Node>();
+
+        movementRange.Add(startNode);
+
+        foreach (Node node in startNode.neighbours)
+        {
+            cost[node.x, node.z] = CostToEnterTile(node.x, node.z);
+
+            if (movespeed - cost[node.x, node.z] >= 0)
+                uIHighlight.Add(node);
+        }
+
+        movementRange.UnionWith(uIHighlight);
+
+        while (uIHighlight.Count != 0)
+        {
+            foreach (Node node in uIHighlight)
+            {
+                foreach (Node neighbour in node.neighbours)
+                {
+                    if (!movementRange.Contains(neighbour))
+                    {
+                        cost[neighbour.x, neighbour.z] = CostToEnterTile(neighbour.x, neighbour.z) + cost[node.x, node.z];
+
+                        if (movespeed - cost[neighbour.x, neighbour.z] >= 0)
+                        {
+                            tempUIHighlight.Add(neighbour);
+                        }
+                    }
+                }
+            }
+
+            uIHighlight = tempUIHighlight;
+            movementRange.UnionWith(uIHighlight);
+            tempUIHighlight = new HashSet<Node>();
+        }
+
+        return movementRange;
     }
 
     public void MoveUnit()
@@ -499,6 +616,23 @@ public class MapManager : MonoBehaviour
     }
 
     #endregion
+
+
+    #region Quad UI
+
+    public void DisableQuadUI()
+    {
+        foreach (GameObject quad in quadUI)
+        {
+            if (quad.GetComponent<Renderer>().enabled == true)
+            {
+                quad.GetComponent<Renderer>().enabled = false;
+            }
+        }
+    }
+
+    #endregion
+
 
     #region Calculations
 

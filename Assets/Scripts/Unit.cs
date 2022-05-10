@@ -28,10 +28,10 @@ public class Unit : MonoBehaviour
     //[SerializeField]
     //private GameObject unitPrefab;
 
-    [NonSerialized]
-    private Queue<int> movementQueue;
-    [NonSerialized]
-    private Queue<int> combatQueue;
+    [HideInInspector]
+    public Queue<int> movementQueue;
+    [HideInInspector]
+    public Queue<int> combatQueue;
 
     [Header("Movement")]
 
@@ -40,7 +40,7 @@ public class Unit : MonoBehaviour
     /// </summary>
     [Tooltip("The number of tiles that this unit can move in one turn.")]
     [SerializeField]
-    public int moves;
+    public int moveSpeed;
     /// <summary>
     /// The number of moves that this unit has remaining in any one turn.
     /// </summary>
@@ -53,23 +53,23 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private float lerpSpeed;
 
-    [SerializeField]
+    [NonSerialized]
     private Transform startPoint;
-    [SerializeField]
+    [NonSerialized]
     private Transform endPoint;
-    [SerializeField]
+    [NonSerialized]
     private float journeyLength;
-    [SerializeField]
+    [NonSerialized]
     private bool isTravelling;
-    [SerializeField]
-    private movementState movementState;
+    [HideInInspector]
+    public MovementState movementState;
 
     [Header("Animation & Particles")]
 
     [SerializeField]
     private GameObject mesh;
     [SerializeField]
-    private Animator animator;
+    public Animator animator;
 
     [SerializeField]
     public GameObject particleDamage;
@@ -81,7 +81,7 @@ public class Unit : MonoBehaviour
     [SerializeField]
     private TMP_Text healthText;
     [SerializeField]
-    private Image healthBar;
+    public Image healthBar;
 
     [SerializeField]
     private Canvas damageCanvas;
@@ -107,8 +107,8 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public int tileZ;
 
-    [NonSerialized]
-    private GameObject occupiedTile;
+    [HideInInspector]
+    public GameObject occupiedTile;
 
     /// <summary>
     /// The map grid on which this unit is moving.
@@ -131,14 +131,23 @@ public class Unit : MonoBehaviour
 
     #region Unit Functions
 
-    private void Start()
+    private void Awake()
     {
         //Reset the unit's pathfinding information.
         currentPath = null;
+        movementPath = null;
+        movementQueue = new Queue<int>();
+        combatQueue = new Queue<int>();
 
         //Convert the unit's position in worldspace to its position on the map grid.
         tileX = (int)transform.position.x;
         tileZ = (int)transform.position.z;
+
+        movementState = MovementState.Unselected;
+        currentHealth = totalHealth;
+        healthText.SetText(currentHealth.ToString());
+
+        //animator = mesh.GetComponent<Animator>();
     }
 
     private void Update()
@@ -243,13 +252,13 @@ public class Unit : MonoBehaviour
             AdvancePathfinding();
 
         //At the end of the unit's turn, reset its remaining moves.
-        remainingMoves = moves;
+        remainingMoves = moveSpeed;
     }
 
     #endregion
 }
 
-public enum movementState
+public enum MovementState
 {
     Unselected,
     Selected,
