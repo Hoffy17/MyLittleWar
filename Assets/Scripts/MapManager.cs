@@ -11,8 +11,16 @@ public class MapManager : MonoBehaviour
     #region Declarations
 
     [Header("Components")]
+    /// <summary>
+    /// The GameManager script.
+    /// </summary>
+    [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
+    /// <summary>
+    /// The BattleManager script.
+    /// </summary>
+    [Tooltip("The BattleManager script.")]
     [SerializeField]
     private BattleManager battleManager;
 
@@ -35,7 +43,6 @@ public class MapManager : MonoBehaviour
     [Tooltip("The number of tiles generated on the map grid's Z axis.")]
     [SerializeField]
     public int mapSizeZ = 10;
-
     /// <summary>
     /// A 2D array that represents the number of tiles in the map grid.
     /// </summary>
@@ -44,55 +51,100 @@ public class MapManager : MonoBehaviour
     /// <summary>
     /// A 2D array of <see cref="Node"/>s that represents all of the map grid tiles that a unit can create a path to.
     /// </summary>
+    [HideInInspector]
+    public Node[,] graph;
+    /// <summary>
+    ///A list of <see cref="Node"/>s that represent a path from one map grid position to another.
+    /// </summary>
     [NonSerialized]
-    private Node[,] graph;
-
-    //public List<Node> currentPath = null;
+    private List<Node> currentPath = null;
 
     [Header("Map Game Objects")]
+    /// <summary>
+    /// The units that are currently on the map. This is used to set tiles that are currently occupied.
+    /// </summary>
+    [Tooltip("The units that are currently on the map. This is used to set tiles that are currently occupied.")]
     [SerializeField]
     private GameObject mapUnits;
     /// <summary>
-    /// A 2D array containing the list of tile game objecs on the map.
+    /// A 2D array containing the list of tile game objects on the map.
     /// </summary>
     [Tooltip("A 2D array containing the list of tile game objects on the map.")]
-    [SerializeField]
-    private GameObject[,] mapTiles;
+    [HideInInspector]
+    public GameObject[,] mapTiles;
 
     [Header("Selected Unit")]
     /// <summary>
-    /// The current unit that has been selected to move.
+    /// The current unit that has been clicked on.
     /// </summary>
-    [Tooltip("The current unit that has been selected to move.")]
-    [SerializeField]
+    [HideInInspector]
     public GameObject selectedUnit;
-    [SerializeField]
-    private HashSet<Node> selectedUnitMoveRange;
-    [SerializeField]
-    private HashSet<Node> selectedUnitMoveRangeTotal;
-
+    /// <summary>
+    /// A container of <see cref="Node"/>s in a selected unit's movement range.
+    /// Based on its move speed and any attackable enemies within this range.
+    /// </summary>
+    [HideInInspector]
+    public HashSet<Node> selectedUnitMoveRange;
+    //[SerializeField]
+    //private HashSet<Node> selectedUnitMoveRangeTotal;
+    /// <summary>
+    /// Checks whether or not the player has selected a unit.
+    /// </summary>
     [NonSerialized]
     private bool unitSelected;
+    /// <summary>
+    /// The selected unit's previous map grid position on the X axis.
+    /// </summary>
     [NonSerialized]
     private int unitSelectedPrevX;
+    /// <summary>
+    /// The selected unit's previous map grid position on the Z axis.
+    /// </summary>
     [NonSerialized]
     private int unitSelectedPrevZ;
+    /// <summary>
+    /// The previous tile that the selected unit was occupying.
+    /// </summary>
     [NonSerialized]
     private GameObject unitSelectedPrevTile;
 
     [Header("Quad UI")]
+    /// <summary>
+    /// A 2D array of quads that are activated to highlight a unit's movement range and attackable enemies.
+    /// </summary> 
+    [Tooltip("A 2D array of quads that are activated to highlight a unit's movement range and attackable enemies.")]
     [SerializeField]
-    private GameObject[,] quadUI;
-    [SerializeField]
-    private GameObject[,] quadUIUnitMovement;
-    [SerializeField]
+    private GameObject[,] quadUIUnitMoveRange;
+    /// <summary>
+    /// A 2D array of quads that are activated to highlight a unit's proposed movement path.
+    /// </summary>
+    [Tooltip("A 2D array of quads that are activated to highlight a unit's proposed movement path.")]
+    [HideInInspector]
+    public GameObject[,] quadUIUnitPath;
+    /// <summary>
+    /// A 2D array of quads that are activated to highlight a single tile that the cursor is raycasting to.
+    /// </summary>
+    [HideInInspector]
+    [Tooltip("A 2D array of quads that are activated to highlight a single tile that the cursor is raycasting to.")]
     public GameObject[,] quadUICursor;
 
     [Header("Map UI")]
+    /// <summary>
+    /// The quad prefab that is instantiated to highlight a unit's movement range and attackable enemies.
+    /// </summary>
+    [Tooltip("The quad prefab that is instantiated to highlight a unit's movement range and attackable enemies.")]
     [SerializeField]
-    private GameObject mapUI;
+    private GameObject mapUIUnitMoveRange;
+    /// <summary>
+    /// The quad prefab that is instantiated to highlight a unit's proposed movement path.
+    /// </summary>
+    [Tooltip("The quad prefab that is instantiated to highlight a unit's proposed movement path.")]
     [SerializeField]
-    private GameObject mapUIMovementRange;
+    private GameObject mapUIUnitPath;
+    /// <summary>
+    /// The quad prefab that is instantiated to highlight a single tile that the cursor is raycasting to.
+    /// </summary>
+    [Tooltip("The quad prefab that is instantiated to highlight a single tile that the cursor is raycasting to.")]
     [SerializeField]
     private GameObject mapUICursor;
 
@@ -121,8 +173,6 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        selectedUnit.GetComponent<Unit>().map = this;
-
         //Set up an array of map grid tiles and assigns an integer value for each index in the array.
         GenerateMap();
         //Calculate the map grid positions of all of the Nodes on the map, and creates a list of their neighbours.
@@ -135,9 +185,25 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetMouseButtonDown(0))
-        {
+        if (Input.GetMouseButtonDown(0))
             SelectUnit();
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (selectedUnit != null)
+            {
+                if (selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
+                    && selectedUnit.GetComponent<Unit>().combatQueue.Count == 0
+                    && selectedUnit.GetComponent<Unit>().movementState == MovementState.Waiting)
+                {
+                    //sound.Play();
+                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+
+                    DeselectUnit();
+                }
+                else if (selectedUnit.GetComponent<Unit>().movementQueue.Count == 1)
+                    selectedUnit.GetComponent<Unit>().lerpSpeed = 0.5f;
+            }
         }
     }
 
@@ -278,8 +344,8 @@ public class MapManager : MonoBehaviour
     {
         mapTiles = new GameObject[mapSizeX, mapSizeZ];
 
-        quadUI = new GameObject[mapSizeX, mapSizeZ];
-        quadUIUnitMovement = new GameObject[mapSizeX, mapSizeZ];
+        quadUIUnitMoveRange = new GameObject[mapSizeX, mapSizeZ];
+        quadUIUnitPath = new GameObject[mapSizeX, mapSizeZ];
         quadUICursor = new GameObject[mapSizeX, mapSizeZ];
 
         for (int x = 0; x < mapSizeX; x++)
@@ -303,22 +369,23 @@ public class MapManager : MonoBehaviour
                 newTile.transform.SetParent(tileContainer.transform);
                 mapTiles[x, z] = newTile;
 
-                GameObject gridUI = Instantiate(mapUI, new Vector3(x, 0.501f, z), Quaternion.Euler(90f, 0, 0));
-                GameObject gridUIUnitMovement = Instantiate(mapUIMovementRange, new Vector3(x, 0.502f, z), Quaternion.Euler(90f, 0, 0));
+                GameObject gridUI = Instantiate(mapUIUnitMoveRange, new Vector3(x, 0.501f, z), Quaternion.Euler(90f, 0, 0));
+                GameObject gridUIUnitMovement = Instantiate(mapUIUnitPath, new Vector3(x, 0.502f, z), Quaternion.Euler(90f, 0, 0));
                 GameObject gridUICursor = Instantiate(mapUICursor, new Vector3(x, 0.503f, z), Quaternion.Euler(90f, 0, 0));
 
                 gridUI.transform.SetParent(quadUIMovementRangeContainer.transform);
                 gridUIUnitMovement.transform.SetParent(quadUIMovementPathContainer.transform);
                 gridUICursor.transform.SetParent(quadUICursorContainer.transform);
 
-                quadUI[x, z] = gridUI;
-                quadUIUnitMovement[x, z] = gridUIUnitMovement;
+                quadUIUnitMoveRange[x, z] = gridUI;
+                quadUIUnitPath[x, z] = gridUIUnitMovement;
                 quadUICursor[x, z] = gridUICursor;
             }
         }
     }
 
     #endregion
+
 
     #region Pathfinding
 
@@ -327,16 +394,25 @@ public class MapManager : MonoBehaviour
     /// </summary>
     /// <param name="x">The destination tile's position on the map grid's X axis, that a unit is generating a path to.</param>
     /// <param name="z">The destination tile's position on the map grid's Z axis, that a unit is generating a path to.</param>
-    public void GeneratePathTo(int x, int z)
+    public List<Node> GeneratePathTo(int x, int z)
     {
-        //Clear the unit's previous path.
-        selectedUnit.GetComponent<Unit>().currentPath = null;
+        //If a unit's tile position is the same as the tile it is generating a path to, there is no need to generate a path.
+        if (selectedUnit.GetComponent<Unit>().tileX == x &&
+            selectedUnit.GetComponent<Unit>().tileZ == z)
+        {
+            currentPath = new List<Node>();
+            return currentPath;
+        }
 
         //If the unit cannot enter the tile it is generating a path to, exit the function.
-        if (UnitCanEnterTile(x,z) == false)
+        if (UnitCanEnterTile(x, z) == false)
         {
-            return;
+            return null;
         }
+
+        //Clear the unit's previous path.
+        //selectedUnit.GetComponent<Unit>().path = null;
+        currentPath = null;
 
         //This dictionary stores all of the nodes on the map grid and their distance (as a float) from the unit's current node position.
         Dictionary<Node, float> dist = new Dictionary<Node, float>();
@@ -345,7 +421,7 @@ public class MapManager : MonoBehaviour
 
         //Create a list of unchecked or unvisited Nodes.
         //This is a priority queue of nodes to be checked, when generating a path in Dijkstra's algorithm.
-        List<Node> queue = new List<Node>();
+        List<Node> nodeQueue = new List<Node>();
 
         //Store the unit's current position on the map grid in a local variable.
         Node source = graph[
@@ -360,26 +436,26 @@ public class MapManager : MonoBehaviour
         prev[source] = null;
 
         //Every node, other than the unit's current position on the map grid, is initialised to have infinite distance.
-        foreach (Node n in graph)
+        foreach (Node node in graph)
         {
-            if (n != source)
+            if (node != source)
             {
-                dist[n] = Mathf.Infinity;
-                prev[n] = null;
+                dist[node] = Mathf.Infinity;
+                prev[node] = null;
             }
 
             //Every node on the map grid is added into a queue of unchecked nodes.
-            queue.Add(n);
+            nodeQueue.Add(node);
         }
 
         //While there are unchecked nodes in the queue...
-        while(queue.Count > 0)
+        while(nodeQueue.Count > 0)
         {
             //Store a temporary node with the smallest distance.
             Node tempNode = null;
 
             //For each unchecked node in the queue...
-            foreach (Node uncheckedNode in queue)
+            foreach (Node uncheckedNode in nodeQueue)
             {
                 //If the temporary node is empty or the distance to the unchecked node is less than the distance to the temporary node...
                 if (tempNode == null || dist[uncheckedNode] < dist[tempNode])
@@ -397,7 +473,7 @@ public class MapManager : MonoBehaviour
             }
 
             //Now that the unchecked node has been checked and it is not the target, remove the temporary node from the list of unchecked nodes.
-            queue.Remove(tempNode);
+            nodeQueue.Remove(tempNode);
 
             //For each node that is neighbouring the temporary node...
             foreach(Node neighbourNode in tempNode.neighbours)
@@ -406,7 +482,7 @@ public class MapManager : MonoBehaviour
 
                 //Calculate the distance to enter each neighbouring node,
                 //based on that neighbouring node's distance from the unit's current node position and the cost to enter that node.
-                float tempDist = dist[tempNode] + CostToEnterTile(tempNode.x, tempNode.z, neighbourNode.x, neighbourNode.z);
+                float tempDist = dist[tempNode] + CostToEnterTile(neighbourNode.x, neighbourNode.z);
 
                 //If the distance to the temporary node is less than the distance to each neighbouring node...
                 if (tempDist < dist[neighbourNode])
@@ -424,11 +500,11 @@ public class MapManager : MonoBehaviour
         if (prev[target] == null)
         {
             //If there is no route between the source and target, exit the function.
-            return;
+            return null;
         }
 
-        //Create a list of nodes that represent the unit's path to its target node.
-        List<Node> currentPath = new List<Node>();
+        currentPath = new List<Node>();
+
         //Copy the target node into a local variable.
         Node curr = target;
 
@@ -445,7 +521,7 @@ public class MapManager : MonoBehaviour
         currentPath.Reverse();
 
         //Copy the path we calculated into the unit's script.
-        selectedUnit.GetComponent<Unit>().currentPath = currentPath;
+        return currentPath;
     }
 
     /// <summary>
@@ -456,7 +532,7 @@ public class MapManager : MonoBehaviour
     /// <param name="x">The unit's target position on the map grid's X axis.</param>
     /// <param name="z">The unit's target position on the map grid's Z axis.</param>
     /// <returns></returns>
-    public float CostToEnterTile(int x, int z)
+    private float CostToEnterTile(int x, int z)
     {
         ////Find the target tile's type (grass, forest, etc) and copy it into a local variable. 
         //TileType targetTile = tileTypes[tiles[targetX, targetZ]];
@@ -495,7 +571,6 @@ public class MapManager : MonoBehaviour
     public bool UnitCanEnterTile(int x, int z)
     {
         //Check a unit's type against terrain flags here if necessary.
-        //return tileTypes[tiles[x, z]].isWalkable;
 
         if (mapTiles[x, z].GetComponent<ClickableTile>().unitOccupyingTile != null)
         {
@@ -509,51 +584,12 @@ public class MapManager : MonoBehaviour
     #endregion
 
 
-    #region Unit Movement
+    #region Movement Range
 
-    public void SetTileOccupied()
-    {
-        foreach (Transform team in mapUnits.transform)
-        {
-            foreach (Transform unit in team)
-            {
-                int unitTileX = unit.GetComponent<Unit>().tileX;
-                int unitTileZ = unit.GetComponent<Unit>().tileZ;
-
-                unit.GetComponent<Unit>().occupiedTile = mapTiles[unitTileX, unitTileZ];
-
-                mapTiles[unitTileX, unitTileZ].GetComponent<ClickableTile>().unitOccupyingTile = unit.gameObject;
-            }
-        }
-    }
-
-    private void SelectUnit()
-    {
-        if (selectedUnit == null
-                && unitSelected == false
-                && gameManager.highlightedTile != null
-                && gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile != null)
-        {
-            GameObject tempSelectedUnit = gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile;
-
-            if (tempSelectedUnit.GetComponent<Unit>().movementState == MovementState.Unselected
-                && tempSelectedUnit.GetComponent<Unit>().teamNumber == gameManager.currentTeam)
-            {
-                DisableQuadUI();
-
-                selectedUnit.GetComponent<Unit>().map = this;
-                selectedUnit.GetComponent<Unit>().movementState = MovementState.Selected;
-                //selectedUnit.GetComponent<Unit>().animator.SetTrigger("Selected");
-                unitSelected = true;
-                HighlightMovementRange();
-            }
-        }
-    }
-
-    private void HighlightMovementRange()
+    private void MovementRange()
     {
         HashSet<Node> movementRange = new HashSet<Node>();
-        HashSet<Node> attackableTiles = new HashSet<Node>();
+        HashSet<Node> attackableEnemies = new HashSet<Node>();
         HashSet<Node> enemiesInRange = new HashSet<Node>();
 
         int attackRange = selectedUnit.GetComponent<Unit>().attackRange;
@@ -562,6 +598,22 @@ public class MapManager : MonoBehaviour
         Node startNode = graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ];
 
         movementRange = GetMovementRange(movementRange, movespeed, startNode);
+        attackableEnemies = GetAttackableTiles(movementRange, attackableEnemies, attackRange, startNode);
+
+        foreach (Node node in attackableEnemies)
+            if (mapTiles[node.x, node.z].GetComponent<ClickableTile>().unitOccupyingTile != null)
+            {
+                GameObject unitOccupyingSelectedTile = mapTiles[node.x, node.z].GetComponent<ClickableTile>().unitOccupyingTile;
+
+                if (unitOccupyingSelectedTile.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber)
+                    enemiesInRange.Add(node);
+            }
+
+        HighlightMovementRange(movementRange);
+        HighlightAttackableEnemies(attackableEnemies);
+
+        selectedUnitMoveRange = movementRange;
+        //selectedUnitMoveRangeTotal = GetTotalRange(movementRange, attackableEnemies);
     }
 
     private HashSet<Node> GetMovementRange(HashSet<Node> movementRange, int movespeed, Node startNode)
@@ -586,20 +638,14 @@ public class MapManager : MonoBehaviour
         while (uIHighlight.Count != 0)
         {
             foreach (Node node in uIHighlight)
-            {
                 foreach (Node neighbour in node.neighbours)
-                {
                     if (!movementRange.Contains(neighbour))
                     {
                         cost[neighbour.x, neighbour.z] = CostToEnterTile(neighbour.x, neighbour.z) + cost[node.x, node.z];
 
                         if (movespeed - cost[neighbour.x, neighbour.z] >= 0)
-                        {
                             tempUIHighlight.Add(neighbour);
-                        }
                     }
-                }
-            }
 
             uIHighlight = tempUIHighlight;
             movementRange.UnionWith(uIHighlight);
@@ -609,24 +655,378 @@ public class MapManager : MonoBehaviour
         return movementRange;
     }
 
-    public void MoveUnit()
+    private HashSet<Node> GetAttackableTiles(HashSet<Node> movementRange, HashSet<Node> attackableTiles, int attackRange, Node startNode)
     {
-        if (selectedUnit != null)
-            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
+        HashSet<Node> tempNeighbourHash = new HashSet<Node>();
+        HashSet<Node> neighbourHash = new HashSet<Node>();
+        HashSet<Node> seenNodes = new HashSet<Node>();
+
+        foreach (Node node in movementRange)
+        {
+            neighbourHash = new HashSet<Node>();
+            neighbourHash.Add(node);
+
+            for (int i = 0; i < attackRange; i++)
+            {
+                foreach (Node neighbourNode in neighbourHash)
+                    foreach (Node tempNeighbourNode in neighbourNode.neighbours)
+                        tempNeighbourHash.Add(tempNeighbourNode);
+
+                neighbourHash = tempNeighbourHash;
+                tempNeighbourHash = new HashSet<Node>();
+
+                if (i < attackRange - 1)
+                    seenNodes.UnionWith(neighbourHash);
+            }
+
+            neighbourHash.ExceptWith(seenNodes);
+            seenNodes = new HashSet<Node>();
+            attackableTiles.UnionWith(neighbourHash);
+        }
+
+        attackableTiles.Remove(startNode);
+
+        return attackableTiles;
+    }
+
+    private HashSet<Node> GetAttackableNeighbours()
+    {
+        HashSet<Node> tempNeighbourHash = new HashSet<Node>();
+        HashSet<Node> neighbourHash = new HashSet<Node>();
+        HashSet<Node> seenNodes = new HashSet<Node>();
+
+        Node startNode = graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ];
+        int attackRange = selectedUnit.GetComponent<Unit>().attackRange;
+
+        neighbourHash.Add(startNode);
+
+        for (int i = 0; i < attackRange; i++)
+        {
+            foreach (Node neighbourNode in neighbourHash)
+                foreach (Node tempNeighbourNode in neighbourNode.neighbours)
+                    tempNeighbourHash.Add(tempNeighbourNode);
+
+            neighbourHash = tempNeighbourHash;
+            tempNeighbourHash = new HashSet<Node>();
+
+            if (i < attackRange - 1)
+                seenNodes.UnionWith(neighbourHash);
+        }
+        neighbourHash.ExceptWith(seenNodes);
+        neighbourHash.Remove(startNode);
+        return neighbourHash;
+    }
+
+    //private HashSet<Node> GetTotalRange(HashSet<Node> movementRange, HashSet<Node> attackableEnemies)
+    //{
+    //    HashSet<Node> unionTiles = new HashSet<Node>();
+
+    //    unionTiles.UnionWith(movementRange);
+    //    unionTiles.UnionWith(attackableEnemies);
+
+    //    return unionTiles;
+    //}
+
+    private HashSet<Node> GetOccupiedTile()
+    {
+        HashSet<Node> occupiedTile = new HashSet<Node>();
+        occupiedTile.Add(graph[
+            selectedUnit.GetComponent<Unit>().tileX,
+            selectedUnit.GetComponent<Unit>().tileZ]);
+        return occupiedTile;
+    }
+
+    private void HighlightMovementRange(HashSet<Node> movementRange)
+    {
+        foreach (Node node in movementRange)
+        {
+            quadUIUnitMoveRange[node.x, node.z].GetComponent<Renderer>().material = uIMatBlue;
+            quadUIUnitMoveRange[node.x, node.z].GetComponent<MeshRenderer>().enabled = true;
+        }
+    }
+
+    private void HighlightAttackableEnemies(HashSet<Node> attackableEnemies)
+    {
+        foreach (Node node in attackableEnemies)
+        {
+            quadUIUnitMoveRange[node.x, node.z].GetComponent<Renderer>().material = uIMatRed;
+            quadUIUnitMoveRange[node.x, node.z].GetComponent<MeshRenderer>().enabled = true;
+        }
+    }
+
+    private void DisableQuadUI()
+    {
+        foreach (GameObject quad in quadUIUnitMoveRange)
+        {
+            if (quad.GetComponent<Renderer>().enabled == true)
+                quad.GetComponent<Renderer>().enabled = false;
+        }
+    }
+
+    public void DisableQuadUIUnitMovement()
+    {
+        foreach(GameObject quad in quadUIUnitPath)
+        {
+            if (quad.GetComponent<Renderer>().enabled == true)
+                quad.GetComponent<Renderer>().enabled = false;
+        }
     }
 
     #endregion
 
 
-    #region Quad UI
+    #region Unit Movement
 
-    public void DisableQuadUI()
+    private void SelectUnit()
     {
-        foreach (GameObject quad in quadUI)
+        if (selectedUnit == null)
         {
-            if (quad.GetComponent<Renderer>().enabled == true)
+            if (unitSelected == false
+                && gameManager.highlightedTile != null
+                && gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile != null)
             {
-                quad.GetComponent<Renderer>().enabled = false;
+                GameObject tempSelectedUnit = gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile;
+
+                if (tempSelectedUnit.GetComponent<Unit>().movementState == MovementState.Unselected
+                    && tempSelectedUnit.GetComponent<Unit>().teamNumber == gameManager.currentTeam)
+                {
+                    DisableQuadUI();
+
+                    selectedUnit = tempSelectedUnit;
+                    selectedUnit.GetComponent<Unit>().map = this;
+                    selectedUnit.GetComponent<Unit>().movementState = MovementState.Selected;
+                    //selectedUnit.GetComponent<Unit>().animator.SetTrigger("Selected");
+                    unitSelected = true;
+
+                    MovementRange();
+                }
+            }
+        }
+        else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected
+            && selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
+            && SelectTileToMoveTo())
+        {
+            //sound.Play();
+            unitSelectedPrevX = selectedUnit.GetComponent<Unit>().tileX;
+            unitSelectedPrevZ = selectedUnit.GetComponent<Unit>().tileZ;
+            unitSelectedPrevTile = selectedUnit.GetComponent<Unit>().occupiedTile;
+            //selectedUnit.GetComponent<Unit>().PlayWalkingAnim();
+            MoveUnit();
+
+            StartCoroutine(FinaliseMovement());
+        }
+        else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Moved)
+        {
+            FinaliseUnitTurn();
+        }
+    }
+
+    private void DeselectUnit()
+    {
+        if (selectedUnit != null)
+        {
+            if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected)
+            {
+                DisableQuadUI();
+                DisableQuadUIUnitMovement();
+
+                selectedUnit.GetComponent<Unit>().movementState = MovementState.Unselected;
+                selectedUnit = null;
+                unitSelected = false;
+            }
+            else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Waiting)
+            {
+                DisableQuadUI();
+                DisableQuadUIUnitMovement();
+
+                selectedUnit = null;
+                unitSelected = false;
+            }
+            else
+            {
+                DisableQuadUI();
+                DisableQuadUIUnitMovement();
+
+                mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
+                    .GetComponent<ClickableTile>().unitOccupyingTile = null;
+                mapTiles[unitSelectedPrevX, unitSelectedPrevZ].GetComponent<ClickableTile>().unitOccupyingTile = selectedUnit;
+
+                selectedUnit.GetComponent<Unit>().tileX = unitSelectedPrevX;
+                selectedUnit.GetComponent<Unit>().tileZ = unitSelectedPrevZ;
+                selectedUnit.GetComponent<Unit>().occupiedTile = unitSelectedPrevTile;
+                selectedUnit.transform.position = GetTileWorldSpace(unitSelectedPrevX, unitSelectedPrevZ);
+
+                selectedUnit.GetComponent<Unit>().movementState = MovementState.Unselected;
+
+                selectedUnit = null;
+                unitSelected = false;
+            }
+        }
+    }
+
+    private bool SelectTileToMoveTo()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.transform.gameObject.CompareTag("Tile"))
+            {
+                int clickedTileX = hit.transform.GetComponent<ClickableTile>().tileX;
+                int clickedTileZ = hit.transform.GetComponent<ClickableTile>().tileZ;
+                Node clickedNode = graph[clickedTileX, clickedTileZ];
+
+                if (selectedUnitMoveRange.Contains(clickedNode))
+                {
+                    if ((hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == null
+                        || hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == selectedUnit)
+                        && selectedUnitMoveRange.Contains(clickedNode))
+                    {
+                        selectedUnit.GetComponent<Unit>().path = GeneratePathTo(clickedTileX, clickedTileZ);
+                        return true;
+                    }
+                }
+            }
+            else if (hit.transform.gameObject.CompareTag("Unit"))
+            {
+                //The user clicked on an enemy.
+                if (hit.transform.parent.GetComponent<Unit>().teamNumber !=
+                    selectedUnit.GetComponent<Unit>().teamNumber)
+                    return false;
+                else if (hit.transform.gameObject == selectedUnit)
+                {
+                    selectedUnit.GetComponent<Unit>().path = GeneratePathTo(selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void MoveUnit()
+    {
+        if (selectedUnit != null)
+            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
+    }
+
+    private IEnumerator FinaliseMovement()
+    {
+        DisableQuadUI();
+        DisableQuadUIUnitMovement();
+
+        while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
+            yield return new WaitForEndOfFrame();
+
+        FinaliseMovementPos();
+        //selectedUnit.GetComponent<Unit>().PlaySelectedAnim();
+    }
+
+    private IEnumerator DeselectUnitAfterTurn(GameObject attacker, GameObject defender)
+    {
+        //SelectSound.Play();
+
+        selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
+
+        DisableQuadUI();
+        DisableQuadUIUnitMovement();
+
+        yield return new WaitForSeconds(.25f);
+
+        while (attacker.GetComponent<Unit>().combatQueue.Count > 0)
+            yield return new WaitForEndOfFrame();
+        while (defender.GetComponent<Unit>().combatQueue.Count > 0)
+            yield return new WaitForEndOfFrame();
+
+        DeselectUnit();
+    }
+
+    private void FinaliseMovementPos()
+    {
+        mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
+            .GetComponent<ClickableTile>().unitOccupyingTile = selectedUnit;
+
+        selectedUnit.GetComponent<Unit>().movementState = MovementState.Moved;
+
+        if (selectedUnit != null)
+        {
+            HighlightAttackableEnemies(GetAttackableNeighbours());
+            HighlightMovementRange(GetOccupiedTile());
+        }
+    }
+
+    private void SetTileOccupied()
+    {
+        foreach (Transform team in mapUnits.transform)
+        {
+            foreach (Transform unit in team)
+            {
+                int unitTileX = unit.GetComponent<Unit>().tileX;
+                int unitTileZ = unit.GetComponent<Unit>().tileZ;
+
+                unit.GetComponent<Unit>().occupiedTile = mapTiles[unitTileX, unitTileZ];
+
+                mapTiles[unitTileX, unitTileZ].GetComponent<ClickableTile>().unitOccupyingTile = unit.gameObject;
+            }
+        }
+    }
+
+    private void FinaliseUnitTurn()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        HashSet<Node> attackableTiles = GetAttackableNeighbours();
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            if (hit.transform.gameObject.CompareTag("Tile")
+                && hit.transform.GetComponent<ClickableTile>().unitOccupyingTile != null)
+            {
+                GameObject unit = hit.transform.GetComponent<ClickableTile>().unitOccupyingTile;
+                int unitX = unit.GetComponent<Unit>().tileX;
+                int unitZ = unit.GetComponent<Unit>().tileZ;
+
+                if (unit == selectedUnit)
+                {
+                    DisableQuadUIUnitMovement();
+
+                    selectedUnit.GetComponent<Unit>().Wait();
+                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+                    selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
+                    DeselectUnit();
+                }
+                else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
+                    && attackableTiles.Contains(graph[unitX, unitZ])
+                    && unit.GetComponent<Unit>().currentHealth > 0)
+                {
+                    StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
+                    StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
+                }
+            }
+            else if (hit.transform.parent != null
+                && hit.transform.parent.gameObject.CompareTag("Unit"))
+            {
+                GameObject unit = hit.transform.parent.gameObject;
+                int unitX = unit.GetComponent<Unit>().tileX;
+                int unitZ = unit.GetComponent<Unit>().tileZ;
+
+                if (unit == selectedUnit)
+                {
+                    DisableQuadUIUnitMovement();
+
+                    selectedUnit.GetComponent<Unit>().Wait();
+                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+                    selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
+                    DeselectUnit();
+                }
+                else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
+                    && attackableTiles.Contains(graph[unitX, unitZ])
+                    && unit.GetComponent<Unit>().currentHealth > 0)
+                {
+                    StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
+                    StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
+                }
             }
         }
     }

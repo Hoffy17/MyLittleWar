@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17276844, g: 0.21589246, b: 0.2978263, a: 1}
+  m_IndirectSpecularColor: {r: 0.1727683, g: 0.21589214, b: 0.29782572, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -423,27 +423,11 @@ Transform:
   m_Father: {fileID: 792634048}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &199673425 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5882035700250922296, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-  m_PrefabInstance: {fileID: 5882035700399442793}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &199673426 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
   m_PrefabInstance: {fileID: 5882035700399442793}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &199673427 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-  m_PrefabInstance: {fileID: 5882035700399442793}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 199673425}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c9c3547b8b4459a922cd7a041b17a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &306848067
 GameObject:
   m_ObjectHideFlags: 0
@@ -1128,9 +1112,9 @@ MonoBehaviour:
   mapSizeX: 10
   mapSizeZ: 10
   mapUnits: {fileID: 853165421}
-  selectedUnit: {fileID: 199673425}
-  mapUI: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
-  mapUIMovementRange: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
+  selectedUnit: {fileID: 0}
+  mapUIUnitMoveRange: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
+  mapUIUnitPath: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
   mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
   uIMatGreen: {fileID: 2100000, guid: 8f1379dffd588d2468b8c099c63eb3a0, type: 2}
   uIMatRed: {fileID: 2100000, guid: 9e6908c0998999f45b4e34c225886345, type: 2}
@@ -1170,6 +1154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 792634050}
+  cameraShake: {fileID: 1004332285}
 --- !u!114 &792634050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1182,6 +1167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edbfb08a8e9e71a4eaaee49cc47d4a77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapManager: {fileID: 792634047}
   numberOfTeams: 2
   currentTeam: 0
   unitsOnMap: {fileID: 853165421}
@@ -1195,11 +1181,12 @@ MonoBehaviour:
   textCurrentPlayer: {fileID: 762237357}
   canvasGameOver: {fileID: 2068149902}
   canvasUnitInfo: {fileID: 1882629513}
+  imageUnitPortrait: {fileID: 707479672}
   textUnitName: {fileID: 605476005}
   textUnitHealth: {fileID: 1603337580}
   textUnitAttackDamage: {fileID: 39225499}
   textUnitAttackRange: {fileID: 1838621523}
-  textUnitMovement: {fileID: 1126146942}
+  textUnitMoveSpeed: {fileID: 1126146942}
   playerTurnMessage: {fileID: 1135473196}
 --- !u!1 &795535845
 GameObject:
@@ -1440,6 +1427,7 @@ GameObject:
   - component: {fileID: 1004332280}
   - component: {fileID: 1004332284}
   - component: {fileID: 1004332283}
+  - component: {fileID: 1004332285}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1553,6 +1541,18 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &1004332285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1004332279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 271e0cf809e6845c9bd614948faf677d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1016953493
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1569,16 +1569,32 @@ PrefabInstance:
       value: Unit
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: portrait
+      value: 
+      objectReference: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: unitName
+      value: Infantry
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: lerpSpeed
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: teamNumber
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: unitPortrait
+      value: 
+      objectReference: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1586,7 +1602,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3119,9 +3135,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 199673427}
-        m_TargetAssemblyTypeName: Unit, Assembly-CSharp
-        m_MethodName: NextTurn
+      - m_Target: {fileID: 792634050}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: EndTurn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4127,6 +4143,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Unit
       objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: portrait
+      value: 
+      objectReference: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: unitName
+      value: Infantry
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: lerpSpeed
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: unitPortrait
+      value: 
+      objectReference: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -4141,7 +4173,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922299, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: m_LocalRotation.w

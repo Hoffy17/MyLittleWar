@@ -7,8 +7,12 @@ public class BattleManager : MonoBehaviour
 {
     #region Declarations
 
+    [Header("Components")]
+
     [SerializeField]
     private GameManager gameManager;
+    [SerializeField]
+    private CameraShake cameraShake;
 
     [NonSerialized]
     private bool isBattling;
@@ -138,21 +142,61 @@ public class BattleManager : MonoBehaviour
 
     public IEnumerator StartAttack(GameObject attacker, GameObject defender)
     {
-        //isBattling = true;
+        isBattling = true;
 
-        //float elapsedTime = 0;
+        float elapsedTime = 0;
 
-        //Vector3 startPos = attacker.transform.position;
-        //Vector3 endPos = defender.transform.position;
+        Vector3 startPos = attacker.transform.position;
+        Vector3 endPos = defender.transform.position;
 
-        //attacker.GetComponent<Unit>().
+        //attacker.GetComponent<Unit>().PlayWalkAnim();
 
-        yield return new WaitForEndOfFrame();
+        while (elapsedTime < 0.25f)
+        {
+            attacker.transform.position = Vector3.Lerp
+                (startPos,
+                startPos + ((endPos - startPos) / (endPos - startPos).magnitude).normalized * 0.5f,
+                elapsedTime / 0.25f);
+            elapsedTime += Time.deltaTime;
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        while (isBattling)
+        {
+            StartCoroutine(cameraShake.ShakeCamera(0.2f, attacker.GetComponent<Unit>().attackDamage, GetAttackDirection(attacker, defender)));
+
+            if (attacker.GetComponent<Unit>().attackDamage == defender.GetComponent<Unit>().attackDamage &&
+                defender.GetComponent<Unit>().currentHealth - attacker.GetComponent<Unit>().attackDamage > 0)
+            {
+                StartCoroutine(attacker.GetComponent<Unit>().DisplayDamage(defender.GetComponent<Unit>().attackDamage));
+                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
+            }
+            else
+                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
+
+            Battle(attacker, defender);
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        if (attacker != null)
+            StartCoroutine(FinishAttack(attacker, startPos));
     }
 
     public IEnumerator FinishAttack(GameObject attacker, Vector3 endPos)
     {
-        yield return new WaitForEndOfFrame();
+        float elapsedTime = 0;
+
+        while (elapsedTime < 0.3f)
+        {
+            attacker.transform.position = Vector3.Lerp(attacker.transform.position, endPos, elapsedTime / 0.25f);
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        //attacker.GetComponent<Unit>().PlayIdleAnim();
+        attacker.GetComponent<Unit>().Wait();
     }
 
     #endregion
