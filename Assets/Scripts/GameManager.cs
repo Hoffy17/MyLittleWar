@@ -11,6 +11,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Components")]
 
+    /// <summary>
+    /// The MapManager script.
+    /// </summary>
+    [Tooltip("The MapManager script.")]
     [SerializeField]
     private MapManager mapManager;
 
@@ -29,14 +33,14 @@ public class GameManager : MonoBehaviour
     private GameObject team2;
 
     [NonSerialized]
-    private GameObject unitDisplayed;
+    private GameObject highlightedUnit;
     [HideInInspector]
     public GameObject highlightedTile;
 
     [NonSerialized]
     private bool displayingUnitInfo;
 
-    //[Header("Map")]
+    [Header("Map")]
 
     [NonSerialized]
     private Ray ray;
@@ -208,7 +212,7 @@ public class GameManager : MonoBehaviour
                 else if (cursorX == mapManager.selectedUnit.GetComponent<Unit>().tileX &&
                     cursorZ == mapManager.selectedUnit.GetComponent<Unit>().tileZ)
                 {
-                    mapManager.DisableQuadUIUnitMovement();
+                    mapManager.DisableQuadUIUnitPath();
                     currentPathExists = false;
                 }
             }
@@ -322,7 +326,7 @@ public class GameManager : MonoBehaviour
         {
             if (hit.transform.CompareTag("Unit"))
             {
-                unitDisplayed = hit.transform.parent.gameObject;
+                highlightedUnit = hit.transform.parent.gameObject;
                 Unit unit = hit.transform.parent.gameObject.GetComponent<Unit>();
 
                 PrintUnitInfo(unit);
@@ -330,14 +334,14 @@ public class GameManager : MonoBehaviour
             else if (hit.transform.CompareTag("Tile")
                 && hit.transform.GetComponent<ClickableTile>().unitOccupyingTile != null)
             {
-                unitDisplayed = hit.transform.GetComponent<ClickableTile>().unitOccupyingTile;
-                Unit unit = unitDisplayed.GetComponent<Unit>();
+                highlightedUnit = hit.transform.GetComponent<ClickableTile>().unitOccupyingTile;
+                Unit unit = highlightedUnit.GetComponent<Unit>();
 
                 PrintUnitInfo(unit);
             }
         }
         else if (hit.transform.gameObject.CompareTag("Unit")
-            && hit.transform.parent.gameObject != unitDisplayed)
+            && hit.transform.parent.gameObject != highlightedUnit)
         {
             canvasUnitInfo.enabled = false;
             displayingUnitInfo = false;
@@ -349,7 +353,7 @@ public class GameManager : MonoBehaviour
                 canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;
             }
-            else if (hit.transform.GetComponent<ClickableTile>().unitOccupyingTile != unitDisplayed)
+            else if (hit.transform.GetComponent<ClickableTile>().unitOccupyingTile != highlightedUnit)
             {
                 canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;

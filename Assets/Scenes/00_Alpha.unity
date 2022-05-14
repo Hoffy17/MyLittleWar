@@ -208,7 +208,7 @@ GameObject:
   m_Component:
   - component: {fileID: 25721303}
   m_Layer: 0
-  m_Name: Quad UI Movement Path Container
+  m_Name: Quad UI Unit Path Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1116,12 +1116,11 @@ MonoBehaviour:
   mapUIUnitMoveRange: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
   mapUIUnitPath: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
   mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
-  uIMatGreen: {fileID: 2100000, guid: 8f1379dffd588d2468b8c099c63eb3a0, type: 2}
   uIMatRed: {fileID: 2100000, guid: 9e6908c0998999f45b4e34c225886345, type: 2}
   uIMatBlue: {fileID: 2100000, guid: 142921eea2c045143882021dd82442ec, type: 2}
   tileContainer: {fileID: 861113845}
-  quadUIMovementRangeContainer: {fileID: 1192146740}
-  quadUIMovementPathContainer: {fileID: 25721302}
+  quadUIUnitMoveRangeContainer: {fileID: 1192146740}
+  quadUIUnitPathContainer: {fileID: 25721302}
   quadUICursorContainer: {fileID: 159706754}
 --- !u!4 &792634048
 Transform:
@@ -1582,6 +1581,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: teamNumber
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: attackRange
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
@@ -2123,7 +2126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1192146741}
   m_Layer: 0
-  m_Name: Quad UI Movement Range Container
+  m_Name: Quad UI Unit Move Range Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4154,6 +4157,10 @@ PrefabInstance:
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: lerpSpeed
       value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
+      propertyPath: attackRange
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: unitPortrait
