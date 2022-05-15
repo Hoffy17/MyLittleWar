@@ -155,13 +155,13 @@ public class MapManager : MonoBehaviour
     /// <summary>
     /// Material applied to quads when displaying a unit's attackable tiles.
     /// </summary>
-    [Tooltip("Material applied to quads when displaying a unit's movement range and attackable enemies.")]
+    [Tooltip("Material applied to quads when displaying a unit's attackable tiles.")]
     [SerializeField]
     private Material uIMatRed;
     /// <summary>
     /// Material applied to quads when displaying a unit's movement range.
     /// </summary>
-    [Tooltip("Material applied to quads when displaying a unit that has already moved.")]
+    [Tooltip("Material applied to quads when displaying a unit's movement range.")]
     [SerializeField]
     private Material uIMatBlue;
 
@@ -857,9 +857,9 @@ public class MapManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Disables all renderers for highlighted tiles (i.e. quads) in a unit's movement range, so they can be recalculated and enabled again.
+    /// Disables all renderers for highlighted tiles (i.e. quads) in a unit's movement and attack ranges, so they can be recalculated and enabled again.
     /// </summary>
-    private void DisableQuadUI()
+    private void DisableQuadUIUnitRange()
     {
         //For each highlighted quad in the unit's movement and attack range, turn it off.
         foreach (GameObject quad in quadUIUnitRange)
@@ -908,7 +908,7 @@ public class MapManager : MonoBehaviour
                     && tempSelectedUnit.GetComponent<Unit>().teamNumber == gameManager.currentTeam)
                 {
                     //Turn off any quads that are highlighted.
-                    DisableQuadUI();
+                    DisableQuadUIUnitRange();
 
                     //The unit is now selected.
                     selectedUnit = tempSelectedUnit;
@@ -936,8 +936,8 @@ public class MapManager : MonoBehaviour
             //sound.Play();
             //selectedUnit.GetComponent<Unit>().PlayWalkingAnim();
 
-            //Move the unit to their target tile.
-            MoveUnit();
+            //Move the unit to the next tile in their path.
+            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
             StartCoroutine(FinaliseMovement());
         }
         //If a unit has already finished its move, we want to finish the unit's turn.
@@ -956,7 +956,7 @@ public class MapManager : MonoBehaviour
         if (selectedUnit != null)
         {
             //Turn off any quads that are highlighted.
-            DisableQuadUI();
+            DisableQuadUIUnitRange();
             DisableQuadUIUnitPath();
 
             if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected)
@@ -996,30 +996,39 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns true if the player clicks on a tile that is in the selected unit's movement range.
+    /// </summary>
+    /// <returns></returns>
     private bool CheckTileInMoveRange()
     {
+        //Cast a ray from the cursor's position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit))
         {
+            //If the cursor is casting on to a tile...
             if (hit.transform.gameObject.CompareTag("Tile"))
             {
+                //Get the clicked tile's X and Z map grid positions. 
                 int clickedTileX = hit.transform.GetComponent<ClickableTile>().tileX;
                 int clickedTileZ = hit.transform.GetComponent<ClickableTile>().tileZ;
+                //Look up the clicked tile's node in the 2D graph array.
                 Node clickedNode = graph[clickedTileX, clickedTileZ];
 
-                if (selectedUnitMoveRange.Contains(clickedNode))
+                //If the clicked node is in the selected unit's movement range,
+                //And the node's tile is not occupied by a different unit... 
+                if (selectedUnitMoveRange.Contains(clickedNode) &&
+                    (hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == null ||
+                        hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == selectedUnit))
                 {
-                    if ((hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == null
-                        || hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == selectedUnit)
-                        && selectedUnitMoveRange.Contains(clickedNode))
-                    {
-                        selectedUnit.GetComponent<Unit>().path = GeneratePathTo(clickedTileX, clickedTileZ);
-                        return true;
-                    }
+                    //Start generating a path for the unit and return true.
+                    selectedUnit.GetComponent<Unit>().path = GeneratePathTo(clickedTileX, clickedTileZ);
+                    return true;
                 }
             }
+            //If the cursor is casting onto a unit...
             else if (hit.transform.gameObject.CompareTag("Unit"))
             {
                 //If the player clicks on a unit from the enemy team, return false.
@@ -1034,18 +1043,23 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
+        //If none of the above conditions are met, return false.
         return false;
     }
 
-    private void MoveUnit()
-    {
-        if (selectedUnit != null)
-            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
-    }
+    //private void MoveUnit()
+    //{
+    //    if (selectedUnit != null)
+    //        selectedUnit.GetComponent<Unit>().AdvanceNextTile();
+    //}
 
+    /// <summary>
+    /// Disables highlight quads before allowing the player to choose to attack or wait.
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator FinaliseMovement()
     {
-        DisableQuadUI();
+        DisableQuadUIUnitRange();
         DisableQuadUIUnitPath();
 
         while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
@@ -1055,17 +1069,27 @@ public class MapManager : MonoBehaviour
         //selectedUnit.GetComponent<Unit>().PlaySelectedAnim();
     }
 
+    /// <summary>
+    /// Sets a selected unit to wait, after the unit has finished its attack or the user has set it to wait.
+    /// </summary>
+    /// <param name="attacker">The unit on the current team, which has attacked a unit from the enemy team.</param>
+    /// <param name="defender">The unit not on the current team, which has defended against an attack from the current team.</param>
+    /// <returns></returns>
     private IEnumerator DeselectUnitAfterTurn(GameObject attacker, GameObject defender)
     {
         //SelectSound.Play();
 
+        //Change the unit's movement state to wait. 
         selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
 
-        DisableQuadUI();
+        //Turn off any highlighted quads.
+        DisableQuadUIUnitRange();
         DisableQuadUIUnitPath();
 
+        //Wait a quarter of a second.
         yield return new WaitForSeconds(.25f);
 
+        //Wait for the units to stop attacking.
         while (attacker.GetComponent<Unit>().combatQueue.Count > 0)
             yield return new WaitForEndOfFrame();
         while (defender.GetComponent<Unit>().combatQueue.Count > 0)
