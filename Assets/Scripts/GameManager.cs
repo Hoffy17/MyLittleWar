@@ -640,10 +640,10 @@ public class GameManager : MonoBehaviour
         //Pass the units' stats into the canvas' UI elements.
         imageUnitPortrait.sprite = unit.portrait;
         textUnitName.SetText(unit.name);
-        textUnitHealth.SetText(unit.currentHealth.ToString());
-        textUnitAttackDamage.SetText(unit.attackDamage.ToString());
-        textUnitAttackRange.SetText(unit.attackRange.ToString());
-        textUnitMoveSpeed.SetText(unit.moveSpeed.ToString());
+        textUnitHealth.SetText("HP: " + unit.currentHealth.ToString());
+        textUnitAttackDamage.SetText("Atk: " + unit.attackDamage.ToString());
+        textUnitAttackRange.SetText("Range: " + unit.attackRange.ToString());
+        textUnitMoveSpeed.SetText("Mov: " + unit.moveSpeed.ToString());
     }
 
     /// <summary>
