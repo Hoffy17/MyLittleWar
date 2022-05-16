@@ -36,20 +36,12 @@ public class Unit : MonoBehaviour
 
     [Header("Movement")]
 
-    /// <summary>
-    /// The number of tiles that this unit can move in one turn.
-    /// </summary>
     [Tooltip("The number of tiles that this unit can move in one turn.")]
     [SerializeField]
     public int moveSpeed;
-    /// <summary>
-    /// The number of moves that this unit has remaining in any one turn.
-    /// </summary>
+    [Tooltip("The number of moves that this unit has remaining in any one turn.")]
     [NonSerialized]
     private float remainingMoves;
-    /// <summary>
-    /// The speed at which this unit will move from one tile to another.
-    /// </summary>
     [Tooltip("The speed at which this unit will move from one tile to another.")]
     [SerializeField]
     public float lerpSpeed;
@@ -73,6 +65,11 @@ public class Unit : MonoBehaviour
     public Animator animator;
 
     [SerializeField]
+    public Material unitMat;
+    [SerializeField]
+    private Material unitMatWait;
+
+    [SerializeField]
     public GameObject particleDamage;
 
     [Header("UI")]
@@ -93,17 +90,9 @@ public class Unit : MonoBehaviour
 
     [Header("Map Grid Position")]
 
-    /// <summary>
-    /// The unit's position on the map grid's X axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
     [Tooltip("The unit's position on the map grid's X axis.")]
     [SerializeField]
     public int tileX;
-    /// <summary>
-    /// The unit's position on the map grid's Z axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
     [Tooltip("The unit's position on the map grid's Z axis.")]
     [SerializeField]
     public int tileZ;
@@ -111,18 +100,13 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public GameObject occupiedTile;
 
-    /// <summary>
-    /// The map grid on which this unit is moving.
-    /// </summary>
     [Tooltip("The map grid on which this unit is moving.")]
     [HideInInspector]
     public MapManager map;
 
     [Header("Pathfinding")]
 
-    /// <summary>
-    /// The list of pathfinding <see cref="Node"/>s that the unit will move through to reach its destination.
-    /// </summary>
+    [Tooltip("The list of pathfinding nodes that the unit will move through to reach its destination.")]
     public List<Node> path;
     public List<Node> movementPath;
     public bool moveCompleted = false;
@@ -240,17 +224,19 @@ public class Unit : MonoBehaviour
         UpdateHealthUI();
     }
 
+    /// <summary>
+    /// Changes the unit's material, to show that it has finished its turn.
+    /// </summary>
     public void Wait()
     {
-        //gameObject.GetComponentInChildren<Renderer>().material = unitMatWait;
+        gameObject.GetComponentInChildren<Renderer>().material = unitMatWait;
     }
 
     public void Die()
     {
         if (mesh.activeSelf)
         {
-            combatQueue.Enqueue(1);
-
+            StartCoroutine(FadeOutUnit());
             StartCoroutine(DelayDeath());
         }
     }
@@ -307,7 +293,7 @@ public class Unit : MonoBehaviour
         tileX = endNode.x;
         tileZ = endNode.z;
 
-        occupiedTile.GetComponent<ClickableTile>().unitOccupyingTile = null;
+        occupiedTile.GetComponent<Tile>().unitOccupyingTile = null;
         occupiedTile = map.mapTiles[tileX, tileZ];
 
         movementQueue.Dequeue();
@@ -331,6 +317,22 @@ public class Unit : MonoBehaviour
             damageBar.GetComponent<Image>().color = barColour;
             damageText.color = textColour;
 
+            yield return new WaitForEndOfFrame();
+        }
+
+        combatQueue.Dequeue();
+    }
+
+    public IEnumerator FadeOutUnit()
+    {
+        combatQueue.Enqueue(1);
+        Renderer rend = GetComponentInChildren<Renderer>();
+
+        for (float f = 1f; f >= .05; f -= 0.01f)
+        {
+            Color colour = rend.material.color;
+            colour.a = f;
+            rend.material.color = colour;
             yield return new WaitForEndOfFrame();
         }
 

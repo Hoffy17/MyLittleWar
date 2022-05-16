@@ -587,16 +587,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamNumber: 0
-  unitName: 
+  portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  unitName: Infantry
   attackDamage: 3
   attackRange: 1
   totalHealth: 5
   currentHealth: 0
   moveSpeed: 5
-  lerpSpeed: 5
+  lerpSpeed: 0.15
   movementState: 0
   mesh: {fileID: 5882035700205779719}
   animator: {fileID: 0}
+  unitMat: {fileID: 0}
+  unitMatWait: {fileID: 2100000, guid: 8aba690f865090c4f8c4516cb06cf9e6, type: 2}
   particleDamage: {fileID: 0}
   healthBarCanvas: {fileID: 5882035701292606493}
   healthText: {fileID: 6346400297158733304}
@@ -713,7 +716,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5882035701292606489}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.5}
+  m_LocalPosition: {x: 0, y: 0, z: -0.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5882035700629801223}
@@ -722,7 +725,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -0.4, y: 1}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &5882035701292606493

@@ -6,32 +6,19 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// A tile that makes up the game's map grid.
 /// </summary>
-public class ClickableTile : MonoBehaviour
+public class Tile : MonoBehaviour
 {
     #region Declarations
 
-    /// <summary>
-    /// The tile's position on the map grid's X axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
     [Tooltip("The tile's position on the map grid's X axis.")]
     [HideInInspector]
     public int tileX;
-    /// <summary>
-    /// The tile's position on the map grid's Z axis.
-    /// This is different to its position in worldspace.
-    /// </summary>
     [Tooltip("The tile's position on the map grid's Z axis.")]
     [HideInInspector]
     public int tileZ;
-    /// <summary>
-    /// The unit that is currently occupying this tile object.
-    /// </summary>
+    [Tooltip("The unit that is currently occupying this tile object.")]
     [HideInInspector]
     public GameObject unitOccupyingTile;
-    /// <summary>
-    /// The map grid on which this tile is placed.
-    /// </summary>
     [Tooltip("The map grid on which this tile is placed.")]
     [HideInInspector]
     public MapManager map;

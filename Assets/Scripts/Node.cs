@@ -9,17 +9,11 @@ public class Node
 {
     #region Declarations
 
-    /// <summary>
-    /// A list of nodes that are neighbouring another node.
-    /// </summary>
+    [Tooltip("A list of nodes that are neighbouring another node.")]
     public List<Node> neighbours;
-    /// <summary>
-    /// The node's position on the map grid's X axis.
-    /// </summary>
+    [Tooltip("The node's position on the map grid's X axis.")]
     public int x;
-    /// <summary>
-    /// The node's position on the map grid's Z axis.
-    /// </summary>
+    [Tooltip("The node's position on the map grid's Z axis.")]
     public int z;
 
     #endregion

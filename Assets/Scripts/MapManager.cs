@@ -11,140 +11,81 @@ public class MapManager : MonoBehaviour
     #region Declarations
 
     [Header("Components")]
-    /// <summary>
-    /// The GameManager script.
-    /// </summary>
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
-    /// <summary>
-    /// The BattleManager script.
-    /// </summary>
     [Tooltip("The BattleManager script.")]
     [SerializeField]
     private BattleManager battleManager;
 
     [Header("Map Data")]
-    /// <summary>
-    /// A 2D array of the different types of tiles that can generate on the map, e.g. grass, forest, mountain, etc.
-    /// </summary>
     [Tooltip("The different kinds of tiles that can generate on the map, e.g. grass, forest, mountain, etc.")]
     [SerializeField]
     public TileType[] tileTypes;
-    /// <summary>
-    /// The number of tiles generated on the map grid's X axis.
-    /// </summary>
     [Tooltip("The number of tiles generated on the map grid's X axis.")]
     [SerializeField]
     public int mapSizeX = 10;
-    /// <summary>
-    /// The number of tiles generated on the map grid's Z axis.
-    /// </summary>
     [Tooltip("The number of tiles generated on the map grid's Z axis.")]
     [SerializeField]
     public int mapSizeZ = 10;
-    /// <summary>
-    /// A 2D array that represents the number of tiles in the map grid.
-    /// </summary>
+    [Tooltip("A 2D array that represents the number of tiles in the map grid.")]
     [NonSerialized]
     private int[,] tiles;
-    /// <summary>
-    /// A 2D array of <see cref="Node"/>s that represents all of the map grid tiles that a unit can create a path to.
-    /// </summary>
+    [Tooltip(" A 2D array of nodes that represents all of the map grid tiles that a unit can create a path to.")]
     [HideInInspector]
     public Node[,] graph;
-    /// <summary>
-    ///A list of <see cref="Node"/>s that represent a path from one map grid position to another.
-    /// </summary>
+    [Tooltip("A list of nodes that represent a path from one map grid position to another.")]
     [NonSerialized]
     private List<Node> currentPath = null;
 
     [Header("Map Game Objects")]
-    /// <summary>
-    /// The units that are currently on the map. This is used to set tiles that are currently occupied.
-    /// </summary>
     [Tooltip("The units that are currently on the map. This is used to set tiles that are currently occupied.")]
     [SerializeField]
     private GameObject mapUnits;
-    /// <summary>
-    /// A 2D array containing the list of tile game objects on the map.
-    /// </summary>
     [Tooltip("A 2D array containing the list of tile game objects on the map.")]
     [HideInInspector]
     public GameObject[,] mapTiles;
 
     [Header("Selected Unit")]
-    /// <summary>
-    /// The current unit that has been clicked on.
-    /// </summary>
     [Tooltip("The current unit that has been clicked on.")]
     [HideInInspector]
     public GameObject selectedUnit;
-    /// <summary>
-    /// A container of <see cref="Node"/>s representing a selected unit's movement range.
-    /// Based on the unit's move speed and any attackable enemies within this range.
-    /// </summary>
+    [Tooltip("A container of nodes representing a selected unit's movement range, based on the unit's move speed and any attackable enemies within this range.")]
     [HideInInspector]
     public HashSet<Node> selectedUnitMoveRange;
     //[SerializeField]
     //private HashSet<Node> selectedUnitMoveRangeTotal;
-    /// <summary>
-    /// Checks whether or not the player has selected a unit.
-    /// </summary>
+    [Tooltip("Checks whether or not the player has selected a unit.")]
     [NonSerialized]
     private bool unitSelected;
-    /// <summary>
-    /// The selected unit's previous map grid position on the X axis.
-    /// </summary>
+    [Tooltip("The selected unit's previous map grid position on the X axis.")]
     [NonSerialized]
     private int unitSelectedPrevX;
-    /// <summary>
-    /// The selected unit's previous map grid position on the Z axis.
-    /// </summary>
+    [Tooltip("The selected unit's previous map grid position on the Z axis.")]
     [NonSerialized]
     private int unitSelectedPrevZ;
-    /// <summary>
-    /// The previous tile that the selected unit was occupying.
-    /// </summary>
+    [Tooltip("The previous tile that the selected unit was occupying.")]
     [NonSerialized]
     private GameObject unitSelectedPrevTile;
 
     [Header("Quad UI")]
-    /// <summary>
-    /// A 2D array of quads that are activated to highlight a unit's movement range and attackable enemies.
-    /// </summary> 
     [Tooltip("A 2D array of quads that are activated to highlight a unit's movement range and attackable enemies.")]
     [SerializeField]
     private GameObject[,] quadUIUnitRange;
-    /// <summary>
-    /// A 2D array of quads that are activated to highlight a unit's proposed movement path.
-    /// </summary>
     [Tooltip("A 2D array of quads that are activated to highlight a unit's proposed movement path.")]
     [HideInInspector]
     public GameObject[,] quadUIUnitPath;
-    /// <summary>
-    /// A 2D array of quads that are activated to highlight a single tile that the cursor is raycasting to.
-    /// </summary>
-    [HideInInspector]
     [Tooltip("A 2D array of quads that are activated to highlight a single tile that the cursor is raycasting to.")]
+    [HideInInspector]
     public GameObject[,] quadUICursor;
 
     [Header("Map UI")]
-    /// <summary>
-    /// The quad prefab that is instantiated to highlight a unit's movement range and attackable enemies.
-    /// </summary>
     [Tooltip("The quad prefab that is instantiated to highlight a unit's movement range and attackable enemies.")]
     [SerializeField]
     private GameObject mapUIUnitRange;
-    /// <summary>
-    /// The quad prefab that is instantiated to highlight a unit's proposed movement path.
-    /// </summary>
     [Tooltip("The quad prefab that is instantiated to highlight a unit's proposed movement path.")]
     [SerializeField]
     private GameObject mapUIUnitPath;
-    /// <summary>
-    /// The quad prefab that is instantiated to highlight a single tile that the cursor is raycasting to.
-    /// </summary>
     [Tooltip("The quad prefab that is instantiated to highlight a single tile that the cursor is raycasting to.")]
     [SerializeField]
     private GameObject mapUICursor;
@@ -152,41 +93,23 @@ public class MapManager : MonoBehaviour
     [Header("UI Materials")]
     //[SerializeField]
     //private Material uIMatGreen;
-    /// <summary>
-    /// Material applied to quads when displaying a unit's attackable tiles.
-    /// </summary>
     [Tooltip("Material applied to quads when displaying a unit's attackable tiles.")]
     [SerializeField]
     private Material uIMatRed;
-    /// <summary>
-    /// Material applied to quads when displaying a unit's movement range.
-    /// </summary>
     [Tooltip("Material applied to quads when displaying a unit's movement range.")]
     [SerializeField]
     private Material uIMatBlue;
 
     [Header("Containers")]
-    /// <summary>
-    /// A container for the instantiated map grid tiles, used to keep the hierarchy clean and readable.
-    /// </summary>
     [Tooltip("A container for the instantiated map grid tiles, used to keep the hierarchy clean and readable.")]
     [SerializeField]
     private GameObject tileContainer;
-    /// <summary>
-    /// A container for the instantiated movement and attack range quads, used to keep the hierarchy clean and readable.
-    /// </summary>
     [Tooltip("A container for the instantiated movement and attack range quads, used to keep the hierarchy clean and readable.")]
     [SerializeField]
     private GameObject quadUIUnitRangeContainer;
-    /// <summary>
-    /// A container for the instantiated movement path quads, used to keep the hierarchy clean and readable.
-    /// </summary>
     [Tooltip("A container for the instantiated movement path quads, used to keep the hierarchy clean and readable.")]
     [SerializeField]
     private GameObject quadUIUnitPathContainer;
-    /// <summary>
-    /// A container for the instantiated cursor highlight quads, used to keep the hierarchy clean and readable.
-    /// </summary>
     [Tooltip("A container for the instantiated cursor highlight quads, used to keep the hierarchy clean and readable.")]
     [SerializeField]
     private GameObject quadUICursorContainer;
@@ -212,7 +135,10 @@ public class MapManager : MonoBehaviour
     {
         //On left-mouse click, select units and/or tiles.
         if (Input.GetMouseButtonDown(0))
+        {
             Select();
+            //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
+        }
 
         //On right-mouse click, deselect units.
         if (Input.GetMouseButtonDown(1))
@@ -263,25 +189,48 @@ public class MapManager : MonoBehaviour
         }
 
         #region Hard-Coded Terrain
-        ////Forest
-        //for (x = 3; x <= 5; x++)
-        //{
-        //    for (z = 0; z < 4; z++)
-        //    {
-        //        tiles[x, z] = 1;
-        //    }
-        //}
+        //Obviously this isn't the best way to do this.
 
-        ////Mountain Range
-        //tiles[4, 4] = 2;
-        //tiles[5, 4] = 2;
-        //tiles[6, 4] = 2;
-        //tiles[7, 4] = 2;
-        //tiles[8, 4] = 2;
-        //tiles[4, 5] = 2;
-        //tiles[4, 6] = 2;
-        //tiles[8, 5] = 2;
-        //tiles[8, 6] = 2;
+        //1 = Forest
+        //2 = Mountain
+
+        //Forest
+        tiles[0, 1] = 1;
+        tiles[0, 7] = 1;
+        tiles[1, 0] = 1;
+        tiles[1, 7] = 1;
+        tiles[1, 8] = 1;
+        tiles[2, 8] = 1;
+        tiles[2, 9] = 1;
+        tiles[3, 0] = 1;
+        tiles[3, 4] = 1;
+        tiles[4, 2] = 1;
+        tiles[4, 6] = 1;
+        tiles[5, 0] = 1;
+        tiles[5, 3] = 1;
+        tiles[5, 5] = 1;
+        tiles[5, 7] = 1;
+        tiles[6, 0] = 1;
+        tiles[6, 3] = 1;
+        tiles[6, 6] = 1;
+        tiles[7, 8] = 1;
+        tiles[7, 9] = 1;
+        tiles[8, 0] = 1;
+        tiles[9, 0] = 1;
+
+        //Mountain Range
+        tiles[0, 0] = 2;
+        tiles[0, 8] = 2;
+        tiles[0, 9] = 2;
+        tiles[1, 9] = 2;
+        tiles[4, 0] = 2;
+        tiles[4, 7] = 2;
+        tiles[5, 2] = 2;
+        tiles[5, 6] = 2;
+        tiles[6, 9] = 2;
+        tiles[7, 0] = 2;
+        tiles[8, 9] = 2;
+
         #endregion
     }
 
@@ -394,7 +343,7 @@ public class MapManager : MonoBehaviour
                 GameObject gridUICursor = Instantiate(mapUICursor, new Vector3(x, 0.503f, z), Quaternion.Euler(90f, 0, 0));
 
                 //Get the MonoBehaviour script attached to an instantiated tile.
-                ClickableTile clickableTile = newTile.GetComponent<ClickableTile>();
+                Tile clickableTile = newTile.GetComponent<Tile>();
                 //For each instantiated tile, assign its map grid position in the 2D array.
                 clickableTile.tileX = x;
                 clickableTile.tileZ = z;
@@ -589,8 +538,8 @@ public class MapManager : MonoBehaviour
         //Check a unit's type against terrain flags here if necessary.
 
         //If the target tile is currently occupied by an enemy unit...
-        if (mapTiles[x, z].GetComponent<ClickableTile>().unitOccupyingTile != null &&
-            mapTiles[x, z].GetComponent<ClickableTile>().unitOccupyingTile.GetComponent<Unit>().teamNumber !=
+        if (mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile != null &&
+            mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile.GetComponent<Unit>().teamNumber !=
                 selectedUnit.GetComponent<Unit>().teamNumber)
             //The unit cannot enter the tile.
             return false;
@@ -639,7 +588,7 @@ public class MapManager : MonoBehaviour
         //    }
 
         //Finally, highlight the selected unit's movement range and attackable enemies.
-        HighlightAttackableEnemies(enemiesInRange);
+        HighlightAttackRange(enemiesInRange);
         HighlightMovementRange(movementRange);
 
         selectedUnitMoveRange = movementRange;
@@ -846,7 +795,7 @@ public class MapManager : MonoBehaviour
     /// Turns on the quads in the 2D map grid array that represent the selected unit's attackable nodes.
     /// </summary>
     /// <param name="attackableEnemies"></param>
-    private void HighlightAttackableEnemies(HashSet<Node> attackableEnemies)
+    private void HighlightAttackRange(HashSet<Node> attackableEnemies)
     {
         //For each node in the selected unit's attack range, turn on the highlight quads.
         foreach (Node node in attackableEnemies)
@@ -898,10 +847,10 @@ public class MapManager : MonoBehaviour
             //And if the cursor is currently highlighting a tile that is occupied by a unit...
             if (unitSelected == false
                 && gameManager.highlightedTile != null
-                && gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile != null)
+                && gameManager.highlightedTile.GetComponent<Tile>().unitOccupyingTile != null)
             {
                 //Store that unit in a temporary game object.
-                GameObject tempSelectedUnit = gameManager.highlightedTile.GetComponent<ClickableTile>().unitOccupyingTile;
+                GameObject tempSelectedUnit = gameManager.highlightedTile.GetComponent<Tile>().unitOccupyingTile;
 
                 //If that unit is unselected and it is on the current player's team...
                 if (tempSelectedUnit.GetComponent<Unit>().movementState == MovementState.Unselected
@@ -943,7 +892,7 @@ public class MapManager : MonoBehaviour
         //If a unit has already finished its move, we want to finish the unit's turn.
         else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Moved)
         {
-            FinaliseUnitTurn();
+            WaitOrAttack();
         }
     }
 
@@ -978,9 +927,9 @@ public class MapManager : MonoBehaviour
             {
                 //Set the selected unit's current map grid position as unoccupied.
                 mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
-                    .GetComponent<ClickableTile>().unitOccupyingTile = null;
+                    .GetComponent<Tile>().unitOccupyingTile = null;
                 //Set the selected unit's previous map grid position as the occupied tile.
-                mapTiles[unitSelectedPrevX, unitSelectedPrevZ].GetComponent<ClickableTile>().unitOccupyingTile = selectedUnit;
+                mapTiles[unitSelectedPrevX, unitSelectedPrevZ].GetComponent<Tile>().unitOccupyingTile = selectedUnit;
 
                 //Return the unit to its previous map grid position.
                 selectedUnit.GetComponent<Unit>().tileX = unitSelectedPrevX;
@@ -1012,16 +961,16 @@ public class MapManager : MonoBehaviour
             if (hit.transform.gameObject.CompareTag("Tile"))
             {
                 //Get the clicked tile's X and Z map grid positions. 
-                int clickedTileX = hit.transform.GetComponent<ClickableTile>().tileX;
-                int clickedTileZ = hit.transform.GetComponent<ClickableTile>().tileZ;
+                int clickedTileX = hit.transform.GetComponent<Tile>().tileX;
+                int clickedTileZ = hit.transform.GetComponent<Tile>().tileZ;
                 //Look up the clicked tile's node in the 2D graph array.
                 Node clickedNode = graph[clickedTileX, clickedTileZ];
 
                 //If the clicked node is in the selected unit's movement range,
                 //And the node's tile is not occupied by a different unit... 
                 if (selectedUnitMoveRange.Contains(clickedNode) &&
-                    (hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == null ||
-                        hit.transform.gameObject.GetComponent<ClickableTile>().unitOccupyingTile == selectedUnit))
+                    (hit.transform.gameObject.GetComponent<Tile>().unitOccupyingTile == null ||
+                        hit.transform.gameObject.GetComponent<Tile>().unitOccupyingTile == selectedUnit))
                 {
                     //Start generating a path for the unit and return true.
                     selectedUnit.GetComponent<Unit>().path = GeneratePathTo(clickedTileX, clickedTileZ);
@@ -1098,89 +1047,121 @@ public class MapManager : MonoBehaviour
         DeselectUnit();
     }
 
+    /// <summary>
+    /// Sets the unit's tile as occupied after moving, and sets them up to attack.
+    /// </summary>
     private void FinaliseMovementPos()
     {
+        //Set the selected unit's tile as occupied by the selected unit.
         mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
-            .GetComponent<ClickableTile>().unitOccupyingTile = selectedUnit;
+            .GetComponent<Tile>().unitOccupyingTile = selectedUnit;
 
+        //Set the selected unit's state to moved.
         selectedUnit.GetComponent<Unit>().movementState = MovementState.Moved;
 
+        //Highlight the selected unit's atttackable tiles.
         if (selectedUnit != null)
         {
-            HighlightAttackableEnemies(GetEnemiesAttackable());
+            HighlightAttackRange(GetEnemiesAttackable());
             HighlightMovementRange(GetOccupiedTile());
         }
     }
 
+    /// <summary>
+    /// Sets all tiles that are occupied by units as occupied.
+    /// </summary>
     private void SetTileOccupied()
     {
+        //For each unit in each team...
         foreach (Transform team in mapUnits.transform)
         {
             foreach (Transform unit in team)
             {
+                //Get the unit's X and Z map grid positions.
                 int unitTileX = unit.GetComponent<Unit>().tileX;
                 int unitTileZ = unit.GetComponent<Unit>().tileZ;
 
+                //Set the unit's occupied tile as their map grid position.
                 unit.GetComponent<Unit>().occupiedTile = mapTiles[unitTileX, unitTileZ];
 
-                mapTiles[unitTileX, unitTileZ].GetComponent<ClickableTile>().unitOccupyingTile = unit.gameObject;
+                //Set their unit's map grid position as occupied by the unit.
+                mapTiles[unitTileX, unitTileZ].GetComponent<Tile>().unitOccupyingTile = unit.gameObject;
             }
         }
     }
 
-    private void FinaliseUnitTurn()
+    /// <summary>
+    /// This function controls the player's choice after moving a unit, i.e. waiting or attacking.
+    /// </summary>
+    private void WaitOrAttack()
     {
+        //Raycast the cursor's position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
+        //Create a container of the selected unit's attack range.
         HashSet<Node> attackableTiles = GetEnemiesAttackable();
 
         if (Physics.Raycast(ray, out hit))
         {
+            //If the cursor casts to a tile occupied by a unit...
             if (hit.transform.gameObject.CompareTag("Tile")
-                && hit.transform.GetComponent<ClickableTile>().unitOccupyingTile != null)
+                && hit.transform.GetComponent<Tile>().unitOccupyingTile != null)
             {
-                GameObject unit = hit.transform.GetComponent<ClickableTile>().unitOccupyingTile;
+                //Get the unit occupying that tile and their map grid position.
+                GameObject unit = hit.transform.GetComponent<Tile>().unitOccupyingTile;
                 int unitX = unit.GetComponent<Unit>().tileX;
                 int unitZ = unit.GetComponent<Unit>().tileZ;
 
+                //If that unit is the selected unit...
                 if (unit == selectedUnit)
                 {
+                    //Disable highlight quads showing their movement path.
                     DisableQuadUIUnitPath();
 
+                    //Set the selected unit to wait and deselect the unit.
                     selectedUnit.GetComponent<Unit>().Wait();
                     //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
                 }
+                //If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
                     && attackableTiles.Contains(graph[unitX, unitZ])
                     && unit.GetComponent<Unit>().currentHealth > 0)
                 {
+                    //Commence the selected unit's attack on the enemy unit, and deselect the unit.
                     StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
                     StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
                 }
             }
+            //If the cursor casts to a unit...
             else if (hit.transform.parent != null
                 && hit.transform.parent.gameObject.CompareTag("Unit"))
             {
+                //Get the unit's map grid position.
                 GameObject unit = hit.transform.parent.gameObject;
                 int unitX = unit.GetComponent<Unit>().tileX;
                 int unitZ = unit.GetComponent<Unit>().tileZ;
 
+                //If the unit is the selected unit...
                 if (unit == selectedUnit)
                 {
+                    //Disable highlight quads showing their movement path.
                     DisableQuadUIUnitPath();
 
+                    //Set the selected unit to wait and deselect the unit.
                     selectedUnit.GetComponent<Unit>().Wait();
                     //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
                 }
+                //If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
                     && attackableTiles.Contains(graph[unitX, unitZ])
                     && unit.GetComponent<Unit>().currentHealth > 0)
                 {
+                    //Commence the selected unit's attack on the enemy unit, and deselect the unit.
                     StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
                     StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
                 }
@@ -1196,8 +1177,8 @@ public class MapManager : MonoBehaviour
     /// <summary>
     /// Converts any map grid position into Unity worldspace.
     /// </summary>
-    /// <param name="x"></param>
-    /// <param name="z"></param>
+    /// <param name="x">The tile's X grid position to be converted into Unity worldspace.</param>
+    /// <param name="z">The tile's Z grid position to be converted into Unity worldspace.</param>
     /// <returns></returns>
     public Vector3 GetTileWorldSpace(int x, int z)
     {

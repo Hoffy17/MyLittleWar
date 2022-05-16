@@ -2,8 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Shakes the screen when a unit attacks another unit.
+/// </summary>
 public class CameraShake : MonoBehaviour
 {
+    //Shakes the screen when a unit attacks another unit.
     public IEnumerator ShakeCamera(float duration, float strength, Vector3 direction)
     {
         float tempStrength = strength;
@@ -29,5 +33,7 @@ public class CameraShake : MonoBehaviour
 
             yield return new WaitForEndOfFrame();
         }
+
+        transform.position = startPos;
     }
 }
