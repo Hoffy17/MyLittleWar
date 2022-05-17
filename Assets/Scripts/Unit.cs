@@ -17,7 +17,7 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public Sprite portrait;
     [SerializeField]
-    private string unitName;
+    public string unitName;
     [SerializeField]
     public int attackDamage = 1;
     [SerializeField]
@@ -109,6 +109,7 @@ public class Unit : MonoBehaviour
     [Tooltip("The list of pathfinding nodes that the unit will move through to reach its destination.")]
     public List<Node> path;
     public List<Node> movementPath;
+    [HideInInspector]
     public bool moveCompleted = false;
 
     #endregion
@@ -138,7 +139,7 @@ public class Unit : MonoBehaviour
     private void LateUpdate()
     {
         healthBarCanvas.transform.forward = Camera.main.transform.forward;
-        mesh.transform.forward = Camera.main.transform.forward;
+        damageCanvas.transform.forward = Camera.main.transform.forward;
     }
 
     //private void Update()
@@ -306,7 +307,7 @@ public class Unit : MonoBehaviour
         damageText.SetText(damage.ToString());
         damageCanvas.enabled = true;
 
-        for (float f = 1f; f >= -0.01f; f -= 0.01f)
+        for (float f = 2f; f >= -0.01f; f -= 0.01f)
         {
             Color barColour = damageBar.GetComponent<Image>().color;
             Color textColour = damageText.color;

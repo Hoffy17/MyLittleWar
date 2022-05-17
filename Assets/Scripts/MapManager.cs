@@ -29,8 +29,8 @@ public class MapManager : MonoBehaviour
     [SerializeField]
     public int mapSizeZ = 10;
     [Tooltip("A 2D array that represents the number of tiles in the map grid.")]
-    [NonSerialized]
-    private int[,] tiles;
+    [HideInInspector]
+    public int[,] tiles;
     [Tooltip(" A 2D array of nodes that represents all of the map grid tiles that a unit can create a path to.")]
     [HideInInspector]
     public Node[,] graph;
@@ -193,6 +193,7 @@ public class MapManager : MonoBehaviour
 
         //1 = Forest
         //2 = Mountain
+        //3 = Base
 
         //Forest
         tiles[0, 1] = 1;
@@ -230,6 +231,9 @@ public class MapManager : MonoBehaviour
         tiles[6, 9] = 2;
         tiles[7, 0] = 2;
         tiles[8, 9] = 2;
+
+        //Base
+        tiles[9, 4] = 3;
 
         #endregion
     }
@@ -1019,12 +1023,12 @@ public class MapManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets a selected unit to wait, after the unit has finished its attack or the user has set it to wait.
+    /// Sets a selected unit to wait, after the unit has finished its attack.
     /// </summary>
     /// <param name="attacker">The unit on the current team, which has attacked a unit from the enemy team.</param>
     /// <param name="defender">The unit not on the current team, which has defended against an attack from the current team.</param>
     /// <returns></returns>
-    private IEnumerator DeselectUnitAfterTurn(GameObject attacker, GameObject defender)
+    private IEnumerator DeselectUnitAfterAttack(GameObject attacker, GameObject defender)
     {
         //SelectSound.Play();
 
@@ -1045,6 +1049,7 @@ public class MapManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         DeselectUnit();
+        CheckTeamWaiting();
     }
 
     /// <summary>
@@ -1124,6 +1129,7 @@ public class MapManager : MonoBehaviour
                     //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
+                    CheckTeamWaiting();
                 }
                 //If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
@@ -1132,7 +1138,7 @@ public class MapManager : MonoBehaviour
                 {
                     //Commence the selected unit's attack on the enemy unit, and deselect the unit.
                     StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
-                    StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
+                    StartCoroutine(DeselectUnitAfterAttack(selectedUnit, unit));
                 }
             }
             //If the cursor casts to a unit...
@@ -1155,6 +1161,7 @@ public class MapManager : MonoBehaviour
                     //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
+                    CheckTeamWaiting();
                 }
                 //If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
@@ -1163,10 +1170,30 @@ public class MapManager : MonoBehaviour
                 {
                     //Commence the selected unit's attack on the enemy unit, and deselect the unit.
                     StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
-                    StartCoroutine(DeselectUnitAfterTurn(selectedUnit, unit));
+                    StartCoroutine(DeselectUnitAfterAttack(selectedUnit, unit));
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Automatically ends the player's turn, if every unit on the player's team has finished their move.
+    /// </summary>
+    private void CheckTeamWaiting()
+    {
+        bool teamWaiting = true;
+
+        foreach (Transform unit in gameManager.GetCurrentTeam(gameManager.currentTeam).transform)
+        {
+            if (unit.GetComponent<Unit>().movementState != MovementState.Waiting)
+            {
+                teamWaiting = false;
+                break;
+            }
+        }
+
+        if (teamWaiting)
+            gameManager.EndTurn();
     }
 
     #endregion

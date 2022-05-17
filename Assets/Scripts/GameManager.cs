@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int numberOfTeams = 2;
     [Tooltip("The current player who's turn it is to move units and attack.")]
-    [SerializeField]
+    [HideInInspector]
     public int currentTeam;
 
     //[SerializeField]
@@ -300,7 +300,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="teamNumber">The index of the current team.</param>
     /// <returns></returns>
-    private GameObject GetCurrentTeam(int teamNumber)
+    public GameObject GetCurrentTeam(int teamNumber)
     {
         GameObject team = null;
 
@@ -639,7 +639,7 @@ public class GameManager : MonoBehaviour
 
         //Pass the units' stats into the canvas' UI elements.
         imageUnitPortrait.sprite = unit.portrait;
-        textUnitName.SetText(unit.name);
+        textUnitName.SetText(unit.unitName.ToString());
         textUnitHealth.SetText("HP: " + unit.currentHealth.ToString());
         textUnitAttackDamage.SetText("Atk: " + unit.attackDamage.ToString());
         textUnitAttackRange.SetText("Range: " + unit.attackRange.ToString());

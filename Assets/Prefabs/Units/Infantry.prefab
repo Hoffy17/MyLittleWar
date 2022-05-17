@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 5038710109843897815}
   - component: {fileID: 4757970823430236443}
   - component: {fileID: 7150138212548110823}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Damage Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 7491815598132405470}
   - component: {fileID: 612417060927677754}
   - component: {fileID: 6850705163909957732}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Damage Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 4920694128797087516}
   - component: {fileID: 4365487961092557802}
   - component: {fileID: 5935860767160565932}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Damage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -552,7 +552,7 @@ GameObject:
   - component: {fileID: 5882035700250922299}
   - component: {fileID: 5882035700250922298}
   m_Layer: 0
-  m_Name: Unit
+  m_Name: Infantry
   m_TagString: Unit
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -589,7 +589,7 @@ MonoBehaviour:
   teamNumber: 0
   portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   unitName: Infantry
-  attackDamage: 3
+  attackDamage: 2
   attackRange: 1
   totalHealth: 5
   currentHealth: 0
@@ -716,7 +716,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5882035701292606489}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.4}
+  m_LocalPosition: {x: 0, y: 0, z: -0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5882035700629801223}
@@ -725,7 +725,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.4, y: 1}
+  m_AnchoredPosition: {x: -0.25, y: 1}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &5882035701292606493
