@@ -176,7 +176,7 @@ public class BattleManager : MonoBehaviour
         Vector3 startPos = attacker.transform.position;
         Vector3 endPos = defender.transform.position;
 
-        //attacker.GetComponent<Unit>().PlayWalkAnim();
+        attacker.GetComponent<Unit>().SetAnimMoving();
 
         while (elapsedTime < 0.25f)
         {
@@ -237,7 +237,7 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        //attacker.GetComponent<Unit>().PlayIdleAnim();
+        attacker.GetComponent<Unit>().SetAnimIdle();
         attacker.GetComponent<Unit>().Wait();
     }
 

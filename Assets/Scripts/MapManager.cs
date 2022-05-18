@@ -152,7 +152,7 @@ public class MapManager : MonoBehaviour
                     && selectedUnit.GetComponent<Unit>().movementState != MovementState.Waiting)
                 {
                     //sound.Play();
-                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+                    selectedUnit.GetComponent<Unit>().SetAnimIdle();
 
                     //Deselect the unit.
                     DeselectUnit();
@@ -869,7 +869,7 @@ public class MapManager : MonoBehaviour
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Selected;
                     unitSelected = true;
 
-                    //selectedUnit.GetComponent<Unit>().animator.SetTrigger("Selected");
+                    selectedUnit.GetComponent<Unit>().SetAnimSelected();
 
                     //Highlight the unit's movement range.
                     MovementRange();
@@ -887,7 +887,7 @@ public class MapManager : MonoBehaviour
             unitSelectedPrevTile = selectedUnit.GetComponent<Unit>().occupiedTile;
 
             //sound.Play();
-            //selectedUnit.GetComponent<Unit>().PlayWalkingAnim();
+            selectedUnit.GetComponent<Unit>().SetAnimMoving();
 
             //Move the unit to the next tile in their path.
             selectedUnit.GetComponent<Unit>().AdvanceNextTile();
@@ -1019,7 +1019,7 @@ public class MapManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         FinaliseMovementPos();
-        //selectedUnit.GetComponent<Unit>().PlaySelectedAnim();
+        selectedUnit.GetComponent<Unit>().SetAnimSelected();
     }
 
     /// <summary>
@@ -1126,7 +1126,7 @@ public class MapManager : MonoBehaviour
 
                     //Set the selected unit to wait and deselect the unit.
                     selectedUnit.GetComponent<Unit>().Wait();
-                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+                    selectedUnit.GetComponent<Unit>().SetAnimIdle();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
                     CheckTeamWaiting();
@@ -1158,7 +1158,7 @@ public class MapManager : MonoBehaviour
 
                     //Set the selected unit to wait and deselect the unit.
                     selectedUnit.GetComponent<Unit>().Wait();
-                    //selectedUnit.GetComponent<Unit>().PlayIdleAnim();
+                    selectedUnit.GetComponent<Unit>().SetAnimIdle();
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
                     DeselectUnit();
                     CheckTeamWaiting();

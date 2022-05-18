@@ -57,11 +57,11 @@ public class Unit : MonoBehaviour
     [HideInInspector]
     public MovementState movementState;
 
-    [Header("Animation & Particles")]
+    [Header("Graphics")]
 
     [SerializeField]
     private GameObject mesh;
-    [SerializeField]
+    [HideInInspector]
     public Animator animator;
 
     [SerializeField]
@@ -260,6 +260,36 @@ public class Unit : MonoBehaviour
     {
         healthBar.fillAmount = (float)currentHealth / totalHealth;
         healthText.SetText(currentHealth.ToString());
+    }
+
+    #endregion
+
+
+    #region Animations
+
+    public void SetAnimIdle()
+    {
+        animator.SetTrigger("Idle");
+    }
+
+    public void SetAnimSelected()
+    {
+        animator.SetTrigger("Selected");
+    }
+
+    public void SetAnimMoving()
+    {
+        animator.SetTrigger("Moving");
+    }
+
+    public void SetAnimAttacking()
+    {
+        animator.SetTrigger("Attacking");
+    }
+
+    public void SetAnimWaiting()
+    {
+        animator.SetTrigger("Waiting");
     }
 
     #endregion

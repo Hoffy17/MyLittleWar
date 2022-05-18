@@ -343,7 +343,8 @@ public class GameManager : MonoBehaviour
             //Reset the unit's material to its default material.
             unit.gameObject.GetComponentInChildren<Renderer>().material = unit.GetComponent<Unit>().unitMat;
 
-            //unit.GetComponent<Unit>().PlayIdleAnim();
+            //Set the unit's animation to idle.
+            unit.GetComponent<Unit>().SetAnimIdle();
         }
     }
 
