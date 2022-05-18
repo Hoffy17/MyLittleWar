@@ -2097,6 +2097,9 @@ GameObject:
   - component: {fileID: 792634050}
   - component: {fileID: 792634047}
   - component: {fileID: 792634049}
+  - component: {fileID: 792634053}
+  - component: {fileID: 792634051}
+  - component: {fileID: 792634052}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: GameController
@@ -2118,6 +2121,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameManager: {fileID: 792634050}
   battleManager: {fileID: 792634049}
+  mapUIManager: {fileID: 792634052}
+  unitMovement: {fileID: 792634053}
   tileTypes:
   - name: Grass
     tilePrefab: {fileID: 6526617181273456909, guid: 6fdad5830cec54f6585e4fecafdd43d6, type: 3}
@@ -2142,12 +2147,6 @@ MonoBehaviour:
   mapSizeX: 10
   mapSizeZ: 10
   mapUnits: {fileID: 853165421}
-  selectedUnit: {fileID: 0}
-  mapUIUnitRange: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
-  mapUIUnitPath: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
-  mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
-  uIMatRed: {fileID: 2100000, guid: 9e6908c0998999f45b4e34c225886345, type: 2}
-  uIMatBlue: {fileID: 2100000, guid: 142921eea2c045143882021dd82442ec, type: 2}
   tileContainer: {fileID: 861113845}
   quadUIUnitRangeContainer: {fileID: 1192146740}
   quadUIUnitPathContainer: {fileID: 25721302}
@@ -2197,15 +2196,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapManager: {fileID: 792634047}
-  numberOfTeams: 2
-  currentTeam: 0
+  uIManager: {fileID: 792634051}
+  mapUIManager: {fileID: 792634052}
+  unitMovement: {fileID: 792634053}
   team1: {fileID: 72750623}
   team2: {fileID: 1481311268}
-  highlightedTile: {fileID: 0}
-  uIUnitPath: {fileID: 2100000, guid: 643a64a5a3242164581322c7bd46dae5, type: 2}
-  uIUnitPathCurve: {fileID: 2100000, guid: d9a71835027f22b47ae33fd6b15f7991, type: 2}
-  uIUnitPathArrow: {fileID: 2100000, guid: 45c85fb76dfe0da44a74b5cbaf322105, type: 2}
-  uICursor: {fileID: 2100000, guid: f3e692faaec59814695c5e50dcbb5813, type: 2}
+  numberOfTeams: 2
+  currentTeam: 0
+--- !u!114 &792634051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792634046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8016d3b0656641899de06af8fa83469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 792634050}
+  mapUIManager: {fileID: 792634052}
   textCurrentPlayer: {fileID: 762237357}
   canvasGameOver: {fileID: 2068149902}
   canvasUnitInfo: {fileID: 1882629513}
@@ -2216,6 +2227,51 @@ MonoBehaviour:
   textUnitAttackRange: {fileID: 1838621523}
   textUnitMoveSpeed: {fileID: 1126146942}
   playerTurnMessage: {fileID: 1135473196}
+--- !u!114 &792634052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792634046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f832571d38294ff7b454ad94e022bc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 792634050}
+  mapManager: {fileID: 792634047}
+  unitMovement: {fileID: 792634053}
+  highlightedUnit: {fileID: 0}
+  highlightedTile: {fileID: 0}
+  cursorX: 0
+  cursorZ: 0
+  mapUIUnitRange: {fileID: 7125355273528703909, guid: 4e6d1fd9229f395438f8eb2df37675fb, type: 3}
+  mapUIUnitPath: {fileID: 6527117789079576951, guid: 6a4a69170261af848abf7f50dd2558c9, type: 3}
+  mapUICursor: {fileID: 6803757149406266312, guid: 0eae9e702776e424c910977139a4a17e, type: 3}
+  uIUnitPath: {fileID: 2100000, guid: 643a64a5a3242164581322c7bd46dae5, type: 2}
+  uIUnitPathCurve: {fileID: 2100000, guid: d9a71835027f22b47ae33fd6b15f7991, type: 2}
+  uIUnitPathArrow: {fileID: 2100000, guid: 45c85fb76dfe0da44a74b5cbaf322105, type: 2}
+  uICursor: {fileID: 2100000, guid: f3e692faaec59814695c5e50dcbb5813, type: 2}
+  uIMatRed: {fileID: 2100000, guid: 9e6908c0998999f45b4e34c225886345, type: 2}
+  uIMatBlue: {fileID: 2100000, guid: 142921eea2c045143882021dd82442ec, type: 2}
+--- !u!114 &792634053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792634046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54946efc3ebc3478286318b821d439eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameManager: {fileID: 792634050}
+  battleManager: {fileID: 792634049}
+  mapManager: {fileID: 792634047}
+  mapUIManager: {fileID: 792634052}
+  selectedUnit: {fileID: 0}
 --- !u!1 &795535845
 GameObject:
   m_ObjectHideFlags: 0

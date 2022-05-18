@@ -24,18 +24,4 @@ public class Tile : MonoBehaviour
     public MapManager map;
 
     #endregion
-
-
-    #region Unity Functions
-
-    //private void OnMouseUp()
-    //{
-    //    if (EventSystem.current.IsPointerOverGameObject())
-    //        return;
-
-    //    //When a tile is clicked, call this map function to generate a path to it, based on the tile's map grid position.
-    //    map.GeneratePathTo(tileX, tileZ);
-    //}
-
-    #endregion
 }

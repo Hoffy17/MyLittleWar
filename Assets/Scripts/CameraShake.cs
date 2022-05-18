@@ -16,7 +16,7 @@ public class CameraShake : MonoBehaviour
             strength = 10;
 
         Vector3 startPos = transform.position;
-        Vector3 endPos = new Vector3(direction.x, 0, direction.z) * (strength / 2);
+        //Vector3 endPos = new Vector3(direction.x, 0, direction.z) * (strength / 2);
 
         float elapsedTime = 0f;
 

@@ -52,7 +52,7 @@ public class BattleManager : MonoBehaviour
             defenderUnit.TakeDamage(attackerDamage);
 
             //Check if the defending unit dies.
-            if (IsUnitDead(defender))
+            if (defenderUnit.CheckUnitDead())
             {
                 DefenderDies(attacker, defender, defenderUnit);
                 return;
@@ -62,7 +62,7 @@ public class BattleManager : MonoBehaviour
             attackerUnit.TakeDamage(defenderDamage);
 
             //Check if the attacking unit dies.
-            if (IsUnitDead(attacker))
+            if (attackerUnit.CheckUnitDead())
             {
                 AttackerDies(attacker, defender, attackerUnit);
                 return;
@@ -74,7 +74,7 @@ public class BattleManager : MonoBehaviour
             //PlayParticles(defenderUnit);
             defenderUnit.TakeDamage(attackerDamage);
 
-            if (IsUnitDead(defender))
+            if (defenderUnit.CheckUnitDead())
             {
                 DefenderDies(attacker, defender, defenderUnit);
                 return;
@@ -108,19 +108,6 @@ public class BattleManager : MonoBehaviour
     {
         GameObject particles = Instantiate(defenderUnit.GetComponent<Unit>().particleDamage, defenderUnit.transform.position, defenderUnit.transform.rotation);
         Destroy(particles, 2f);
-    }
-
-    /// <summary>
-    /// Returns true if a unit's health has fallen to zero.
-    /// </summary>
-    /// <param name="unit">The unit whose health is under scrutiny.</param>
-    /// <returns></returns>
-    private bool IsUnitDead(GameObject unit)
-    {
-        if (unit.GetComponent<Unit>().currentHealth <= 0)
-            return true;
-        else
-            return false;
     }
 
     /// <summary>
