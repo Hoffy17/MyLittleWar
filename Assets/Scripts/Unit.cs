@@ -188,19 +188,27 @@ public class Unit : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Rotates the unit as it moves between tiles on its movement path.
+    /// </summary>
+    /// <param name="startTile">The map grid position of the previous tile in the unit's path. This is being repeatedly updated in the <see cref="MoveOverTime(GameObject, Node)"/> coroutine.</param>
     private void RotateUnitMoving(Vector2 startTile)
     {
         for (int i = 0; i < path.Count; i++)
         {
+            // If the next node in the unit's path is not the final node...
             if ((i + 1) != path.Count)
             {
+                // Get the previous, current and next tile positions in the path.
                 Vector2 prevTile = startTile;
                 Vector2 currTile = new Vector2(path[0].x, path[0].z);
                 Vector2 nextTile = new Vector2(path[1].x, path[1].z);
 
+                // Calculate the vectors between those positions.
                 Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
                 Vector2 currToNextVector = VectorDirection(currTile, nextTile);
 
+                // Rotate the unit.
                 if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.right)
                     mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
                 else if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.up)
@@ -226,13 +234,17 @@ public class Unit : MonoBehaviour
                 else if (prevToCurrVector == Vector2.down && currToNextVector == Vector2.left)
                     mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
             }
+            // If the next node in the unit's path is the final node...
             else if ((i + 1) == path.Count)
             {
+                // Get the previous and current tile positions in the path.
                 Vector2 prevTile = startTile;
                 Vector2 currTile = new Vector2(path[0].x, path[0].z);
 
+                // Calculate the vector between those positions.
                 Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
 
+                // Rotate the unit.
                 if (prevToCurrVector == Vector2.right)
                     mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
                 else if (prevToCurrVector == Vector2.left)
@@ -245,10 +257,17 @@ public class Unit : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Rotates the unit as it attacks, or is attacked by, another unit.
+    /// </summary>
+    /// <param name="attackerTile">The map grid position of the attacker.</param>
+    /// <param name="defenderTile">The map grid position of the defender.</param>
     public void RotateUnitAttacking(Vector2 attackerTile, Vector2 defenderTile)
     {
+        // Calculate the vector between the attacker and defender.
         Vector2 unitDirection = VectorDirection(attackerTile, defenderTile);
 
+        // Rotate the unit.
         if (unitDirection == Vector2.right)
             mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
         else if (unitDirection == Vector2.left)
