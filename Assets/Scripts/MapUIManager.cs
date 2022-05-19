@@ -271,9 +271,7 @@ public class MapUIManager : MonoBehaviour
         else if (vectorDirection == Vector2.down)
             return Vector2.down;
         else
-        {
             return new Vector2();
-        }
     }
 
     #endregion

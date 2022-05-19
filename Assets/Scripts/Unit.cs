@@ -108,7 +108,6 @@ public class Unit : MonoBehaviour
 
     [Tooltip("The list of pathfinding nodes that the unit will move through to reach its destination.")]
     public List<Node> path;
-    public List<Node> movementPath;
     [HideInInspector]
     public bool moveCompleted = false;
 
@@ -121,7 +120,6 @@ public class Unit : MonoBehaviour
     {
         //Reset the unit's pathfinding information.
         path = null;
-        movementPath = null;
         movementQueue = new Queue<int>();
         combatQueue = new Queue<int>();
 
@@ -152,7 +150,7 @@ public class Unit : MonoBehaviour
         if (path.Count == 0)
             return;
         else
-            StartCoroutine(MoveOverTime(transform.gameObject, path[path.Count -1]));
+            StartCoroutine(MoveOverTime(transform.gameObject, path[path.Count - 1]));
     }
 
     public void TakeDamage(int damage)
@@ -190,6 +188,93 @@ public class Unit : MonoBehaviour
         }
     }
 
+    private void RotateUnitMoving(Vector2 startTile)
+    {
+        for (int i = 0; i < path.Count; i++)
+        {
+            if ((i + 1) != path.Count)
+            {
+                Vector2 prevTile = startTile;
+                Vector2 currTile = new Vector2(path[0].x, path[0].z);
+                Vector2 nextTile = new Vector2(path[1].x, path[1].z);
+
+                Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
+                Vector2 currToNextVector = VectorDirection(currTile, nextTile);
+
+                if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.right)
+                    mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
+                else if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.up)
+                    mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
+                else if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.down)
+                    mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
+                else if (prevToCurrVector == Vector2.left && currToNextVector == Vector2.left)
+                    mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
+                else if (prevToCurrVector == Vector2.left && currToNextVector == Vector2.up)
+                    mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
+                else if (prevToCurrVector == Vector2.left && currToNextVector == Vector2.down)
+                    mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+                else if (prevToCurrVector == Vector2.up && currToNextVector == Vector2.up)
+                    mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+                else if (prevToCurrVector == Vector2.up && currToNextVector == Vector2.right)
+                    mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+                else if (prevToCurrVector == Vector2.up && currToNextVector == Vector2.left)
+                    mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
+                else if (prevToCurrVector == Vector2.down && currToNextVector == Vector2.down)
+                    mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+                else if (prevToCurrVector == Vector2.down && currToNextVector == Vector2.right)
+                    mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
+                else if (prevToCurrVector == Vector2.down && currToNextVector == Vector2.left)
+                    mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
+            else if ((i + 1) == path.Count)
+            {
+                Vector2 prevTile = startTile;
+                Vector2 currTile = new Vector2(path[0].x, path[0].z);
+
+                Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
+
+                if (prevToCurrVector == Vector2.right)
+                    mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
+                else if (prevToCurrVector == Vector2.left)
+                    mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
+                else if (prevToCurrVector == Vector2.up)
+                    mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+                else if (prevToCurrVector == Vector2.down)
+                    mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
+        }
+    }
+
+    public void RotateUnitAttacking(Vector2 attackerTile, Vector2 defenderTile)
+    {
+        Vector2 unitDirection = VectorDirection(attackerTile, defenderTile);
+
+        if (unitDirection == Vector2.right)
+            mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
+        else if (unitDirection == Vector2.left)
+            mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
+        else if (unitDirection == Vector2.up)
+            mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
+        else if (unitDirection == Vector2.down)
+            mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
+    }
+
+    private Vector2 VectorDirection(Vector2 currVector, Vector2 nextVector)
+    {
+        Vector2 vectorDirection = (nextVector - currVector).normalized;
+
+        if (vectorDirection == Vector2.right)
+            return Vector2.right;
+        else if (vectorDirection == Vector2.left)
+            return Vector2.left;
+        else if (vectorDirection == Vector2.up)
+            return Vector2.up;
+        else if (vectorDirection == Vector2.down)
+            return Vector2.down;
+        else
+            return new Vector2();
+    }
+
     public void UpdateHealthUI()
     {
         healthBar.fillAmount = (float)currentHealth / totalHealth;
@@ -216,43 +301,48 @@ public class Unit : MonoBehaviour
         animator.SetTrigger("Moving");
     }
 
-    public void SetAnimWaiting()
-    {
-        animator.SetTrigger("Waiting");
-    }
-
     #endregion
 
 
-    #region IEnumerators
+    #region Coroutines
 
     private IEnumerator MoveOverTime(GameObject unit, Node endNode)
     {
         movementQueue.Enqueue(1);
 
-        //Remove the tile that the unit is currently occupying.
+        Vector2 startTile = new Vector2(path[0].x, path[0].z);
+
+        // Remove the selected unit's first node in its movement path.
         path.RemoveAt(0);
 
+        // While the selected unit's movement path includes more than one node...
         while (path.Count != 0)
         {
-            Vector3 endPos = map.GetTileWorldSpace(path[0].x, path[0].z);
+            // Get the worldspace position of the next node in the unit's path.
+            Vector3 nextNode = map.GetTileWorldSpace(path[0].x, path[0].z);
 
-            unit.transform.position = Vector3.Lerp(transform.position, endPos, lerpSpeed);
+            // Lerp the unit from its current worldspace position, to the position of the next node in its path.
+            unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeed);
+            RotateUnitMoving(startTile);
 
-            if ((transform.position - endPos).sqrMagnitude < 0.001)
-            {
+            startTile = new Vector2(path[0].x, path[0].z);
+
+            // When the unit gets close enough to the next node, remove that node from its path.
+            if ((transform.position - nextNode).sqrMagnitude < 0.001)
                 path.RemoveAt(0);
-            }
 
+            // Wait and return to the top of the loop.
             yield return new WaitForEndOfFrame();
         }
 
         lerpSpeed = 0.15f;
-        transform.position = map.GetTileWorldSpace(endNode.x, endNode.z);
 
+        // Set the unit's worldspace position as the position of the final node in its path.
+        transform.position = map.GetTileWorldSpace(endNode.x, endNode.z);
         tileX = endNode.x;
         tileZ = endNode.z;
 
+        // Reset the unit's currently occupied tile.
         occupiedTile.GetComponent<Tile>().unitOccupyingTile = null;
         occupiedTile = map.mapTiles[tileX, tileZ];
 

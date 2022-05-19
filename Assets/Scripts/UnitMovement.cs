@@ -324,25 +324,25 @@ public class UnitMovement : MonoBehaviour
     /// </summary>
     public void SelectUnit()
     {
-        //If there was no unit selected...
+        // If there was no unit selected...
         if (selectedUnit == null)
         {
-            //And if the cursor is currently highlighting a tile that is occupied by a unit...
+            // And if the cursor is currently highlighting a tile that is occupied by a unit...
             if (unitSelected == false
                 && mapUIManager.highlightedTile != null
                 && mapUIManager.highlightedTile.GetComponent<Tile>().unitOccupyingTile != null)
             {
-                //Store that unit in a temporary game object.
+                // Store that unit in a temporary game object.
                 GameObject tempSelectedUnit = mapUIManager.highlightedTile.GetComponent<Tile>().unitOccupyingTile;
 
-                //If that unit is unselected and it is on the current player's team...
+                // If that unit is unselected and it is on the current player's team...
                 if (tempSelectedUnit.GetComponent<Unit>().movementState == MovementState.Unselected
                     && tempSelectedUnit.GetComponent<Unit>().teamNumber == gameManager.currentTeam)
                 {
-                    //Turn off any quads that are highlighted.
+                    // Turn off any quads that are highlighted.
                     mapUIManager.DisableQuadUIUnitRange();
 
-                    //The unit is now selected.
+                    // The unit is now selected.
                     selectedUnit = tempSelectedUnit;
                     selectedUnit.GetComponent<Unit>().map = mapManager;
                     selectedUnit.GetComponent<Unit>().movementState = MovementState.Selected;
@@ -350,17 +350,17 @@ public class UnitMovement : MonoBehaviour
 
                     selectedUnit.GetComponent<Unit>().SetAnimSelected();
 
-                    //Highlight the unit's movement range.
+                    // Highlight the unit's movement range.
                     MovementRange();
                 }
             }
         }
-        //If a unit was already selected, and it is on the player's team, we want to set the unit up to move.
+        // If a unit was already selected, and it is on the player's team, we want to set up the unit to move.
         else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected
             && selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
             && CheckTileInMoveRange())
         {
-            //Store the unit's previous tile position.
+            // Store the unit's previous tile position.
             unitSelectedPrevX = selectedUnit.GetComponent<Unit>().tileX;
             unitSelectedPrevZ = selectedUnit.GetComponent<Unit>().tileZ;
             unitSelectedPrevTile = selectedUnit.GetComponent<Unit>().occupiedTile;
@@ -368,15 +368,13 @@ public class UnitMovement : MonoBehaviour
             //sound.Play();
             selectedUnit.GetComponent<Unit>().SetAnimMoving();
 
-            //Move the unit to the next tile in their path.
+            // Move the unit to the next tile in their path.
             selectedUnit.GetComponent<Unit>().AdvanceNextTile();
             StartCoroutine(FinaliseMovement());
         }
-        //If a unit has already finished its move, we want to finish the unit's turn.
+        // If a unit has already finished its move, we want to set up the unit to attack or wait.
         else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Moved)
-        {
-            WaitOrAttack();
-        }
+            AttackOrWait();
     }
 
     /// <summary>
@@ -490,7 +488,7 @@ public class UnitMovement : MonoBehaviour
     /// <summary>
     /// This function controls the player's choice after moving a unit, i.e. waiting or attacking.
     /// </summary>
-    private void WaitOrAttack()
+    private void AttackOrWait()
     {
         //Raycast the cursor's position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -603,11 +601,12 @@ public class UnitMovement : MonoBehaviour
     /// </summary>
     private void CheckTeamWaiting()
     {
-        //If the enemy team has remaining units...
+        // If the enemy team has remaining units...
         if (gameManager.GetEnemyTeam(gameManager.currentTeam).transform.childCount != 0)
         {
             bool teamWaiting = true;
 
+            // Check if all of the units on the current team are waiting.
             foreach (Transform unit in gameManager.GetCurrentTeam(gameManager.currentTeam).transform)
             {
                 if (unit.GetComponent<Unit>().movementState != MovementState.Waiting)

@@ -145,7 +145,7 @@ public class BattleManager : MonoBehaviour
     #endregion
 
 
-    #region IEnumerators
+    #region Coroutines
 
     /// <summary>
     /// Called when a unit's attack on another unit is initiated. Controls lerping, camera shake and damage displayed.
@@ -159,15 +159,22 @@ public class BattleManager : MonoBehaviour
 
         float elapsedTime = 0;
 
-        //Get the attacker's and defender's transform positions as the start and end points for the attack.
+        // Get the attacker's and defender's map grid positions.
+        Vector2 attackerTile = new Vector2(attacker.GetComponent<Unit>().tileX, attacker.GetComponent<Unit>().tileZ);
+        Vector2 defenderTile = new Vector2(defender.GetComponent<Unit>().tileX, defender.GetComponent<Unit>().tileZ);
+
+        // Get the attacker's and defender's transform positions as the start and end points for the attack.
         Vector3 startPos = attacker.transform.position;
         Vector3 endPos = defender.transform.position;
 
+        // Animate the attacker's attack and have the two units face each other.
         attacker.GetComponent<Unit>().SetAnimMoving();
+        attacker.GetComponent<Unit>().RotateUnitAttacking(attackerTile, defenderTile);
+        defender.GetComponent<Unit>().RotateUnitAttacking(defenderTile, attackerTile);
 
         while (elapsedTime < 0.25f)
         {
-            //Lerp the attacker's position towards the defender over a quarter second.
+            // Lerp the attacker's position towards the defender.
             attacker.transform.position = Vector3.Lerp
                 (startPos,
                 startPos + ((endPos - startPos) / (endPos - startPos).magnitude).normalized * 0.5f,
@@ -179,29 +186,29 @@ public class BattleManager : MonoBehaviour
 
         while (isBattling)
         {
-            //Shake the camera.
+            // Shake the camera.
             StartCoroutine(cameraShake.ShakeCamera(0.2f, attacker.GetComponent<Unit>().attackDamage, GetAttackDirection(attacker, defender)));
 
-            //If the attacking and defending units have the same attack range,
-            //And the defender has health remaining after being attacked...
+            // If the attacking and defending units have the same attack range,
+            // And the defender has health remaining after being attacked...
             if (attacker.GetComponent<Unit>().attackRange == defender.GetComponent<Unit>().attackRange &&
                 defender.GetComponent<Unit>().currentHealth - attacker.GetComponent<Unit>().attackDamage > 0)
             {
-                //Display the amount of damage that both units take as a result of the attack.
+                // Display the amount of damage that both units take as a result of the attack.
                 StartCoroutine(attacker.GetComponent<Unit>().DisplayDamage(defender.GetComponent<Unit>().attackDamage));
                 StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
             }
-            //Otherwise, display only the amount of damage the defending unit takes as a result of the attack.
+            // Otherwise, display only the amount of damage the defending unit takes as a result of the attack.
             else
                 StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
 
-            //Calculate damage taken and check if units have died.
+            // Calculate damage taken and check if units have died.
             Battle(attacker, defender);
 
             yield return new WaitForEndOfFrame();
         }
 
-        //If the attacking unit is still alive, finish its attack sequence.
+        // If the attacking unit is still alive, finish its attack sequence.
         if (attacker != null)
             StartCoroutine(FinishAttack(attacker, startPos));
     }
@@ -216,7 +223,7 @@ public class BattleManager : MonoBehaviour
     {
         float elapsedTime = 0;
 
-        //Lerp the attacker's position back towards where it started.
+        // Lerp the attacker's position back towards where it started.
         while (elapsedTime < 0.3f)
         {
             attacker.transform.position = Vector3.Lerp(attacker.transform.position, endPos, elapsedTime / 0.25f);

@@ -85,20 +85,20 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        //On left-mouse click, select units and/or tiles.
+        // On left-mouse click, select units or tiles.
         if (Input.GetMouseButtonDown(0))
         {
             unitMovement.SelectUnit();
             //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
         }
 
-        //On right-mouse click, deselect units.
+        // On right-mouse click, deselect units.
         if (Input.GetMouseButtonDown(1))
         {
-            //If there is currently a selected unit...
+            // If there is currently a selected unit...
             if (unitMovement.selectedUnit != null)
             {
-                //And the unit has not yet finished its turn...
+                // And the unit has not yet finished its turn...
                 if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
                     && unitMovement.selectedUnit.GetComponent<Unit>().combatQueue.Count == 0
                     && unitMovement.selectedUnit.GetComponent<Unit>().movementState != MovementState.Waiting)
