@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     #region Declarations
 
     [Header("Components")]
-
     [Tooltip("The MapManager script.")]
     [SerializeField]
     private MapManager mapManager;
@@ -23,7 +22,6 @@ public class GameManager : MonoBehaviour
     private UnitMovement unitMovement;
 
     [Header("Teams")]
-
     [Tooltip("Player one's team.")]
     [SerializeField]
     private GameObject team1;
@@ -38,7 +36,6 @@ public class GameManager : MonoBehaviour
     public int currentTeam;
 
     [Header("Map")]
-
     [HideInInspector]
     public Ray ray;
     [HideInInspector]
@@ -51,21 +48,21 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        //Reset the current team.
+        // Reset the current team.
         currentTeam = 0;
     }
 
     private void Update()
     {
-        //Keep track of the cursor's position.
+        // Keep track of the cursor's position.
         ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
         if(Physics.Raycast(ray, out hit))
         {
-            //Check if the cursor is highlighting a tile and/or a unit.
+            // Check if the cursor is highlighting a tile and/or a unit.
             mapUIManager.CalculateHighlightTile();
             uIManager.UpdateUIUnit();
-            //If a unit is selected, calculate its path to the tile highlighted by the cursor.
+            // If a unit is selected, calculate its path to the tile highlighted by the cursor.
             mapUIManager.CalculateUnitPath();
         }
     }
@@ -80,10 +77,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void EndTurn()
     {
-        //If there is no currently selected unit...
+        // If there is no currently selected unit...
         if (unitMovement.selectedUnit == null)
         {
-            //Switch to the other player's team.
+            // Switch to the other player's team.
             SwitchCurrentTeam();
 
             uIManager.PrintCurrentTurn();
@@ -134,7 +131,7 @@ public class GameManager : MonoBehaviour
         ResetTeam(GetCurrentTeam(currentTeam));
         currentTeam++;
 
-        //If the current team exceeds the number of teams, revert back to zero.
+        // If the current team exceeds the number of teams, revert back to zero.
         if (currentTeam == numberOfTeams)
             currentTeam = 0;
     }
@@ -145,19 +142,18 @@ public class GameManager : MonoBehaviour
     /// <param name="team">The current team whose units are being reset to move again.</param>
     private void ResetTeam(GameObject team)
     {
-        //For each unit in a team...
+        // For each unit in a team...
         foreach (Transform unit in team.transform)
         {
-            //Reset the unit's movement path.
+            // Reset the unit's movement path and set its state to unselected.
             unit.GetComponent<Unit>().path = null;
-            //Set the unit's movement state to unselected.
             unit.GetComponent<Unit>().movementState = MovementState.Unselected;
-            //Reset the unit's movement turn so they can move again.
             unit.GetComponent<Unit>().moveCompleted = false;
-            //Reset the unit's material to its default material.
+
+            // Reset the unit's material to its default material.
             unit.gameObject.GetComponentInChildren<Renderer>().material = unit.GetComponent<Unit>().unitMat;
 
-            //Set the unit's animation to idle.
+            // Set the unit's animation to idle.
             unit.GetComponent<Unit>().SetAnimIdle();
         }
     }

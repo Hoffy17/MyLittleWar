@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Water-Brackeys
+  m_Shader: {fileID: -6465566751694194690, guid: 8520bef95a4754cc6bf8bcc80e3069dd, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - Vector1_2d256a4338e24dcfbd83958de2df9e65: 11
+    - Vector1_5a196c233a504289b381096a9d2de346: 0.1
+    - Vector1_5b1a2c9eacc84ddd9412516eeadde823: 5
+    - Vector1_6976712b8a6e4d03a23a2c5351b7b8de: 50
+    - Vector1_990adbd5521c49aea57109d4c1405952: 3
+    - Vector1_cc9b7ed00eab4d39a96a3420834ac160: 0.1
+    - Vector1_d1db06a644824ba59849042e5fdbbae4: 4
+    - Vector1_e051ed282bcb4feeb10958f1d7dc6ff6: 0.6
+    m_Colors:
+    - Color_c780079584f74c95b9aa5b15c3f37d40: {r: 0.16941082, g: 0.4356278, b: 0.764151, a: 0}
+    - Color_eaaf4cf8e383428b82cab48a3d307e36: {r: 0, g: 0, b: 0, a: 1}
+    - Color_f2965aa6c0ba47df9f9669b017d89711: {r: 5.656854, g: 5.656854, b: 5.656854, a: 0}
+  m_BuildTextureStacks: []

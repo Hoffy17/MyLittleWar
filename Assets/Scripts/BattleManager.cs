@@ -11,7 +11,6 @@ public class BattleManager : MonoBehaviour
     #region Declarations
 
     [Header("Components")]
-
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
@@ -37,28 +36,28 @@ public class BattleManager : MonoBehaviour
     {
         isBattling = true;
 
-        //Get the attacking unit and defending unit, and their attack damage stats.
+        // Get the attacking unit and defending unit, and their attack damage stats.
         Unit attackerUnit = attacker.GetComponent<Unit>();
         Unit defenderUnit = defender.GetComponent<Unit>();
         int attackerDamage = attackerUnit.attackDamage;
         int defenderDamage = defenderUnit.attackDamage;
 
-        //If the attacking and defending units have the same attack ranges...
+        // If the attacking and defending units have the same attack ranges...
         if(attackerUnit.attackRange == defenderUnit.attackRange)
         {
             //PlayParticles(defenderUnit);
 
-            //The defending unit takes damage.
+            // The defending unit takes damage.
             defenderUnit.TakeDamage(attackerDamage);
 
-            //Check if the defending unit dies.
+            // Check if the defending unit dies.
             if (defenderUnit.CheckUnitDead())
             {
                 DefenderDies(attacker, defender, defenderUnit);
                 return;
             }
 
-            //The attacking unit takes damage.
+            // The attacking unit takes damage.
             attackerUnit.TakeDamage(defenderDamage);
 
             //Check if the attacking unit dies.
@@ -68,7 +67,7 @@ public class BattleManager : MonoBehaviour
                 return;
             }
         }
-        //Otherwise, only the defending unit takes damage.
+        // Otherwise, only the defending unit takes damage.
         else
         {
             //PlayParticles(defenderUnit);
@@ -92,11 +91,11 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     public Vector3 GetAttackDirection(GameObject attacker, GameObject defender)
     {
-        //The start position is the attacker's transform position.
+        // The start position is the attacker's transform position.
         Vector3 startPos = attacker.transform.position;
-        //The end position is the defender's transform position.
+        // The end position is the defender's transform position.
         Vector3 endPos = defender.transform.position;
-        //Calculate the attack direction as a Vector3 and normalise it.
+        // Calculate the attack direction.
         return ((endPos - startPos) / (endPos - startPos).magnitude).normalized;
     }
 
@@ -118,11 +117,11 @@ public class BattleManager : MonoBehaviour
     /// <param name="defenderUnit">The Unit script component attached to the defender.</param>
     private void DefenderDies(GameObject attacker, GameObject defender, Unit defenderUnit)
     {
-        //Destroy the defender unit and its parent game object.
+        // Destroy the defender unit and its parent game object.
         defender.transform.parent = null;
         defenderUnit.Die();
         isBattling = false;
-        //Check if a winner has been determined.
+        // Check if a winner has been determined.
         StartCoroutine(gameManager.CheckVictor(attacker, defender));
     }
 
@@ -134,11 +133,11 @@ public class BattleManager : MonoBehaviour
     /// <param name="attackerUnit">The Unit script component attached to the attacker.</param>
     private void AttackerDies(GameObject attacker, GameObject defender, Unit attackerUnit)
     {
-        //Destroy the attacker unit and its parent game object.
+        // Destroy the attacker unit and its parent game object.
         attacker.transform.parent = null;
         attackerUnit.Die();
         isBattling = false;
-        //Check if a winner has been determined.
+        // Check if a winner has been determined.
         StartCoroutine(gameManager.CheckVictor(attacker, defender));
     }
 
@@ -169,6 +168,7 @@ public class BattleManager : MonoBehaviour
 
         // Animate the attacker's attack and have the two units face each other.
         attacker.GetComponent<Unit>().SetAnimMoving();
+        defender.GetComponent<Unit>().SetAnimSelected();
         attacker.GetComponent<Unit>().RotateUnitAttacking(attackerTile, defenderTile);
         defender.GetComponent<Unit>().RotateUnitAttacking(defenderTile, attackerTile);
 
@@ -210,29 +210,29 @@ public class BattleManager : MonoBehaviour
 
         // If the attacking unit is still alive, finish its attack sequence.
         if (attacker != null)
-            StartCoroutine(FinishAttack(attacker, startPos));
+            StartCoroutine(FinishAttack(attacker, defender, startPos));
     }
 
     /// <summary>
     /// Lerps the attacking unit back to its original transform position after attacking, and sets the unit to wait.
     /// </summary>
     /// <param name="attacker">The unit that initiated the attack.</param>
-    /// <param name="endPos">The attacker's transform position before lerping.</param>
+    /// <param name="returnPos">The attacker's transform position before lerping.</param>
     /// <returns></returns>
-    public IEnumerator FinishAttack(GameObject attacker, Vector3 endPos)
+    public IEnumerator FinishAttack(GameObject attacker, GameObject defender, Vector3 returnPos)
     {
         float elapsedTime = 0;
 
         // Lerp the attacker's position back towards where it started.
         while (elapsedTime < 0.3f)
         {
-            attacker.transform.position = Vector3.Lerp(attacker.transform.position, endPos, elapsedTime / 0.25f);
+            attacker.transform.position = Vector3.Lerp(attacker.transform.position, returnPos, elapsedTime / 0.25f);
             elapsedTime += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
 
         attacker.GetComponent<Unit>().SetAnimIdle();
-        attacker.GetComponent<Unit>().Wait();
+        defender.GetComponent<Unit>().SetAnimIdle();
     }
 
     #endregion

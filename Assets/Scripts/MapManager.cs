@@ -73,13 +73,13 @@ public class MapManager : MonoBehaviour
 
     private void Start()
     {
-        //Set up an array of map grid tiles and assigns an integer value for each index in the array.
+        // Set up an array of map grid tiles and assigns an integer value for each index in the array.
         GenerateMap();
-        //Calculate the map grid positions of all of the Nodes on the map, and creates a list of their neighbours.
+        // Calculate the map grid positions of all of the Nodes on the map, and creates a list of their neighbours.
         GeneratePathGraph();
-        //Create a map of tile prefabs in the scene.
+        // Create a map of tile prefabs in the scene.
         InstantiateMap();
-        //Check units' tile positions and set their tiles as occupied.
+        // Check units' tile positions and set their tiles as occupied.
         unitMovement.SetTileOccupied();
     }
 
@@ -127,10 +127,10 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void GenerateMap()
     {
-        //Set up the array with the number of map tiles allocated on the X and Z axes.
+        // Set up the array with the number of map tiles allocated on the X and Z axes.
         tiles = new int[mapSizeX, mapSizeZ];
 
-        //Initialise map tiles.
+        // Initialise map tiles.
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeX; z++)
@@ -141,7 +141,7 @@ public class MapManager : MonoBehaviour
         }
 
         #region Hard-Coded Terrain
-        //Obviously this isn't the best way to do this.
+        // Obviously this isn't the best way to do this.
 
         //1 = Forest
         //2 = Mountain
@@ -195,22 +195,22 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void GeneratePathGraph()
     {
-        //Initialise an array of Nodes that is the same size as the map grid.
+        // Initialise an array of Nodes that is the same size as the map grid.
         graph = new Node[mapSizeX, mapSizeZ];
 
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeX; z++)
             {
-                //Initialise a Node into each index of the array, for each grid position on the map.
+                // Initialise a Node into each index of the array, for each grid position on the map.
                 graph[x, z] = new Node();
-                //Set the map grid position of each Node in the array to be the same as its index in the array.
+                // Set the map grid position of each Node in the array to be the same as its index in the array.
                 graph[x, z].x = x;
                 graph[x, z].z = z;
             }
         }
 
-        //Now that all the Nodes have been mapped into the array, calculate their neighbours.
+        // Now that all the Nodes have been mapped into the array, calculate their neighbours.
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeX; z++)
@@ -218,16 +218,16 @@ public class MapManager : MonoBehaviour
 
                 #region 4-way Connected Nodes
 
-                //Add the left neighbouring node.
+                // Add the left neighbouring node.
                 if (x > 0)
                     graph[x, z].neighbours.Add(graph[x - 1, z]);
-                //Add the right neighbouring node.
+                // Add the right neighbouring node.
                 if (x < mapSizeX - 1)
                     graph[x, z].neighbours.Add(graph[x + 1, z]);
-                //Add the downwards neighbouring node.
+                // Add the downwards neighbouring node.
                 if (z > 0)
                     graph[x, z].neighbours.Add(graph[x, z - 1]);
-                //Add the upwards neighbouring node.
+                // Add the upwards neighbouring node.
                 if (z < mapSizeZ - 1)
                     graph[x, z].neighbours.Add(graph[x, z + 1]);
 
@@ -277,8 +277,8 @@ public class MapManager : MonoBehaviour
     /// </summary>
     private void InstantiateMap()
     {
-        //Create a 2D array of map tile game objects.
-        //Create three 2D arrays of quads that are used to highlight tiles for specific purposes.
+        // Create a 2D array of map tile game objects.
+        // Create three 2D arrays of quads that are used to highlight tiles for specific purposes.
         mapTiles = new GameObject[mapSizeX, mapSizeZ];
         mapUIManager.quadUIUnitRange = new GameObject[mapSizeX, mapSizeZ];
         mapUIManager.quadUIUnitPath = new GameObject[mapSizeX, mapSizeZ];
@@ -288,31 +288,31 @@ public class MapManager : MonoBehaviour
         {
             for (int z = 0; z < mapSizeX; z++)
             {
-                //Find the tile type (grass, forest, etc.) for each tile in the map grid, and copy those types into local variables. 
+                // Find the tile type (grass, forest, etc.) for each tile in the map grid, and copy those types into local variables. 
                 TileType tt = tileTypes[tiles[x, z]];
 
-                //Instantiate the associated prefab for each tile type and quad in the map grid.
-                //Convert the tile/quad's map grid position into a Vector3 to instantiate it at the correct position in worldspace.
+                // Instantiate the associated prefab for each tile type and quad in the map grid.
+                // Convert the tile/quad's map grid position into a Vector3 to instantiate it at the correct position in worldspace.
                 GameObject newTile = Instantiate(tt.tilePrefab, new Vector3(x, 0, z), Quaternion.identity);
                 GameObject gridUI = Instantiate(mapUIManager.mapUIUnitRange, new Vector3(x, 0.501f, z), Quaternion.Euler(90f, 0, 0));
                 GameObject gridUIUnitMovement = Instantiate(mapUIManager.mapUIUnitPath, new Vector3(x, 0.502f, z), Quaternion.Euler(90f, 0, 0));
                 GameObject gridUICursor = Instantiate(mapUIManager.mapUICursor, new Vector3(x, 0.503f, z), Quaternion.Euler(90f, 0, 0));
 
-                //Get the MonoBehaviour script attached to an instantiated tile.
+                // Get the MonoBehaviour script attached to an instantiated tile.
                 Tile clickableTile = newTile.GetComponent<Tile>();
-                //For each instantiated tile, assign its map grid position in the 2D array.
+                // For each instantiated tile, assign its map grid position in the 2D array.
                 clickableTile.tileX = x;
                 clickableTile.tileZ = z;
-                //For each instantiated tile, assign the map system that is controlling it.
+                // For each instantiated tile, assign the map system that is controlling it.
                 clickableTile.map = this;
 
-                //Store the instantiated map tiles and quads in parent game objects, to keep the hierarchy clean.
+                // Store the instantiated map tiles and quads in parent game objects, to keep the hierarchy clean.
                 newTile.transform.SetParent(tileContainer.transform);
                 gridUI.transform.SetParent(quadUIUnitRangeContainer.transform);
                 gridUIUnitMovement.transform.SetParent(quadUIUnitPathContainer.transform);
                 gridUICursor.transform.SetParent(quadUICursorContainer.transform);
 
-                //Store each instantiated tile and quad with its corresponding position in the 2D array.
+                // Store each instantiated tile and quad with its corresponding position in the 2D array.
                 mapTiles[x, z] = newTile;
                 mapUIManager.quadUIUnitRange[x, z] = gridUI;
                 mapUIManager.quadUIUnitPath[x, z] = gridUIUnitMovement;
@@ -333,7 +333,7 @@ public class MapManager : MonoBehaviour
     /// <param name="z">The destination tile's position on the map grid's Z axis, that a unit is generating a path to.</param>
     public List<Node> GeneratePathTo(int x, int z)
     {
-        //If a unit's tile position is the same as the tile it is generating a path to, there is no need to generate a path.
+        // If a unit's tile position is the same as the tile it is generating a path to, there is no need to generate a path.
         if (unitMovement.selectedUnit.GetComponent<Unit>().tileX == x &&
             unitMovement.selectedUnit.GetComponent<Unit>().tileZ == z)
         {
@@ -341,38 +341,38 @@ public class MapManager : MonoBehaviour
             return currentPath;
         }
 
-        //If the unit cannot enter the tile it is generating a path to, exit the function.
+        // If the unit cannot enter the tile it is generating a path to, exit the function.
         if (UnitCanEnterTile(x, z) == false)
         {
             return null;
         }
 
-        //Clear the unit's previous path.
+        // Clear the unit's previous path.
         //selectedUnit.GetComponent<Unit>().path = null;
         currentPath = null;
 
-        //This dictionary stores all of the nodes on the map grid and their distance (as a float) from the unit's current node position.
+        // This dictionary stores all of the nodes on the map grid and their distance (as a float) from the unit's current node position.
         Dictionary<Node, float> dist = new Dictionary<Node, float>();
-        //This dictionary stores nodes on the shortest path from the source node to the target node.
+        // This dictionary stores nodes on the shortest path from the source node to the target node.
         Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
 
-        //Create a list of unchecked or unvisited Nodes.
-        //This is a priority queue of nodes to be checked, when generating a path in Dijkstra's algorithm.
+        // Create a list of unchecked or unvisited Nodes.
+        // This is a priority queue of nodes to be checked, when generating a path in Dijkstra's algorithm.
         List<Node> nodeQueue = new List<Node>();
 
-        //Store the unit's current position on the map grid in a local variable.
+        // Store the unit's current position on the map grid in a local variable.
         Node source = graph[
             unitMovement.selectedUnit.GetComponent<Unit>().tileX,
             unitMovement.selectedUnit.GetComponent<Unit>().tileZ];
-        //Store the unit's destination on the map grid in a local variable.
+        // Store the unit's destination on the map grid in a local variable.
         Node target = graph[x, z];
 
-        //Set the distance to the unit's current position to 0.
+        // Set the distance to the unit's current position to 0.
         dist[source] = 0;
-        //Set the source node in the path to null.
+        // Set the source node in the path to null.
         prev[source] = null;
 
-        //Every node, other than the unit's current position on the map grid, is initialised to have infinite distance.
+        // Every node, other than the unit's current position on the map grid, is initialised to have infinite distance.
         foreach (Node node in graph)
         {
             if (node != source)
@@ -381,71 +381,71 @@ public class MapManager : MonoBehaviour
                 prev[node] = null;
             }
 
-            //Every node on the map grid is added into a queue of unchecked nodes.
+            // Every node on the map grid is added into a queue of unchecked nodes.
             nodeQueue.Add(node);
         }
 
-        //While there are unchecked nodes in the queue...
+        // While there are unchecked nodes in the queue...
         while(nodeQueue.Count > 0)
         {
-            //Store a temporary node with the smallest distance.
+            // Store a temporary node with the smallest distance.
             Node tempNode = null;
 
-            //For each unchecked node in the queue...
+            // For each unchecked node in the queue...
             foreach (Node uncheckedNode in nodeQueue)
             {
-                //If the temporary node is empty or the distance to the unchecked node is less than the distance to the temporary node...
+                // If the temporary node is empty or the distance to the unchecked node is less than the distance to the temporary node...
                 if (tempNode == null || dist[uncheckedNode] < dist[tempNode])
                 {
-                    //Copy the unchecked node into the temporary node.
+                    // Copy the unchecked node into the temporary node.
                     tempNode = uncheckedNode;
                 }
             }
 
-            //If the temporary node is the same as the unit's destination node on the map grid...
+            // If the temporary node is the same as the unit's destination node on the map grid...
             if (tempNode == target)
             {
-                //Exit the while loop.
+                // Exit the while loop.
                 break; 
             }
 
-            //Now that the unchecked node has been checked and it is not the target, remove the temporary node from the list of unchecked nodes.
+            // Now that the unchecked node has been checked and it is not the target, remove the temporary node from the list of unchecked nodes.
             nodeQueue.Remove(tempNode);
 
-            //For each node that is neighbouring the temporary node...
+            // For each node that is neighbouring the temporary node...
             foreach(Node neighbourNode in tempNode.neighbours)
             {
                 //float alt = dist[u] + u.DistanceTo(v);
 
-                //Calculate the distance to enter each neighbouring node,
-                //based on that neighbouring node's distance from the unit's current node position and the cost to enter that node.
+                // Calculate the distance to enter each neighbouring node,
+                // based on that neighbouring node's distance from the unit's current node position and the cost to enter that node.
                 float tempDist = dist[tempNode] + CostToEnterTile(neighbourNode.x, neighbourNode.z);
 
-                //If the distance to the temporary node is less than the distance to each neighbouring node...
+                // If the distance to the temporary node is less than the distance to each neighbouring node...
                 if (tempDist < dist[neighbourNode])
                 {
-                    //Record the temporary distance to the neighbouring node into the array.
+                    // Record the temporary distance to the neighbouring node into the array.
                     dist[neighbourNode] = tempDist;
-                    //Set the temporary node as the node that will be moved to on the unit's path.
+                    // Set the temporary node as the node that will be moved to on the unit's path.
                     prev[neighbourNode] = tempNode;
                 }
             }
         }
 
-        //At this stage, we either found the shortest route to our target,
-        //Or there is no route at all to our target.
+        // At this stage, we either found the shortest route to our target,
+        // Or there is no route at all to our target.
         if (prev[target] == null)
         {
-            //If there is no route between the source and target, exit the function.
+            // If there is no route between the source and target, exit the function.
             return null;
         }
 
         currentPath = new List<Node>();
 
-        //Copy the target node into a local variable.
+        // Copy the target node into a local variable.
         Node curr = target;
 
-        //While the current target node is not empty, step through the "prev" chain and add each node to the unit's path.
+        // While the current target node is not empty, step through the "prev" chain and add each node to the unit's path.
         while (curr != null)
         {
             currentPath.Add(curr);
@@ -453,11 +453,11 @@ public class MapManager : MonoBehaviour
             curr = prev[curr];
         }
 
-        //Finally, the unit's current path is inverted.
-        //This is because the current path describes a route from the unit's target to its source, and this logically needs to be reversed.
+        // Finally, the unit's current path is inverted.
+        // This is because the current path describes a route from the unit's target to its source, and this logically needs to be reversed.
         currentPath.Reverse();
 
-        //Copy the path we calculated into the unit's script.
+        // Copy the path we calculated into the unit's script.
         return currentPath;
     }
 
@@ -469,15 +469,15 @@ public class MapManager : MonoBehaviour
     /// <returns></returns>
     public float CostToEnterTile(int x, int z)
     {
-        //Check if the target tile is walkable.
+        // Check if the target tile is walkable.
         if (UnitCanEnterTile(x, z) == false)
-            //If it is not, return a cost of infinity and exit the function.
+            // If it is not, return a cost of infinity and exit the function.
             return Mathf.Infinity;
 
-        //Find the target tile's type (grass, forest, etc.) and copy it into a local variable.
+        // Find the target tile's type (grass, forest, etc.) and copy it into a local variable.
         TileType tile = tileTypes[tiles[x, z]];
 
-        //Get the target tile's cost and copy it into a local variable.
+        // Get the target tile's cost and copy it into a local variable.
         float cost = tile.movementCost;
 
         return cost;
@@ -491,22 +491,22 @@ public class MapManager : MonoBehaviour
     /// <returns></returns>
     public bool UnitCanEnterTile(int x, int z)
     {
-        //Check a unit's type against terrain flags here if necessary.
+        // Check a unit's type against terrain flags here if necessary.
 
-        //If the target tile is currently occupied by an enemy unit...
+        // If the target tile is currently occupied by an enemy unit...
         if (mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile != null &&
             mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile.GetComponent<Unit>().teamNumber !=
                 unitMovement.selectedUnit.GetComponent<Unit>().teamNumber)
-            //The unit cannot enter the tile.
+            // The unit cannot enter the tile.
             return false;
-        //Otherwise, return the target tile's walkability boolean.
+        // Otherwise, return the target tile's walkability boolean.
         return tileTypes[tiles[x, z]].isWalkable;
     }
 
     #endregion
 
 
-    #region Calculations
+    #region Other Calculations
 
     /// <summary>
     /// Converts any map grid position into Unity worldspace.

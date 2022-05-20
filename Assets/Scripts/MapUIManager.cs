@@ -105,7 +105,7 @@ public class MapUIManager : MonoBehaviour
 
     private void Start()
     {
-        //Reset the list of nodes from a unit to a cursor position.
+        // Reset the list of nodes from a unit to a cursor position.
         currentPathToCursor = new List<Node>();
         currentPathExists = false;
     }
@@ -122,49 +122,49 @@ public class MapUIManager : MonoBehaviour
     /// </summary>
     public void CalculateHighlightTile()
     {
-        //If the cursor is casting to a tile, highlight it.
+        // If the cursor is casting to a tile, highlight it.
         if (gameManager.hit.transform.CompareTag("Tile"))
         {
             if (highlightedTile == null)
                 HighlightTile(gameManager.hit.transform.gameObject);
-            //If the highlighted tile is not the same as the tile that the cursor is casting to...
+            // If the highlighted tile is not the same as the tile that the cursor is casting to...
             else if (highlightedTile != gameManager.hit.transform.gameObject)
             {
-                //Get the new highlighted tile's position.
+                // Get the new highlighted tile's position.
                 highlightedTileX = highlightedTile.GetComponent<Tile>().tileX;
                 highlightedTileZ = highlightedTile.GetComponent<Tile>().tileZ;
 
-                //Turn off the previously highlighted tile.
+                // Turn off the previously highlighted tile.
                 quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
 
-                //Highlight the new tile.
+                // Highlight the new tile.
                 HighlightTile(gameManager.hit.transform.gameObject);
             }
         }
-        //If the cursor is casting to a unit, highlight its tile.
+        // If the cursor is casting to a unit, highlight its tile.
         else if (gameManager.hit.transform.CompareTag("Unit"))
         {
             if (highlightedTile == null)
                 HighlightTile(gameManager.hit.transform.parent.gameObject);
-            //If the highlighted tile is not the same as the tile that the cursor is casting to...
+            // If the highlighted tile is not the same as the tile that the cursor is casting to...
             else if (highlightedTile != gameManager.hit.transform.gameObject)
             {
-                //And unit on that tile has not yet moved...
+                // And unit on that tile has not yet moved...
                 if (gameManager.hit.transform.parent.gameObject.GetComponent<Unit>().movementQueue.Count == 0)
                 {
-                    //Get the new highlighted tile's position.
+                    // Get the new highlighted tile's position.
                     highlightedTileX = highlightedTile.GetComponent<Tile>().tileX;
                     highlightedTileZ = highlightedTile.GetComponent<Tile>().tileZ;
 
-                    //Turn off the previously highlighted tile.
+                    // Turn off the previously highlighted tile.
                     quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
 
-                    //Highlight the new tile.
+                    // Highlight the new tile.
                     HighlightTile(gameManager.hit.transform.parent.gameObject);
                 }
             }
         }
-        //Otherwise, turn off the previously highlighted tile.
+        // Otherwise, turn off the previously highlighted tile.
         else
             quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
     }
@@ -174,78 +174,78 @@ public class MapUIManager : MonoBehaviour
     /// </summary>
     public void CalculateUnitPath()
     {
-        //If there is a selected unit,
-        //And its movement range contains a node that the cursor is highlighting...
+        // If there is a selected unit,
+        // And its movement range contains a node that the cursor is highlighting...
         if (unitMovement.selectedUnit != null &&
             unitMovement.selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected &&
             unitMovement.selectedUnitMoveRange.Contains(mapManager.graph[cursorX, cursorZ]))
         {
-            //And if that highlighted tile is not the selected unit's current tile...
+            // And if that highlighted tile is not the selected unit's current tile...
             if (cursorX != unitMovement.selectedUnit.GetComponent<Unit>().tileX ||
                 cursorZ != unitMovement.selectedUnit.GetComponent<Unit>().tileZ)
             {
-                //And if there isn't already a current path to another tile, or another unit that has been selected to move...
+                // And if there isn't already a current path to another tile, or another unit that has been selected to move...
                 if (!currentPathExists && unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0)
                 {
-                    //Generate a path to the tile highlighted by the cursor.
+                    // Generate a path to the tile highlighted by the cursor.
                     currentPathToCursor = mapManager.GeneratePathTo(cursorX, cursorZ);
                     pathToX = cursorX;
                     pathToZ = cursorZ;
 
-                    //If there are nodes in the current path to the tile...
+                    // If there are nodes in the current path to the tile...
                     if (currentPathToCursor.Count != 0)
                     {
                         for (int i = 0; i < currentPathToCursor.Count; i++)
                         {
-                            //For all of those nodes, get their position on the map grid.
+                            // For all of those nodes, get their position on the map grid.
                             int nodeX = currentPathToCursor[i].x;
                             int nodeZ = currentPathToCursor[i].z;
 
-                            //Set the material for the first node in the movement path.
+                            // Set the material for the first node in the movement path.
                             if (i == 0)
                             {
                                 GameObject quad = quadUIUnitPath[nodeX, nodeZ];
                                 quad.GetComponent<Renderer>().material = uICursor;
                             }
-                            //Draw the movement path to the cursor position.
+                            // Draw the movement path to the cursor position.
                             else if (i != 0 && (i + 1) != currentPathToCursor.Count)
                                 DrawUnitPath(nodeX, nodeZ, i);
-                            //Draw the arrow at the end of the movement path.
+                            // Draw the arrow at the end of the movement path.
                             else if (i == currentPathToCursor.Count - 1)
                                 DrawUnitPathArrow(nodeX, nodeZ, i);
 
-                            //And turn on the renderers for each quad in the movement path.
+                            // And turn on the renderers for each quad in the movement path.
                             quadUIUnitPath[nodeX, nodeZ].GetComponent<Renderer>().enabled = true;
                         }
                     }
-                    //There is currently a path to the cursor.
+                    // There is currently a path to the cursor.
                     currentPathExists = true;
                 }
-                //Otherwise, if the path to the X or Z map grid position is not the same as the tile that the cursor is highlighting...
+                // Otherwise, if the path to the X or Z map grid position is not the same as the tile that the cursor is highlighting...
                 else if (pathToX != cursorX || pathToZ != cursorZ)
                 {
-                    //And if there are nodes in the current path from the selected unit to the cursor...
+                    // And if there are nodes in the current path from the selected unit to the cursor...
                     if (currentPathToCursor.Count != 0)
                     {
                         for (int i = 0; i < currentPathToCursor.Count; i++)
                         {
-                            //For all of those nodes, get their position on the map grid.
+                            // For all of those nodes, get their position on the map grid.
                             int nodeX = currentPathToCursor[i].x;
                             int nodeZ = currentPathToCursor[i].z;
 
-                            //And turn off the renderers for each quad in the movement path.
+                            // And turn off the renderers for each quad in the movement path.
                             quadUIUnitPath[nodeX, nodeZ].GetComponent<Renderer>().enabled = false;
                         }
                     }
-                    //There is not a path to the cursor.
+                    // There is not a path to the cursor.
                     currentPathExists = false;
                 }
             }
-            //Otherwise, if the cursor's highlighted tile is the same as the selected unit's current tile...
+            // Otherwise, if the cursor's highlighted tile is the same as the selected unit's current tile...
             else if (cursorX == unitMovement.selectedUnit.GetComponent<Unit>().tileX &&
                 cursorZ == unitMovement.selectedUnit.GetComponent<Unit>().tileZ)
             {
-                //Disable the quads displaying a movement path.
+                // Disable the quads displaying a movement path.
                 DisableQuadUIUnitPath();
                 currentPathExists = false;
             }
@@ -285,13 +285,13 @@ public class MapUIManager : MonoBehaviour
     /// <param name="tile">The tile that the cursor is currently casting to.</param>
     private void HighlightTile(GameObject tile)
     {
-        //If the cursor is casting to a tile, get that tile's X and Z positions on the map grid.
+        // If the cursor is casting to a tile, get that tile's X and Z positions on the map grid.
         if (gameManager.hit.transform.CompareTag("Tile"))
         {
             highlightedTileX = tile.GetComponent<Tile>().tileX;
             highlightedTileZ = tile.GetComponent<Tile>().tileZ;
         }
-        //If the cursor is casting to a unit, get that unit's X and Z positions on the map grid.
+        // If the cursor is casting to a unit, get that unit's X and Z positions on the map grid.
         else if (gameManager.hit.transform.CompareTag("Unit"))
         {
             highlightedTileX = tile.GetComponent<Unit>().tileX;
@@ -301,10 +301,10 @@ public class MapUIManager : MonoBehaviour
         cursorX = highlightedTileX;
         cursorZ = highlightedTileZ;
 
-        //Turn on the renderer for the quad that is being highlighted by the cursor.
+        // Turn on the renderer for the quad that is being highlighted by the cursor.
         quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = true;
 
-        //Set the tile, or the tile occupied by a unit, that the cursor is casting to as highlighted.
+        // Set the tile, or the tile occupied by a unit, that the cursor is casting to as highlighted.
         if (gameManager.hit.transform.CompareTag("Tile"))
             highlightedTile = tile;
         else if (gameManager.hit.transform.CompareTag("Unit"))
@@ -317,7 +317,7 @@ public class MapUIManager : MonoBehaviour
     /// <param name="movementRange">A container of nodes that the selected unit can move to from its current position.</param>
     public void HighlightMovementRange(HashSet<Node> movementRange)
     {
-        //For each node in the selected unit's movement range, turn on the highlight quads.
+        // For each node in the selected unit's movement range, turn on the highlight quads.
         foreach (Node node in movementRange)
         {
             quadUIUnitRange[node.x, node.z].GetComponent<Renderer>().material = uIMatBlue;
@@ -331,7 +331,7 @@ public class MapUIManager : MonoBehaviour
     /// <param name="attackableEnemies"></param>
     public void HighlightAttackRange(HashSet<Node> attackableEnemies)
     {
-        //For each node in the selected unit's attack range, turn on the highlight quads.
+        // For each node in the selected unit's attack range, turn on the highlight quads.
         foreach (Node node in attackableEnemies)
         {
             quadUIUnitRange[node.x, node.z].GetComponent<Renderer>().material = uIMatRed;
@@ -347,17 +347,17 @@ public class MapUIManager : MonoBehaviour
     /// <param name="i">An index for a node in the path from the selected unit's position and the last node in its movement path.</param>
     private void DrawUnitPath(int nodeX, int nodeZ, int i)
     {
-        //Keep track of the previous, current and next tile in the path to the target node.
+        // Keep track of the previous, current and next tile in the path to the target node.
         Vector2 prevTile = new Vector2(currentPathToCursor[i - 1].x + 1, currentPathToCursor[i - 1].z + 1);
         Vector2 currTile = new Vector2(currentPathToCursor[i].x + 1, currentPathToCursor[i].z + 1);
         Vector2 nextTile = new Vector2(currentPathToCursor[i + 1].x + 1, currentPathToCursor[i + 1].z + 1);
 
-        //Keep track of any changes of direction that take place in the path from the selected unit's position and its target.
+        // Keep track of any changes of direction that take place in the path from the selected unit's position and its target.
         Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
         Vector2 currToNextVector = VectorDirection(currTile, nextTile);
 
-        //Draw a quad from one node to another, in the path to the node from the selected unit to the node that the mouse is highlighting.
-        //This will turn on a quad in the path, set its material and rotate it depending on the vector direction between the nodes.
+        // Draw a quad from one node to another, in the path to the node from the selected unit to the node that the mouse is highlighting.
+        // This will turn on a quad in the path, set its material and rotate it depending on the vector direction between the nodes.
         if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.right)
             DrawUnitPathQuad(nodeX, nodeZ, 90, 270, uIUnitPath);
         else if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.up)
@@ -392,15 +392,15 @@ public class MapUIManager : MonoBehaviour
     /// <param name="i">The index for the last node in the path from the selected unit's position and the last node in its movement path.</param>
     private void DrawUnitPathArrow(int nodeX, int nodeZ, int i)
     {
-        //Keep track of the previous and target tile in the path to the target node.
+        // Keep track of the previous and target tile in the path to the target node.
         Vector2 prevTile = new Vector2(currentPathToCursor[i - 1].x + 1, currentPathToCursor[i - 1].z + 1);
         Vector2 currTile = new Vector2(currentPathToCursor[i].x + 1, currentPathToCursor[i].z + 1);
 
-        //Keep track of the vector direction that takes place at the end of the path from the selected unit's position and its target.
+        // Keep track of the vector direction that takes place at the end of the path from the selected unit's position and its target.
         Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
 
-        //Draw the final quad in the path to the node from the selected unit to the node that the mouse is highlighting.
-        //This turns on the final quad in the path, set its material and rotates it depending on the vector direction from the previous node in the path.
+        // Draw the final quad in the path to the node from the selected unit to the node that the mouse is highlighting.
+        // This turns on the final quad in the path, set its material and rotates it depending on the vector direction from the previous node in the path.
         if (prevToCurrVector == Vector2.right)
             DrawUnitPathQuad(nodeX, nodeZ, 90, 270, uIUnitPathArrow);
         else if (prevToCurrVector == Vector2.left)
@@ -437,7 +437,7 @@ public class MapUIManager : MonoBehaviour
     /// </summary>
     public void DisableQuadUIUnitRange()
     {
-        //For each highlighted quad in the unit's movement and attack range, turn it off.
+        // For each highlighted quad in the unit's movement and attack range, turn it off.
         foreach (GameObject quad in quadUIUnitRange)
         {
             if (quad.GetComponent<Renderer>().enabled == true)
@@ -450,7 +450,7 @@ public class MapUIManager : MonoBehaviour
     /// </summary>
     public void DisableQuadUIUnitPath()
     {
-        //For each highlighted quad in the unit's movement path, turn it off.
+        // For each highlighted quad in the unit's movement path, turn it off.
         foreach (GameObject quad in quadUIUnitPath)
         {
             if (quad.GetComponent<Renderer>().enabled == true)

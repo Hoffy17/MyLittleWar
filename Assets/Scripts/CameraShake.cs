@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class CameraShake : MonoBehaviour
 {
-    //Shakes the screen when a unit attacks another unit.
+    // Shakes the screen when a unit attacks another unit.
     public IEnumerator ShakeCamera(float duration, float strength, Vector3 direction)
     {
         float tempStrength = strength;

@@ -10,10 +10,8 @@ public class Unit : MonoBehaviour
     #region Declarations
 
     [Header("Unit Data")]
-
     [SerializeField]
     public int teamNumber;
-
     [SerializeField]
     public Sprite portrait;
     [SerializeField]
@@ -26,16 +24,12 @@ public class Unit : MonoBehaviour
     private int totalHealth = 5;
     [SerializeField]
     public int currentHealth;
-    //[SerializeField]
-    //private GameObject unitPrefab;
-
     [HideInInspector]
     public Queue<int> movementQueue;
     [HideInInspector]
     public Queue<int> combatQueue;
 
     [Header("Movement")]
-
     [Tooltip("The number of tiles that this unit can move in one turn.")]
     [SerializeField]
     public int moveSpeed;
@@ -58,29 +52,24 @@ public class Unit : MonoBehaviour
     public MovementState movementState;
 
     [Header("Graphics")]
-
     [SerializeField]
     private GameObject mesh;
     [HideInInspector]
     public Animator animator;
-
     [SerializeField]
     public Material unitMat;
     [SerializeField]
     private Material unitMatWait;
-
     [SerializeField]
     public GameObject particleDamage;
 
     [Header("UI")]
-
     [SerializeField]
     private Canvas healthBarCanvas;
     [SerializeField]
     private TMP_Text healthText;
     [SerializeField]
     public Image healthBar;
-
     [SerializeField]
     private Canvas damageCanvas;
     [SerializeField]
@@ -89,23 +78,19 @@ public class Unit : MonoBehaviour
     private Image damageBar;
 
     [Header("Map Grid Position")]
-
     [Tooltip("The unit's position on the map grid's X axis.")]
     [SerializeField]
     public int tileX;
     [Tooltip("The unit's position on the map grid's Z axis.")]
     [SerializeField]
     public int tileZ;
-
     [HideInInspector]
     public GameObject occupiedTile;
-
     [Tooltip("The map grid on which this unit is moving.")]
     [HideInInspector]
     public MapManager map;
 
     [Header("Pathfinding")]
-
     [Tooltip("The list of pathfinding nodes that the unit will move through to reach its destination.")]
     public List<Node> path;
     [HideInInspector]
@@ -118,12 +103,12 @@ public class Unit : MonoBehaviour
 
     private void Awake()
     {
-        //Reset the unit's pathfinding information.
+        // Reset the unit's pathfinding information.
         path = null;
         movementQueue = new Queue<int>();
         combatQueue = new Queue<int>();
 
-        //Convert the unit's position in worldspace to its position on the map grid.
+        // Convert the unit's position in worldspace to its position on the map grid.
         tileX = (int)transform.position.x;
         tileZ = (int)transform.position.z;
 

@@ -10,7 +10,6 @@ public class UIManager : MonoBehaviour
     #region Declarations
 
     [Header("Components")]
-
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
@@ -19,7 +18,6 @@ public class UIManager : MonoBehaviour
     private MapUIManager mapUIManager;
 
     [Header("UI")]
-
     [Tooltip("The text showing the current player's turn.")]
     [SerializeField]
     private TMP_Text textCurrentPlayer;
@@ -28,7 +26,6 @@ public class UIManager : MonoBehaviour
     private Canvas canvasGameOver;
 
     [Header("Unit Information")]
-
     [Tooltip("The canvas displayed when a player highlights a unit.")]
     [SerializeField]
     private Canvas canvasUnitInfo;
@@ -55,7 +52,6 @@ public class UIManager : MonoBehaviour
     private bool displayingUnitInfo;
 
     [Header("Player Turn")]
-
     [Tooltip("The message displayed when a player's turn ends and the other player's turn begins.")]
     [SerializeField]
     private GameObject playerTurnMessage;
@@ -73,14 +69,14 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        //Reset the canvas showing unit information.
+        // Reset the canvas showing unit information.
         displayingUnitInfo = false;
 
-        //Find the components that display the current player's turn.
+        // Find the components that display the current player's turn.
         playerTurnAnim = playerTurnMessage.GetComponent<Animator>();
         playerTurnText = playerTurnMessage.GetComponentInChildren<TextMeshProUGUI>();
 
-        //Display the current player's turn.
+        // Display the current player's turn.
         PrintCurrentTeam();
         UpdateUITeamHealthBarColour();
     }
@@ -95,47 +91,47 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void UpdateUIUnit()
     {
-        //If unit information is not currently displaying, and the cursor is casting to a unit...
+        // If unit information is not currently displaying, and the cursor is casting to a unit...
         if (!displayingUnitInfo)
         {
             if (gameManager.hit.transform.CompareTag("Unit"))
             {
-                //Set the unit to highlighted and display its stats.
+                // Set the unit to highlighted and display its stats.
                 mapUIManager.highlightedUnit = gameManager.hit.transform.parent.gameObject;
                 Unit unit = gameManager.hit.transform.parent.gameObject.GetComponent<Unit>();
 
                 PrintUnitInfo(unit);
             }
-            //Otherwise if the cursor is casting to a tile that is occupied...
+            // Otherwise if the cursor is casting to a tile that is occupied...
             else if (gameManager.hit.transform.CompareTag("Tile")
                 && gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile != null)
             {
-                //Set that tile's occupied unit to highlighted and display its stats.
+                // Set that tile's occupied unit to highlighted and display its stats.
                 mapUIManager.highlightedUnit = gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile;
                 Unit unit = mapUIManager.highlightedUnit.GetComponent<Unit>();
 
                 PrintUnitInfo(unit);
             }
         }
-        //Otherwise if the cusor is casting to a unit that is not the currently highlighted unit...
+        // Otherwise if the cusor is casting to a unit that is not the currently highlighted unit...
         else if (gameManager.hit.transform.gameObject.CompareTag("Unit")
             && gameManager.hit.transform.parent.gameObject != mapUIManager.highlightedUnit)
         {
-            //Turn off the canvas displaying the previously highlighted unit's stats.
+            // Turn off the canvas displaying the previously highlighted unit's stats.
             canvasUnitInfo.enabled = false;
             displayingUnitInfo = false;
         }
-        //Or if the cursor is casting to a tile...
+        // Or if the cursor is casting to a tile...
         else if (gameManager.hit.transform.gameObject.CompareTag("Tile"))
         {
-            //And that tile is not occupied, turn off the canvas displaying units' stats.
+            // And that tile is not occupied, turn off the canvas displaying units' stats.
             if (gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile == null)
             {
                 canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;
             }
-            //Or if the tile is occupied by a unit different to the currently highlighted unit,
-            //Turn off the canvas displaying units' stats.
+            // Or if the tile is occupied by a unit different to the currently highlighted unit,
+            // Turn off the canvas displaying units' stats.
             else if (gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile != mapUIManager.highlightedUnit)
             {
                 canvasUnitInfo.enabled = false;
@@ -171,7 +167,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void PrintCurrentTurn()
     {
-        //Animate the message communicating this change.
+        // Animate the message communicating this change.
         if (gameManager.currentTeam == 1)
         {
             playerTurnAnim.SetTrigger("Slide Left");
@@ -198,11 +194,11 @@ public class UIManager : MonoBehaviour
     /// <param name="unit">The unit that the cursor is currently highlighting.</param>
     public void PrintUnitInfo(Unit unit)
     {
-        //Turn on the canvas that displays units' stats.
+        // Turn on the canvas that displays units' stats.
         canvasUnitInfo.enabled = true;
         displayingUnitInfo = true;
 
-        //Pass the units' stats into the canvas' UI elements.
+        // Pass the units' stats into the canvas' UI elements.
         imageUnitPortrait.sprite = unit.portrait;
         textUnitName.SetText(unit.unitName.ToString());
         textUnitHealth.SetText("HP: " + unit.currentHealth.ToString());
