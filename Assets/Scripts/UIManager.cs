@@ -18,9 +18,12 @@ public class UIManager : MonoBehaviour
     private MapUIManager mapUIManager;
 
     [Header("UI")]
+    [Tooltip("The text showing the current turn number.")]
+    [SerializeField]
+    private TMP_Text textCurrentDay;
     [Tooltip("The text showing the current player's turn.")]
     [SerializeField]
-    private TMP_Text textCurrentPlayer;
+    private TMP_Text textCurrentTeam;
     [Tooltip("The canvas displayed when a game ends.")]
     [SerializeField]
     private Canvas canvasGameOver;
@@ -51,16 +54,25 @@ public class UIManager : MonoBehaviour
     [NonSerialized]
     private bool displayingUnitInfo;
 
-    [Header("Player Turn")]
+    [Header("Player Turn Transition")]
     [Tooltip("The message displayed when a player's turn ends and the other player's turn begins.")]
     [SerializeField]
-    private GameObject playerTurnMessage;
+    private GameObject playerTurnTransition;
     [Tooltip("The animator that controls the player's turn message sliding in and out of the screen.")]
     [NonSerialized]
     private Animator playerTurnAnim;
-    [Tooltip("The TextMeshPro that displays the player's turn message at the beginning of their turn.")]
-    [NonSerialized]
-    private TMP_Text playerTurnText;
+    [Tooltip("The TextMeshPro that displays the current turn number at the beginning of a player's turn.")]
+    [SerializeField]
+    private TMP_Text playerTurnDayText;
+    [Tooltip("The TextMeshPro that displays the player's team at the beginning of their turn.")]
+    [SerializeField]
+    private TMP_Text playerTurnTeamText;
+    [Tooltip("The colour of the Blue Team's name.")]
+    [SerializeField]
+    private Color blueTeamColour;
+    [Tooltip("The colour of the Red Team's name.")]
+    [SerializeField]
+    private Color redTeamColour;
 
     #endregion
 
@@ -73,10 +85,10 @@ public class UIManager : MonoBehaviour
         displayingUnitInfo = false;
 
         // Find the components that display the current player's turn.
-        playerTurnAnim = playerTurnMessage.GetComponent<Animator>();
-        playerTurnText = playerTurnMessage.GetComponentInChildren<TextMeshProUGUI>();
+        playerTurnAnim = playerTurnTransition.GetComponent<Animator>();
 
         // Display the current player's turn.
+        PrintCurrentTurn();
         PrintCurrentTeam();
         UpdateUITeamHealthBarColour();
     }
@@ -167,16 +179,22 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void PrintCurrentTurn()
     {
-        // Animate the message communicating this change.
+        gameManager.currentDay++;
+
+        // Animate the message communicating the current player's turn.
         if (gameManager.currentTeam == 1)
         {
             playerTurnAnim.SetTrigger("Slide Left");
-            playerTurnText.SetText("Player Two's Turn");
+            playerTurnDayText.SetText("Day " + gameManager.currentDay);
+            playerTurnTeamText.SetText("Red Team");
+            playerTurnTeamText.color = redTeamColour;
         }
         else if (gameManager.currentTeam == 0)
         {
             playerTurnAnim.SetTrigger("Slide Right");
-            playerTurnText.SetText("Player One's Turn");
+            playerTurnDayText.SetText("Day " + gameManager.currentDay);
+            playerTurnTeamText.SetText("Blue Team");
+            playerTurnTeamText.color = blueTeamColour;
         }
     }
 
@@ -185,7 +203,18 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void PrintCurrentTeam()
     {
-        textCurrentPlayer.SetText("Current Player's Turn: Player " + (gameManager.currentTeam + 1).ToString());
+        if (gameManager.currentTeam == 1)
+        {
+            textCurrentDay.SetText("Day " + gameManager.currentDay);
+            textCurrentTeam.SetText("Red Team");
+            textCurrentTeam.color = redTeamColour;
+        }
+        else if (gameManager.currentTeam == 0)
+        {
+            textCurrentDay.SetText("Day " + gameManager.currentDay);
+            textCurrentTeam.SetText("Blue Team");
+            textCurrentTeam.color = blueTeamColour;
+        }
     }
 
     /// <summary>

@@ -34,6 +34,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("The current player who's turn it is to move units and attack.")]
     [HideInInspector]
     public int currentTeam;
+    [Tooltip("The current turn number.")]
+    [HideInInspector]
+    public int currentDay;
 
     [Header("Map")]
     [HideInInspector]
@@ -48,8 +51,9 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Reset the current team.
+        // Reset the current team and day.
         currentTeam = 0;
+        currentDay = 0;
     }
 
     private void Update()

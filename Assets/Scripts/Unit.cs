@@ -184,6 +184,7 @@ public class Unit : MonoBehaviour
             // If the next node in the unit's path is not the final node...
             if ((i + 1) != path.Count)
             {
+                //Debug.Log("" + i);
                 // Get the previous, current and next tile positions in the path.
                 Vector2 prevTile = startTile;
                 Vector2 currTile = new Vector2(path[0].x, path[0].z);
