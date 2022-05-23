@@ -317,6 +317,8 @@ public class MapManager : MonoBehaviour
                 mapUIManager.quadUIUnitRange[x, z] = gridUI;
                 mapUIManager.quadUIUnitPath[x, z] = gridUIUnitMovement;
                 mapUIManager.quadUICursor[x, z] = gridUICursor;
+
+                RotateTerrain(x, z, newTile);
             }
         }
     }
@@ -517,6 +519,23 @@ public class MapManager : MonoBehaviour
     public Vector3 GetTileWorldSpace(int x, int z)
     {
         return new Vector3(x, 0, z);
+    }
+
+    /// <summary>
+    /// Rotate instantiated terrain meshes (i.e. mountains and forests) to add a bit of flair to the map.
+    /// </summary>
+    /// <param name="x">The tile's map grid position on the X axis.</param>
+    /// <param name="z">The tile's map grid position on the Z axis.</param>
+    /// <param name="tile">The tile's game object.</param>
+    public void RotateTerrain(int x, int z, GameObject tile)
+    {
+        if (tiles[x, z] == 1 || 
+            tiles[x, z] == 2)
+        {
+            float rotY = UnityEngine.Random.Range(0, 360);
+
+            tile.transform.GetChild(0).rotation = Quaternion.Euler(0, rotY, 0);
+        }
     }
 
     #endregion
