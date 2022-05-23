@@ -164,12 +164,12 @@ public class UIManager : MonoBehaviour
             if (team == gameManager.GetCurrentTeam(gameManager.currentTeam))
             {
                 foreach (Transform unit in team.transform)
-                    unit.GetComponent<Unit>().healthBar.color = Color.blue;
+                    unit.GetComponent<Unit>().healthBar.color = blueTeamColour;
             }
             else
             {
                 foreach (Transform unit in team.transform)
-                    unit.GetComponent<Unit>().healthBar.color = Color.red;
+                    unit.GetComponent<Unit>().healthBar.color = redTeamColour;
             }
         }
     }

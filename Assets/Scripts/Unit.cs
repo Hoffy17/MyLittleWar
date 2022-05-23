@@ -360,7 +360,7 @@ public class Unit : MonoBehaviour
         damageText.SetText(damage.ToString());
         damageCanvas.enabled = true;
 
-        for (float f = 2f; f >= -0.01f; f -= 0.01f)
+        for (float f = 3f; f >= -0.01f; f -= 0.01f)
         {
             Color barColour = damageBar.GetComponent<Image>().color;
             Color textColour = damageText.color;
