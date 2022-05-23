@@ -140,7 +140,7 @@ public class Unit : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
+        currentHealth -= Mathf.Clamp(damage, 0, currentHealth);
         UpdateHealthUI();
     }
 
