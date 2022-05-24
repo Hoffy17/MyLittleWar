@@ -17,6 +17,9 @@ public class MapManager : MonoBehaviour
     [Tooltip("The BattleManager script.")]
     [SerializeField]
     private BattleManager battleManager;
+    [Tooltip("The UIManager script.")]
+    [SerializeField]
+    private UIManager uIManager;
     [Tooltip("The MapUIManager script.")]
     [SerializeField]
     private MapUIManager mapUIManager;
@@ -85,32 +88,35 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        // On left-mouse click, select units or tiles.
-        if (Input.GetMouseButtonDown(0))
+        if (uIManager.gamePaused == false)
         {
-            unitMovement.SelectUnit();
-            //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
-        }
-
-        // On right-mouse click, deselect units.
-        if (Input.GetMouseButtonDown(1))
-        {
-            // If there is currently a selected unit...
-            if (unitMovement.selectedUnit != null)
+            // On left-mouse click, select units or tiles.
+            if (Input.GetMouseButtonDown(0))
             {
-                // And the unit has not yet finished its turn...
-                if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
-                    && unitMovement.selectedUnit.GetComponent<Unit>().combatQueue.Count == 0
-                    && unitMovement.selectedUnit.GetComponent<Unit>().movementState != MovementState.Waiting)
-                {
-                    //sound.Play();
-                    unitMovement.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+                unitMovement.SelectUnit();
+                //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
+            }
 
-                    //Deselect the unit.
-                    unitMovement.DeselectUnit();
+            // On right-mouse click, deselect units.
+            if (Input.GetMouseButtonDown(1))
+            {
+                // If there is currently a selected unit...
+                if (unitMovement.selectedUnit != null)
+                {
+                    // And the unit has not yet finished its turn...
+                    if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
+                        && unitMovement.selectedUnit.GetComponent<Unit>().combatQueue.Count == 0
+                        && unitMovement.selectedUnit.GetComponent<Unit>().movementState != MovementState.Waiting)
+                    {
+                        //sound.Play();
+                        unitMovement.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+
+                        //Deselect the unit.
+                        unitMovement.DeselectUnit();
+                    }
+                    else if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 1)
+                        unitMovement.selectedUnit.GetComponent<Unit>().lerpSpeed = 0.5f;
                 }
-                else if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 1)
-                    unitMovement.selectedUnit.GetComponent<Unit>().lerpSpeed = 0.5f;
             }
         }
     }

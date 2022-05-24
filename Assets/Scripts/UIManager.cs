@@ -16,17 +16,42 @@ public class UIManager : MonoBehaviour
     [Tooltip("The MapUIManager script.")]
     [SerializeField]
     private MapUIManager mapUIManager;
+    [Tooltip("The UnitMovement script.")]
+    [SerializeField]
+    private UnitMovement unitMovement;
 
-    [Header("UI")]
+    [Header("Game UI")]
     [Tooltip("The text showing the current turn number.")]
     [SerializeField]
     private TMP_Text textCurrentDay;
     [Tooltip("The text showing the current player's turn.")]
     [SerializeField]
     private TMP_Text textCurrentTeam;
+
+    [Header("Pause UI")]
+    [Tooltip("The canvas displayed when the game is paused.")]
+    [SerializeField]
+    private Canvas canvasPause;
+    [Tooltip("The icon displayed on the pause button while the game is playing.")]
+    [SerializeField]
+    private Image iconPause;
+    [Tooltip("The icon displayed on the pause button while the game is paused.")]
+    [SerializeField]
+    private Image iconPlay;
+    [Tooltip("Checks whether the game is paused.")]
+    [HideInInspector]
+    public bool gamePaused;
+    [Tooltip("Checks whether the player is allowed to pause and unpause the game.")]
+    [HideInInspector]
+    public bool canPause;
+
+    [Header("Game Over UI")]
     [Tooltip("The canvas displayed when a game ends.")]
     [SerializeField]
     private Canvas canvasGameOver;
+    [Tooltip("The text showing the winning team.")]
+    [SerializeField]
+    private TMP_Text textGameOver;
 
     [Header("Unit Information")]
     [Tooltip("The canvas displayed when a player highlights a unit.")]
@@ -91,12 +116,55 @@ public class UIManager : MonoBehaviour
         PrintCurrentTurn();
         PrintCurrentTeam();
         UpdateUITeamHealthBarColour();
+
+        gamePaused = false;
+        canPause = true;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && canPause)
+            PauseGame();
     }
 
     #endregion
 
 
     #region Custom Functions
+
+    /// <summary>
+    /// Pauses and unpauses the game.
+    /// </summary>
+    public void PauseGame()
+    {
+        // Pause
+        if (!gamePaused)
+        {
+            canvasPause.enabled = true;
+            gamePaused = true;
+
+            // Set the icon for the pause button.
+            iconPause.enabled = false;
+            iconPlay.enabled = true;
+
+            // If a unit was selected, set its animation to idle and deselect it.
+            if (unitMovement.selectedUnit != null)
+            {
+                unitMovement.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+                unitMovement.DeselectUnit();
+            }
+        }
+        // Unpause
+        else if (gamePaused)
+        {
+            canvasPause.enabled = false;
+            gamePaused = false;
+
+            // Set the icon for the pause button.
+            iconPause.enabled = true;
+            iconPlay.enabled = false;
+        }
+    }
 
     /// <summary>
     /// When the cursor casts to a unit, display its unit information.
@@ -240,10 +308,19 @@ public class UIManager : MonoBehaviour
     /// Turns on the endgame UI and passes the winner as a string into the UI.
     /// </summary>
     /// <param name="winner">A string containing the winner.</param>
-    public void PrintVictor(string winner)
+    public void PrintVictor(GameObject team, string winner)
     {
+        gamePaused = true;
+        canPause = false;
+
         canvasGameOver.enabled = true;
-        canvasGameOver.GetComponentInChildren<TextMeshProUGUI>().SetText(winner);
+        textGameOver.SetText(winner);
+
+        // Set the winning team's colour.
+        if (team == gameManager.team1)
+            textGameOver.color = blueTeamColour;
+        else if (team == gameManager.team2)
+            textGameOver.color = redTeamColour;
     }
 
     #endregion

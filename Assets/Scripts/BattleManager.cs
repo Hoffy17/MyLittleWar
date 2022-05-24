@@ -14,6 +14,9 @@ public class BattleManager : MonoBehaviour
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
+    [Tooltip("The UIManager script.")]
+    [SerializeField]
+    private UIManager uIManager;
     [Tooltip("The CameraShake script.")]
     [SerializeField]
     private CameraShake cameraShake;
@@ -154,6 +157,8 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     public IEnumerator StartAttack(GameObject attacker, GameObject defender)
     {
+        uIManager.canPause = false;
+
         isBattling = true;
 
         float elapsedTime = 0;
@@ -211,6 +216,8 @@ public class BattleManager : MonoBehaviour
         // If the attacking unit is still alive, finish its attack sequence.
         if (attacker != null)
             StartCoroutine(FinishAttack(attacker, defender, startPos));
+        else
+            uIManager.canPause = true;
     }
 
     /// <summary>
@@ -233,6 +240,8 @@ public class BattleManager : MonoBehaviour
 
         attacker.GetComponent<Unit>().SetAnimIdle();
         defender.GetComponent<Unit>().SetAnimIdle();
+
+        uIManager.canPause = true;
     }
 
     #endregion

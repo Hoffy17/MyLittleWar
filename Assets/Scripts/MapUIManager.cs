@@ -11,6 +11,9 @@ public class MapUIManager : MonoBehaviour
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
+    [Tooltip("The UIManager script.")]
+    [SerializeField]
+    private UIManager uIManager;
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private MapManager mapManager;

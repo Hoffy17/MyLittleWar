@@ -24,10 +24,10 @@ public class GameManager : MonoBehaviour
     [Header("Teams")]
     [Tooltip("Player one's team.")]
     [SerializeField]
-    private GameObject team1;
+    public GameObject team1;
     [Tooltip("Player two's team.")]
     [SerializeField]
-    private GameObject team2;
+    public GameObject team2;
     [Tooltip("The number of teams participating in a game.")]
     [HideInInspector]
     public int numberOfTeams = 2;
@@ -63,6 +63,9 @@ public class GameManager : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit))
         {
+            if (uIManager.gamePaused == true)
+                return;
+
             // Check if the cursor is highlighting a tile and/or a unit.
             mapUIManager.CalculateHighlightTile();
             uIManager.UpdateUIUnit();
@@ -182,9 +185,9 @@ public class GameManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         if (team1.transform.childCount == 0)
-            uIManager.PrintVictor("Victor: Team Two!");
+            uIManager.PrintVictor(team2, "Red Team");
         else if (team2.transform.childCount == 0)
-            uIManager.PrintVictor("Victor: Team One!");
+            uIManager.PrintVictor(team1, "Blue Team");
     }
 
     #endregion

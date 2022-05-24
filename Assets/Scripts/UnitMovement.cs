@@ -14,9 +14,12 @@ public class UnitMovement : MonoBehaviour
     [Tooltip("The BattleManager script.")]
     [SerializeField]
     private BattleManager battleManager;
-    [Tooltip("The GameManager script.")]
+    [Tooltip("The MapManager script.")]
     [SerializeField]
     private MapManager mapManager;
+    [Tooltip("The UIManager script.")]
+    [SerializeField]
+    private UIManager uIManager;
     [Tooltip("The MapUIManager script.")]
     [SerializeField]
     private MapUIManager mapUIManager;
@@ -367,6 +370,7 @@ public class UnitMovement : MonoBehaviour
             selectedUnit.GetComponent<Unit>().SetAnimMoving();
 
             // Move the unit to the next tile in their path.
+            uIManager.canPause = false;
             selectedUnit.GetComponent<Unit>().AdvanceNextTile();
             StartCoroutine(FinaliseMovement());
         }
@@ -458,6 +462,8 @@ public class UnitMovement : MonoBehaviour
             mapUIManager.HighlightAttackRange(GetEnemiesAttackable());
             mapUIManager.HighlightMovementRange(GetOccupiedTile());
         }
+
+        uIManager.canPause = true;
     }
 
     /// <summary>
