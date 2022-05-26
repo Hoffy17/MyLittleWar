@@ -9,6 +9,10 @@ public class Unit : MonoBehaviour
 {
     #region Declarations
 
+    [Header("Components")]
+    [SerializeField]
+    public AudioManager audioManager;
+
     [Header("Unit Data")]
     [SerializeField]
     public int teamNumber;
@@ -314,7 +318,8 @@ public class Unit : MonoBehaviour
     {
         movementQueue.Enqueue(1);
 
-        Vector2 startTile = new Vector2(path[0].x, path[0].z);
+        // Record the map grid position of the unit's current tile, before it is removed from its path.
+        Vector2 currTile = new Vector2(path[0].x, path[0].z);
 
         // Remove the selected unit's first node in its movement path.
         path.RemoveAt(0);
@@ -322,14 +327,21 @@ public class Unit : MonoBehaviour
         // While the selected unit's movement path includes more than one node...
         while (path.Count != 0)
         {
-            // Get the worldspace position of the next node in the unit's path.
+            // Get the worldspace positions of the current and next nodes in the unit's path.
+            Vector3 currNode = map.GetTileWorldSpace((int)currTile.x, (int)currTile.y);
             Vector3 nextNode = map.GetTileWorldSpace(path[0].x, path[0].z);
+
+            // If the unit is close enough to its current node, play a sound and rotate the unit.
+            if ((transform.position - currNode).sqrMagnitude < 0.001)
+            {
+                RotateUnitMoving(currTile);
+                audioManager.PlayMoveSFX();
+            }
 
             // Lerp the unit from its current worldspace position, to the position of the next node in its path.
             unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeed);
-            RotateUnitMoving(startTile);
 
-            startTile = new Vector2(path[0].x, path[0].z);
+            currTile = new Vector2(path[0].x, path[0].z);
 
             // When the unit gets close enough to the next node, remove that node from its path.
             if ((transform.position - nextNode).sqrMagnitude < 0.001)

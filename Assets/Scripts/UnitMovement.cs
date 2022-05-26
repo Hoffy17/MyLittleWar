@@ -23,6 +23,9 @@ public class UnitMovement : MonoBehaviour
     [Tooltip("The MapUIManager script.")]
     [SerializeField]
     private MapUIManager mapUIManager;
+    [Tooltip("The AudioManager script.")]
+    [SerializeField]
+    private AudioManager audioManager;
 
     [Header("Selected Unit")]
     [Tooltip("The current unit that has been clicked on.")]
@@ -321,7 +324,7 @@ public class UnitMovement : MonoBehaviour
     #region Unit Movement
 
     /// <summary>
-    /// This function handles all selections made with the left mouse button to any tile or unit.
+    /// Handles all selections made with the left mouse button to any tile or unit.
     /// </summary>
     public void SelectUnit()
     {
@@ -350,6 +353,7 @@ public class UnitMovement : MonoBehaviour
                     unitSelected = true;
 
                     selectedUnit.GetComponent<Unit>().SetAnimSelected();
+                    audioManager.PlaySelectUnitSFX();
 
                     // Highlight the unit's movement range.
                     MovementRange();

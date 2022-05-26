@@ -19,6 +19,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
     private UnitMovement unitMovement;
+    [Tooltip("The AudioManager script.")]
+    [SerializeField]
+    private AudioManager audioManager;
 
     [Header("Game UI")]
     [Tooltip("The text showing the current turn number.")]
@@ -27,6 +30,12 @@ public class UIManager : MonoBehaviour
     [Tooltip("The text showing the current player's turn.")]
     [SerializeField]
     private TMP_Text textCurrentTeam;
+    [Tooltip("The colour of the Blue Team's name.")]
+    [SerializeField]
+    private Color blueTeamColour;
+    [Tooltip("The colour of the Red Team's name.")]
+    [SerializeField]
+    private Color redTeamColour;
 
     [Header("Pause UI")]
     [Tooltip("The canvas displayed when the game is paused.")]
@@ -92,12 +101,6 @@ public class UIManager : MonoBehaviour
     [Tooltip("The TextMeshPro that displays the player's team at the beginning of their turn.")]
     [SerializeField]
     private TMP_Text playerTurnTeamText;
-    [Tooltip("The colour of the Blue Team's name.")]
-    [SerializeField]
-    private Color blueTeamColour;
-    [Tooltip("The colour of the Red Team's name.")]
-    [SerializeField]
-    private Color redTeamColour;
 
     #endregion
 
@@ -248,22 +251,23 @@ public class UIManager : MonoBehaviour
     public void PrintCurrentTurn()
     {
         gameManager.currentDay++;
+        playerTurnDayText.SetText("Day " + gameManager.currentDay);
 
         // Animate the message communicating the current player's turn.
         if (gameManager.currentTeam == 1)
         {
             playerTurnAnim.SetTrigger("Slide Left");
-            playerTurnDayText.SetText("Day " + gameManager.currentDay);
             playerTurnTeamText.SetText("Red Team");
             playerTurnTeamText.color = redTeamColour;
         }
         else if (gameManager.currentTeam == 0)
         {
             playerTurnAnim.SetTrigger("Slide Right");
-            playerTurnDayText.SetText("Day " + gameManager.currentDay);
             playerTurnTeamText.SetText("Blue Team");
             playerTurnTeamText.color = blueTeamColour;
         }
+
+        audioManager.PlayTeamFanfare();
     }
 
     /// <summary>

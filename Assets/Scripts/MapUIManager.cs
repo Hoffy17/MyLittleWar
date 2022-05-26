@@ -20,6 +20,9 @@ public class MapUIManager : MonoBehaviour
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
     private UnitMovement unitMovement;
+    [Tooltip("The AudioManager script.")]
+    [SerializeField]
+    private AudioManager audioManager;
 
     [Header("Highlighted Tiles")]
     [Tooltip("The tile that is highlighted when the player hovers the cursor over a unit.")]
@@ -306,6 +309,8 @@ public class MapUIManager : MonoBehaviour
 
         // Turn on the renderer for the quad that is being highlighted by the cursor.
         quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = true;
+
+        //audioManager.PlayHighlightTile();
 
         // Set the tile, or the tile occupied by a unit, that the cursor is casting to as highlighted.
         if (gameManager.hit.transform.CompareTag("Tile"))
