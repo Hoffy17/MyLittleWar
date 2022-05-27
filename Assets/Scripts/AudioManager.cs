@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
+/// <summary>
+/// Controls the playing of audio.
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
     #region Declarations

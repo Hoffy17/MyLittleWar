@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Controls the display of highlighted tiles on the map grid.
+/// </summary>
 public class MapUIManager : MonoBehaviour
 {
     #region Declarations
@@ -19,7 +22,7 @@ public class MapUIManager : MonoBehaviour
     private MapManager mapManager;
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
-    private UnitMovement unitMovement;
+    private SelectedUnitManager selectedUnitManager;
     [Tooltip("The AudioManager script.")]
     [SerializeField]
     private AudioManager audioManager;
@@ -155,7 +158,7 @@ public class MapUIManager : MonoBehaviour
             // If the highlighted tile is not the same as the tile that the cursor is casting to...
             else if (highlightedTile != gameManager.hit.transform.gameObject)
             {
-                // And unit on that tile has not yet moved...
+                // And the unit on that tile has not yet moved...
                 if (gameManager.hit.transform.parent.gameObject.GetComponent<Unit>().movementQueue.Count == 0)
                 {
                     // Get the new highlighted tile's position.
@@ -182,16 +185,16 @@ public class MapUIManager : MonoBehaviour
     {
         // If there is a selected unit,
         // And its movement range contains a node that the cursor is highlighting...
-        if (unitMovement.selectedUnit != null &&
-            unitMovement.selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected &&
-            unitMovement.selectedUnitMoveRange.Contains(mapManager.graph[cursorX, cursorZ]))
+        if (selectedUnitManager.selectedUnit != null &&
+            selectedUnitManager.selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected &&
+            selectedUnitManager.selectedUnitMoveRange.Contains(mapManager.graph[cursorX, cursorZ]))
         {
             // And if that highlighted tile is not the selected unit's current tile...
-            if (cursorX != unitMovement.selectedUnit.GetComponent<Unit>().tileX ||
-                cursorZ != unitMovement.selectedUnit.GetComponent<Unit>().tileZ)
+            if (cursorX != selectedUnitManager.selectedUnit.GetComponent<Unit>().tileX ||
+                cursorZ != selectedUnitManager.selectedUnit.GetComponent<Unit>().tileZ)
             {
                 // And if there isn't already a current path to another tile, or another unit that has been selected to move...
-                if (!currentPathExists && unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0)
+                if (!currentPathExists && selectedUnitManager.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0)
                 {
                     // Generate a path to the tile highlighted by the cursor.
                     currentPathToCursor = mapManager.GeneratePathTo(cursorX, cursorZ);
@@ -248,8 +251,8 @@ public class MapUIManager : MonoBehaviour
                 }
             }
             // Otherwise, if the cursor's highlighted tile is the same as the selected unit's current tile...
-            else if (cursorX == unitMovement.selectedUnit.GetComponent<Unit>().tileX &&
-                cursorZ == unitMovement.selectedUnit.GetComponent<Unit>().tileZ)
+            else if (cursorX == selectedUnitManager.selectedUnit.GetComponent<Unit>().tileX &&
+                cursorZ == selectedUnitManager.selectedUnit.GetComponent<Unit>().tileZ)
             {
                 // Disable the quads displaying a movement path.
                 DisableQuadUIUnitPath();

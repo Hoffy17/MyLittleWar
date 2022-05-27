@@ -5,44 +5,63 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// The public class for each unit on the map, including infantry and tanks.
+/// </summary>
 public class Unit : MonoBehaviour
 {
     #region Declarations
 
     [Header("Components")]
+    [Tooltip("The AudioManager script.")]
     [SerializeField]
     public AudioManager audioManager;
 
     [Header("Unit Data")]
+    [Tooltip("The team that this unit belongs to, where 0 is blue team and 1 is red team.")]
     [SerializeField]
     public int teamNumber;
+    [Tooltip("The image displayed when the cursor highlights this unit.")]
     [SerializeField]
     public Sprite portrait;
+    [Tooltip("The name displayed when the cursor highlights this unit.")]
     [SerializeField]
     public string unitName;
+    [Tooltip("The amount of damage this unit inflicts on an enemy unit during an attack.")]
     [SerializeField]
     public int attackDamage = 1;
+    [Tooltip("The range within which this unit can attack an enemy unit.")]
     [SerializeField]
     public int attackRange = 1;
+    [Tooltip("This unit's maximum health points.")]
     [SerializeField]
     private int totalHealth = 5;
-    [SerializeField]
+    [Tooltip("This unit's current health points at any time, which are reduced when this unit is attacked.")]
+    [HideInInspector]
     public int currentHealth;
+    [Tooltip("A queue used to keep track of whether this unit is currently moving.")]
     [HideInInspector]
     public Queue<int> movementQueue;
+    [Tooltip("A queue used to keep track of whether this unit is currently attacking.")]
     [HideInInspector]
     public Queue<int> combatQueue;
 
     [Header("Movement")]
-    [Tooltip("The number of tiles that this unit can move in one turn.")]
+    [Tooltip("The amount of movement currency that this unit can spend to move in one turn.")]
     [SerializeField]
     public int moveSpeed;
-    [Tooltip("The number of moves that this unit has remaining in any one turn.")]
+    [Tooltip("The remaining currency that this unit has to move during one turn.")]
     [NonSerialized]
     private float remainingMoves;
-    [Tooltip("The speed at which this unit will move from one tile to another.")]
+    [Tooltip("The default speed at which this unit will move from one tile to another.")]
     [SerializeField]
     public float lerpSpeed;
+    [Tooltip("The current speed at which this unit will move from one tile to another.")]
+    [HideInInspector]
+    public float lerpSpeedCurrent;
+    [Tooltip("The speed at which this unit will move from one tile to another after right-clicking.")]
+    [SerializeField]
+    public float lerpSpeedFast;
 
     [NonSerialized]
     private Transform startPoint;
@@ -52,42 +71,55 @@ public class Unit : MonoBehaviour
     private float journeyLength;
     [NonSerialized]
     private bool isTravelling;
+    [Tooltip("This unit's state referring to its movement during one turn, including unselected, selected, moved or waiting.")]
     [HideInInspector]
     public MovementState movementState;
 
     [Header("Graphics")]
+    [Tooltip("The game object that contains the mesh renderer and material of this unit.")]
     [SerializeField]
     private GameObject mesh;
+    [Tooltip("The animator component used to animate this unit.")]
     [HideInInspector]
     public Animator animator;
+    [Tooltip("This unit's default material, containing a texture with its team colour.")]
     [SerializeField]
     public Material unitMat;
+    [Tooltip("The material that is set when this unit at the end of this unit's turn, containing a greyed texture.")]
     [SerializeField]
     private Material unitMatWait;
+    [Tooltip("The game object containing a particle system, which plays when this unit attacks an enemy unit.")]
     [SerializeField]
     public GameObject particleDamage;
 
     [Header("UI")]
+    [Tooltip("The canvas object containing this unit's health bar, which should be a child of this game object.")]
     [SerializeField]
     private Canvas healthBarCanvas;
+    [Tooltip("The text displayed on this unit's health bar, showing its current health points.")]
     [SerializeField]
     private TMP_Text healthText;
+    [Tooltip("The sprite image that is filled according to this unit's current health points.")]
     [SerializeField]
     public Image healthBar;
+    [Tooltip("The canvas object containing this unit's damage indicator, which should be a child of this game object.")]
     [SerializeField]
     private Canvas damageCanvas;
+    [Tooltip("The text displayed when this unit takes damage, showing how many health points were deducted.")]
     [SerializeField]
     private TMP_Text damageText;
+    [Tooltip("The sprite image that is displayed when this unit takes damage.")]
     [SerializeField]
-    private Image damageBar;
+    private Image damageSprite;
 
     [Header("Map Grid Position")]
-    [Tooltip("The unit's position on the map grid's X axis.")]
+    [Tooltip("This unit's position on the map grid's X axis.")]
     [SerializeField]
     public int tileX;
-    [Tooltip("The unit's position on the map grid's Z axis.")]
+    [Tooltip("This unit's position on the map grid's Z axis.")]
     [SerializeField]
     public int tileZ;
+    [Tooltip("The tile game object that this unit is currently occupying.")]
     [HideInInspector]
     public GameObject occupiedTile;
     [Tooltip("The map grid on which this unit is moving.")]
@@ -96,7 +128,9 @@ public class Unit : MonoBehaviour
 
     [Header("Pathfinding")]
     [Tooltip("The list of pathfinding nodes that the unit will move through to reach its destination.")]
+    [HideInInspector]
     public List<Node> path;
+    [Tooltip("Checks whether this unit has finished its current movement turn.")]
     [HideInInspector]
     public bool moveCompleted = false;
 
@@ -109,22 +143,29 @@ public class Unit : MonoBehaviour
     {
         // Reset the unit's pathfinding information.
         path = null;
+
+        // Empty the movement and combat queues, as a unit is not currently moving or attacking.
         movementQueue = new Queue<int>();
         combatQueue = new Queue<int>();
 
-        // Convert the unit's position in worldspace to its position on the map grid.
+        // Get the unit's position on the map grid by converting its position in worldspace.
         tileX = (int)transform.position.x;
         tileZ = (int)transform.position.z;
 
+        // Reset the unit's movement state and current health.
         movementState = MovementState.Unselected;
         currentHealth = totalHealth;
         healthText.SetText(currentHealth.ToString());
 
         animator = mesh.GetComponent<Animator>();
+
+        // Reset the unit's lerp speed.
+        lerpSpeedCurrent = lerpSpeed;
     }
 
     private void LateUpdate()
     {
+        // Have the unit's health and damage canvases face the camera.
         healthBarCanvas.transform.forward = Camera.main.transform.forward;
         damageCanvas.transform.forward = Camera.main.transform.forward;
     }
@@ -134,7 +175,10 @@ public class Unit : MonoBehaviour
 
     #region Custom Functions
 
-    public void AdvanceNextTile()
+    /// <summary>
+    /// If this unit has nodes to travel to on its movement path, start moving. 
+    /// </summary>
+    public void Move()
     {
         if (path.Count == 0)
             return;
@@ -142,6 +186,10 @@ public class Unit : MonoBehaviour
             StartCoroutine(MoveOverTime(transform.gameObject, path[path.Count - 1]));
     }
 
+    /// <summary>
+    /// Deduct damage from this unit's current health.
+    /// </summary>
+    /// <param name="damage">The amount of damage to deduct from this unit's current health.</param>
     public void TakeDamage(int damage)
     {
         currentHealth -= Mathf.Clamp(damage, 0, currentHealth);
@@ -168,11 +216,14 @@ public class Unit : MonoBehaviour
             return false;
     }
 
+    /// <summary>
+    /// Call coroutines to destroy a unit that has no remaining health points.
+    /// </summary>
     public void Die()
     {
         if (mesh.activeSelf)
         {
-            StartCoroutine(FadeOutUnit());
+            //StartCoroutine(FadeOutUnit());
             StartCoroutine(DelayDeath());
         }
     }
@@ -188,16 +239,18 @@ public class Unit : MonoBehaviour
             // If the next node in the unit's path is not the final node...
             if ((i + 1) != path.Count)
             {
-                // Get the previous, current and next tile positions in the path.
+                // Get the previous, current and next tile positions in the unit's path.
                 Vector2 prevTile = startTile;
                 Vector2 currTile = new Vector2(path[0].x, path[0].z);
                 Vector2 nextTile = new Vector2(path[1].x, path[1].z);
 
-                // Calculate the vectors between those positions.
+                // Calculate the vectors between those tiles.
                 Vector2 prevToCurrVector = VectorDirection(prevTile, currTile);
                 Vector2 currToNextVector = VectorDirection(currTile, nextTile);
 
                 // Rotate the unit.
+                // This is bad code, and should really be done with a 2D lookup table.
+                // It's also using floating point equality which is prone to bugs.
                 if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.right)
                     mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
                 else if (prevToCurrVector == Vector2.right && currToNextVector == Vector2.up)
@@ -267,6 +320,12 @@ public class Unit : MonoBehaviour
             mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
     }
 
+    /// <summary>
+    /// Returns a vector direction between two nodes in this unit's path.
+    /// </summary>
+    /// <param name="currVector">The vector direction of a node in this unit's path.</param>
+    /// <param name="nextVector">The vector direction of the next node in this unit's path.</param>
+    /// <returns></returns>
     private Vector2 VectorDirection(Vector2 currVector, Vector2 nextVector)
     {
         Vector2 vectorDirection = (nextVector - currVector).normalized;
@@ -283,6 +342,9 @@ public class Unit : MonoBehaviour
             return new Vector2();
     }
 
+    /// <summary>
+    /// Updates this unit's UI health bar to reflect its current health points.
+    /// </summary>
     public void UpdateHealthUI()
     {
         healthBar.fillAmount = (float)currentHealth / totalHealth;
@@ -294,16 +356,25 @@ public class Unit : MonoBehaviour
 
     #region Animations
 
+    /// <summary>
+    /// Set this unit's animation state to idle.
+    /// </summary>
     public void SetAnimIdle()
     {
         animator.SetTrigger("Idle");
     }
 
+    /// <summary>
+    /// Set this unit's animation state to selected.
+    /// </summary>
     public void SetAnimSelected()
     {
         animator.SetTrigger("Selected");
     }
 
+    /// <summary>
+    /// Set this unit's animation state to moving.
+    /// </summary>
     public void SetAnimMoving()
     {
         animator.SetTrigger("Moving");
@@ -314,14 +385,21 @@ public class Unit : MonoBehaviour
 
     #region Coroutines
 
+    /// <summary>
+    /// Controls this unit's position translating between one or more tiles over time.
+    /// </summary>
+    /// <param name="unit">The unit that is moving on a movement path.</param>
+    /// <param name="endNode">The final node in this unit's current movement path.</param>
+    /// <returns></returns>
     private IEnumerator MoveOverTime(GameObject unit, Node endNode)
     {
+        // Fill the movement queue, to ensure that other actions cannot take place until this unit has finished moving.
         movementQueue.Enqueue(1);
 
-        // Record the map grid position of the unit's current tile, before it is removed from its path.
+        // Record the map grid position of this unit's current tile, before it is removed from the list of nodes in its movement path.
         Vector2 currTile = new Vector2(path[0].x, path[0].z);
 
-        // Remove the selected unit's first node in its movement path.
+        // Remove this unit's first node in its movement path.
         path.RemoveAt(0);
 
         // While the selected unit's movement path includes more than one node...
@@ -339,11 +417,12 @@ public class Unit : MonoBehaviour
             }
 
             // Lerp the unit from its current worldspace position, to the position of the next node in its path.
-            unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeed);
+            unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeedCurrent);
 
+            // Re-record the map grid position of the unit's current tile, before it is removed.
             currTile = new Vector2(path[0].x, path[0].z);
 
-            // When the unit gets close enough to the next node, remove that node from its path.
+            // When the unit gets close enough to the next node, remove its previous node from its path.
             if ((transform.position - nextNode).sqrMagnitude < 0.001)
                 path.RemoveAt(0);
 
@@ -351,7 +430,7 @@ public class Unit : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        lerpSpeed = 0.15f;
+        lerpSpeedCurrent = lerpSpeed;
 
         // Set the unit's worldspace position as the position of the final node in its path.
         transform.position = map.GetTileWorldSpace(endNode.x, endNode.z);
@@ -362,35 +441,50 @@ public class Unit : MonoBehaviour
         occupiedTile.GetComponent<Tile>().unitOccupyingTile = null;
         occupiedTile = map.mapTiles[tileX, tileZ];
 
+        // Now that this unit has finished moving, emptying the movement queue.
         movementQueue.Dequeue();
     }
 
+    /// <summary>
+    /// Display the amount of damage this unit took after being attacked by an enemy unit.
+    /// </summary>
+    /// <param name="damage">The amount of damage this unit took.</param>
+    /// <returns></returns>
     public IEnumerator DisplayDamage(int damage)
     {
+        // Fill the combat queue to ensure the game cannot progress until this coroutine has finished.
         combatQueue.Enqueue(1);
 
-        damageText.SetText(damage.ToString());
+        // Enable this unit's damage canvas and update the amount of damage.
         damageCanvas.enabled = true;
+        damageText.SetText(damage.ToString());
 
+        // Over time, fade out the unit's damage taken.
         for (float f = 3f; f >= -0.01f; f -= 0.01f)
         {
-            Color barColour = damageBar.GetComponent<Image>().color;
+            Color barColour = damageSprite.GetComponent<Image>().color;
             Color textColour = damageText.color;
 
             barColour.a = f;
             textColour.a = f;
 
-            damageBar.GetComponent<Image>().color = barColour;
+            damageSprite.GetComponent<Image>().color = barColour;
             damageText.color = textColour;
 
             yield return new WaitForEndOfFrame();
         }
 
+        // Now that the coroutine is finished, empty the combat queue.
         combatQueue.Dequeue();
     }
 
+    /// <summary>
+    /// Over time, fade out the unit's renderer upon death.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator FadeOutUnit()
     {
+        // This coroutine doesn't work as intended, and so it is not called currently.
         combatQueue.Enqueue(1);
         Renderer rend = GetComponentInChildren<Renderer>();
 
@@ -405,8 +499,13 @@ public class Unit : MonoBehaviour
         combatQueue.Dequeue();
     }
 
+    /// <summary>
+    /// Wait until the combat queue is empty before destroying a dead unit's game object.
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator DelayDeath()
     {
+        // Wait for this unit to stop attacking.
         while (combatQueue.Count > 0)
             yield return new WaitForEndOfFrame();
 
@@ -416,6 +515,9 @@ public class Unit : MonoBehaviour
     #endregion
 }
 
+/// <summary>
+/// Enumerator states used to keep track of a unit's movement state.
+/// </summary>
 public enum MovementState
 {
     Unselected,

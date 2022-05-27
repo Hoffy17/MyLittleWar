@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18154651, g: 0.22718728, b: 0.30740514, a: 1}
+  m_IndirectSpecularColor: {r: 0.18154642, g: 0.227187, b: 0.30740488, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2044,7 +2044,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh158936
+  m_Name: pb_Mesh19178
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3970,7 +3970,7 @@ MonoBehaviour:
   battleManager: {fileID: 792634049}
   uIManager: {fileID: 792634051}
   mapUIManager: {fileID: 792634052}
-  unitMovement: {fileID: 792634053}
+  selectedUnitManager: {fileID: 792634053}
   tileTypes:
   - name: Grass
     tilePrefab: {fileID: 6526617181273456909, guid: 6fdad5830cec54f6585e4fecafdd43d6, type: 3}
@@ -4047,7 +4047,7 @@ MonoBehaviour:
   mapManager: {fileID: 792634047}
   uIManager: {fileID: 792634051}
   mapUIManager: {fileID: 792634052}
-  unitMovement: {fileID: 792634053}
+  selectedUnitManager: {fileID: 792634053}
   team1: {fileID: 72750623}
   team2: {fileID: 1481311268}
   numberOfTeams: 2
@@ -4067,7 +4067,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameManager: {fileID: 792634050}
   mapUIManager: {fileID: 792634052}
-  unitMovement: {fileID: 792634053}
+  selectedUnitManager: {fileID: 792634053}
   audioManager: {fileID: 892703199}
   textCurrentDay: {fileID: 1111887133}
   textCurrentTeam: {fileID: 762237357}
@@ -4105,7 +4105,7 @@ MonoBehaviour:
   gameManager: {fileID: 792634050}
   uIManager: {fileID: 792634051}
   mapManager: {fileID: 792634047}
-  unitMovement: {fileID: 792634053}
+  selectedUnitManager: {fileID: 792634053}
   audioManager: {fileID: 892703199}
   highlightedUnit: {fileID: 0}
   highlightedTile: {fileID: 0}
@@ -10178,7 +10178,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh157540
+  m_Name: pb_Mesh18664
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

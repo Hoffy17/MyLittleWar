@@ -489,6 +489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07c9c3547b8b4459a922cd7a041b17a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioManager: {fileID: 0}
   teamNumber: 0
   portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   unitName: Infantry
@@ -498,6 +499,8 @@ MonoBehaviour:
   currentHealth: 0
   moveSpeed: 5
   lerpSpeed: 0.15
+  lerpSpeedCurrent: 0
+  lerpSpeedFast: 0.5
   movementState: 0
   mesh: {fileID: 7406656620844064510}
   animator: {fileID: 0}
@@ -509,7 +512,7 @@ MonoBehaviour:
   healthBar: {fileID: 8628950817657104939}
   damageCanvas: {fileID: 4920694128797087516}
   damageText: {fileID: 6850705163909957732}
-  damageBar: {fileID: 7150138212548110823}
+  damageSprite: {fileID: 7150138212548110823}
   tileX: 0
   tileZ: 0
   occupiedTile: {fileID: 0}

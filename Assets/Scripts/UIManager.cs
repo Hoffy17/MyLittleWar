@@ -5,6 +5,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Controls all UI events, including pausing the game and communicating the current player's turn.
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     #region Declarations
@@ -18,7 +21,7 @@ public class UIManager : MonoBehaviour
     private MapUIManager mapUIManager;
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
-    private UnitMovement unitMovement;
+    private SelectedUnitManager selectedUnitManager;
     [Tooltip("The AudioManager script.")]
     [SerializeField]
     private AudioManager audioManager;
@@ -151,10 +154,10 @@ public class UIManager : MonoBehaviour
             iconPlay.enabled = true;
 
             // If a unit was selected, set its animation to idle and deselect it.
-            if (unitMovement.selectedUnit != null)
+            if (selectedUnitManager.selectedUnit != null)
             {
-                unitMovement.selectedUnit.GetComponent<Unit>().SetAnimIdle();
-                unitMovement.DeselectUnit();
+                selectedUnitManager.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+                selectedUnitManager.DeselectUnit();
             }
         }
         // Unpause
@@ -224,7 +227,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Switches the colour of units' health bars between red and blue, depending on the current team.
+    /// Sets the colour of units' health bars, depending on the current team.
     /// </summary>
     public void UpdateUITeamHealthBarColour()
     {
@@ -275,15 +278,15 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void PrintCurrentTeam()
     {
+        textCurrentDay.SetText("Day " + gameManager.currentDay);
+
         if (gameManager.currentTeam == 1)
         {
-            textCurrentDay.SetText("Day " + gameManager.currentDay);
             textCurrentTeam.SetText("Red Team");
             textCurrentTeam.color = redTeamColour;
         }
         else if (gameManager.currentTeam == 0)
         {
-            textCurrentDay.SetText("Day " + gameManager.currentDay);
             textCurrentTeam.SetText("Blue Team");
             textCurrentTeam.color = blueTeamColour;
         }

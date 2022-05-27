@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitMovement : MonoBehaviour
+/// <summary>
+/// Manages any single selected unit, including calculating its movement and attack ranges, attacking and waiting after moving.
+/// </summary>
+public class SelectedUnitManager : MonoBehaviour
 {
     #region Declarations
 
@@ -360,7 +363,7 @@ public class UnitMovement : MonoBehaviour
                 }
             }
         }
-        // If a unit was already selected, and it is on the player's team, we want to set up the unit to move.
+        // If a unit was already selected, it's not yet moving and it is on the player's team, we want to set up the unit to move.
         else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Selected
             && selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
             && CheckTileInMoveRange())
@@ -370,12 +373,11 @@ public class UnitMovement : MonoBehaviour
             unitSelectedPrevZ = selectedUnit.GetComponent<Unit>().tileZ;
             unitSelectedPrevTile = selectedUnit.GetComponent<Unit>().occupiedTile;
 
-            //sound.Play();
             selectedUnit.GetComponent<Unit>().SetAnimMoving();
 
-            // Move the unit to the next tile in their path.
+            // Move the unit on its movement path.
             uIManager.canPause = false;
-            selectedUnit.GetComponent<Unit>().AdvanceNextTile();
+            selectedUnit.GetComponent<Unit>().Move();
             StartCoroutine(FinaliseMovement());
         }
         // If a unit has already finished its move, we want to set up the unit to attack or wait.
@@ -441,6 +443,7 @@ public class UnitMovement : MonoBehaviour
         mapUIManager.DisableQuadUIUnitRange();
         mapUIManager.DisableQuadUIUnitPath();
 
+        // While the selected unit is moving, wait.
         while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
             yield return new WaitForEndOfFrame();
 

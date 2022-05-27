@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages the game's teams, including ending a turn and switching the current team to the other player.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Declarations
@@ -19,7 +22,7 @@ public class GameManager : MonoBehaviour
     private MapUIManager mapUIManager;
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
-    private UnitMovement unitMovement;
+    private SelectedUnitManager selectedUnitManager;
 
     [Header("Teams")]
     [Tooltip("Player one's team.")]
@@ -85,7 +88,7 @@ public class GameManager : MonoBehaviour
     public void EndTurn()
     {
         // If there is no currently selected unit...
-        if (unitMovement.selectedUnit == null)
+        if (selectedUnitManager.selectedUnit == null)
         {
             // Switch to the other player's team.
             SwitchCurrentTeam();
@@ -178,9 +181,9 @@ public class GameManager : MonoBehaviour
     /// <returns></returns>
     public IEnumerator CheckVictor(GameObject attacker, GameObject defender)
     {
+        // Wait for the units to stop attacking.
         while (attacker.GetComponent<Unit>().combatQueue.Count != 0)
             yield return new WaitForEndOfFrame();
-
         while (defender.GetComponent<Unit>().combatQueue.Count != 0)
             yield return new WaitForEndOfFrame();
 

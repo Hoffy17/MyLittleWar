@@ -25,7 +25,7 @@ public class MapManager : MonoBehaviour
     private MapUIManager mapUIManager;
     [Tooltip("The UnitMovement script.")]
     [SerializeField]
-    private UnitMovement unitMovement;
+    private SelectedUnitManager selectedUnitManager;
 
     [Header("Map Data")]
     [Tooltip("The different kinds of tiles that can generate on the map, e.g. grass, forest, mountain, etc.")]
@@ -83,7 +83,7 @@ public class MapManager : MonoBehaviour
         // Create a map of tile prefabs in the scene.
         InstantiateMap();
         // Check units' tile positions and set their tiles as occupied.
-        unitMovement.SetTileOccupied();
+        selectedUnitManager.SetTileOccupied();
     }
 
     private void Update()
@@ -93,7 +93,7 @@ public class MapManager : MonoBehaviour
             // On left-mouse click, select units or tiles.
             if (Input.GetMouseButtonDown(0))
             {
-                unitMovement.SelectUnit();
+                selectedUnitManager.SelectUnit();
                 //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
             }
 
@@ -101,21 +101,24 @@ public class MapManager : MonoBehaviour
             if (Input.GetMouseButtonDown(1))
             {
                 // If there is currently a selected unit...
-                if (unitMovement.selectedUnit != null)
+                if (selectedUnitManager.selectedUnit != null)
                 {
-                    // And the unit has not yet finished its turn...
-                    if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 0
-                        && unitMovement.selectedUnit.GetComponent<Unit>().combatQueue.Count == 0
-                        && unitMovement.selectedUnit.GetComponent<Unit>().movementState != MovementState.Waiting)
+                    Unit selectedUnit = selectedUnitManager.selectedUnit.GetComponent<Unit>();
+
+                    // And the unit has not yet moved, attacked or both...
+                    if (selectedUnit.movementQueue.Count == 0
+                        && selectedUnit.combatQueue.Count == 0
+                        && selectedUnit.movementState != MovementState.Waiting)
                     {
                         //sound.Play();
-                        unitMovement.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+                        selectedUnit.SetAnimIdle();
 
                         //Deselect the unit.
-                        unitMovement.DeselectUnit();
+                        selectedUnitManager.DeselectUnit();
                     }
-                    else if (unitMovement.selectedUnit.GetComponent<Unit>().movementQueue.Count == 1)
-                        unitMovement.selectedUnit.GetComponent<Unit>().lerpSpeed = 0.5f;
+                    // Otherwise, if the selected unit is currently moving, right-click to speed it up.
+                    else if (selectedUnit.movementQueue.Count == 1)
+                        selectedUnit.lerpSpeedCurrent = selectedUnit.lerpSpeedFast;
                 }
             }
         }
@@ -342,8 +345,8 @@ public class MapManager : MonoBehaviour
     public List<Node> GeneratePathTo(int x, int z)
     {
         // If a unit's tile position is the same as the tile it is generating a path to, there is no need to generate a path.
-        if (unitMovement.selectedUnit.GetComponent<Unit>().tileX == x &&
-            unitMovement.selectedUnit.GetComponent<Unit>().tileZ == z)
+        if (selectedUnitManager.selectedUnit.GetComponent<Unit>().tileX == x &&
+            selectedUnitManager.selectedUnit.GetComponent<Unit>().tileZ == z)
         {
             currentPath = new List<Node>();
             return currentPath;
@@ -370,8 +373,8 @@ public class MapManager : MonoBehaviour
 
         // Store the unit's current position on the map grid in a local variable.
         Node source = graph[
-            unitMovement.selectedUnit.GetComponent<Unit>().tileX,
-            unitMovement.selectedUnit.GetComponent<Unit>().tileZ];
+            selectedUnitManager.selectedUnit.GetComponent<Unit>().tileX,
+            selectedUnitManager.selectedUnit.GetComponent<Unit>().tileZ];
         // Store the unit's destination on the map grid in a local variable.
         Node target = graph[x, z];
 
@@ -504,7 +507,7 @@ public class MapManager : MonoBehaviour
         // If the target tile is currently occupied by an enemy unit...
         if (mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile != null &&
             mapTiles[x, z].GetComponent<Tile>().unitOccupyingTile.GetComponent<Unit>().teamNumber !=
-                unitMovement.selectedUnit.GetComponent<Unit>().teamNumber)
+                selectedUnitManager.selectedUnit.GetComponent<Unit>().teamNumber)
             // The unit cannot enter the tile.
             return false;
         // Otherwise, return the target tile's walkability boolean.
