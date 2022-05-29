@@ -50,9 +50,6 @@ public class Unit : MonoBehaviour
     [Tooltip("The amount of movement currency that this unit can spend to move in one turn.")]
     [SerializeField]
     public int moveSpeed;
-    [Tooltip("The remaining currency that this unit has to move during one turn.")]
-    [NonSerialized]
-    private float remainingMoves;
     [Tooltip("The default speed at which this unit will move from one tile to another.")]
     [SerializeField]
     public float lerpSpeed;
@@ -62,15 +59,6 @@ public class Unit : MonoBehaviour
     [Tooltip("The speed at which this unit will move from one tile to another after right-clicking.")]
     [SerializeField]
     public float lerpSpeedFast;
-
-    [NonSerialized]
-    private Transform startPoint;
-    [NonSerialized]
-    private Transform endPoint;
-    [NonSerialized]
-    private float journeyLength;
-    [NonSerialized]
-    private bool isTravelling;
     [Tooltip("This unit's state referring to its movement during one turn, including unselected, selected, moved or waiting.")]
     [HideInInspector]
     public MovementState movementState;
@@ -482,22 +470,22 @@ public class Unit : MonoBehaviour
     /// Over time, fade out the unit's renderer upon death.
     /// </summary>
     /// <returns></returns>
-    public IEnumerator FadeOutUnit()
-    {
-        // This coroutine doesn't work as intended, and so it is not called currently.
-        combatQueue.Enqueue(1);
-        Renderer rend = GetComponentInChildren<Renderer>();
+    //public IEnumerator FadeOutUnit()
+    //{
+    //    // This coroutine doesn't work as intended, and so it is not called currently.
+    //    combatQueue.Enqueue(1);
+    //    Renderer rend = GetComponentInChildren<Renderer>();
 
-        for (float f = 1f; f >= .05; f -= 0.01f)
-        {
-            Color colour = rend.material.color;
-            colour.a = f;
-            rend.material.color = colour;
-            yield return new WaitForEndOfFrame();
-        }
+    //    for (float f = 1f; f >= .05; f -= 0.01f)
+    //    {
+    //        Color colour = rend.material.color;
+    //        colour.a = f;
+    //        rend.material.color = colour;
+    //        yield return new WaitForEndOfFrame();
+    //    }
 
-        combatQueue.Dequeue();
-    }
+    //    combatQueue.Dequeue();
+    //}
 
     /// <summary>
     /// Wait until the combat queue is empty before destroying a dead unit's game object.
