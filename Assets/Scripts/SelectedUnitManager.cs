@@ -435,45 +435,6 @@ public class SelectedUnitManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Disables highlight quads before allowing the player to choose to attack or wait.
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator FinaliseMovement()
-    {
-        mapUIManager.DisableQuadUIUnitRange();
-        mapUIManager.DisableQuadUIUnitPath();
-
-        // While the selected unit is moving, wait.
-        while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
-            yield return new WaitForEndOfFrame();
-
-        FinaliseMovementPos();
-        selectedUnit.GetComponent<Unit>().SetAnimSelected();
-    }
-
-    /// <summary>
-    /// Sets the unit's tile as occupied after moving, and sets them up to attack.
-    /// </summary>
-    private void FinaliseMovementPos()
-    {
-        // Set the selected unit's tile as occupied by the selected unit.
-        mapManager.mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
-            .GetComponent<Tile>().unitOccupyingTile = selectedUnit;
-
-        // Set the selected unit's state to moved.
-        selectedUnit.GetComponent<Unit>().movementState = MovementState.Moved;
-
-        // Highlight the selected unit's atttackable tiles.
-        if (selectedUnit != null)
-        {
-            mapUIManager.HighlightAttackRange(GetEnemiesAttackable());
-            mapUIManager.HighlightMovementRange(GetOccupiedTile());
-        }
-
-        uIManager.canPause = true;
-    }
-
-    /// <summary>
     /// Sets all tiles that are occupied by units as occupied.
     /// </summary>
     public void SetTileOccupied()
@@ -494,6 +455,28 @@ public class SelectedUnitManager : MonoBehaviour
                 mapManager.mapTiles[unitTileX, unitTileZ].GetComponent<Tile>().unitOccupyingTile = unit.gameObject;
             }
         }
+    }
+
+    /// <summary>
+    /// Sets the unit's tile as occupied after moving, and sets them up to attack.
+    /// </summary>
+    private void PrepareAttack()
+    {
+        // Set the selected unit's tile as occupied by the selected unit.
+        mapManager.mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
+            .GetComponent<Tile>().unitOccupyingTile = selectedUnit;
+
+        // Set the selected unit's state to moved.
+        selectedUnit.GetComponent<Unit>().movementState = MovementState.Moved;
+
+        // Highlight the selected unit's atttackable tiles.
+        if (selectedUnit != null)
+        {
+            mapUIManager.HighlightAttackRange(GetEnemiesAttackable());
+            mapUIManager.HighlightMovementRange(GetOccupiedTile());
+        }
+
+        uIManager.canPause = true;
     }
 
     /// <summary>
@@ -578,6 +561,53 @@ public class SelectedUnitManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Automatically ends the player's turn, if every unit on the player's team has finished their move.
+    /// </summary>
+    private void CheckTeamWaiting()
+    {
+        // If the enemy team has remaining units...
+        if (gameManager.GetEnemyTeam(gameManager.currentTeam).transform.childCount != 0)
+        {
+            bool teamWaiting = true;
+
+            // Check if all of the units on the current team are waiting.
+            foreach (Transform unit in gameManager.GetCurrentTeam(gameManager.currentTeam).transform)
+            {
+                if (unit.GetComponent<Unit>().movementState != MovementState.Waiting)
+                {
+                    teamWaiting = false;
+                    break;
+                }
+            }
+
+            if (teamWaiting)
+                gameManager.EndTurn();
+        }
+    }
+
+    #endregion
+
+
+    #region Coroutines
+
+    /// <summary>
+    /// Disables highlight quads before allowing the player to choose to attack or wait.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator FinaliseMovement()
+    {
+        mapUIManager.DisableQuadUIUnitRange();
+        mapUIManager.DisableQuadUIUnitPath();
+
+        // While the selected unit is moving, wait.
+        while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
+            yield return new WaitForEndOfFrame();
+
+        PrepareAttack();
+        selectedUnit.GetComponent<Unit>().SetAnimSelected();
+    }
+
+    /// <summary>
     /// Sets a selected unit to wait, after the unit has finished its attack.
     /// </summary>
     /// <param name="attacker">The unit on the current team, which has attacked a unit from the enemy team.</param>
@@ -606,31 +636,6 @@ public class SelectedUnitManager : MonoBehaviour
 
         DeselectUnit();
         CheckTeamWaiting();
-    }
-
-    /// <summary>
-    /// Automatically ends the player's turn, if every unit on the player's team has finished their move.
-    /// </summary>
-    private void CheckTeamWaiting()
-    {
-        // If the enemy team has remaining units...
-        if (gameManager.GetEnemyTeam(gameManager.currentTeam).transform.childCount != 0)
-        {
-            bool teamWaiting = true;
-
-            // Check if all of the units on the current team are waiting.
-            foreach (Transform unit in gameManager.GetCurrentTeam(gameManager.currentTeam).transform)
-            {
-                if (unit.GetComponent<Unit>().movementState != MovementState.Waiting)
-                {
-                    teamWaiting = false;
-                    break;
-                }
-            }
-
-            if (teamWaiting)
-                gameManager.EndTurn();
-        }
     }
 
     #endregion
