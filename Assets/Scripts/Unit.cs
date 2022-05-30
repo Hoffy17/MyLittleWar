@@ -413,7 +413,7 @@ public class Unit : MonoBehaviour
             }
 
             // Lerp the unit from its current worldspace position, to the position of the next node in its path.
-            unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeedCurrent);
+            unit.transform.position = Vector3.Lerp(transform.position, nextNode, lerpSpeedCurrent * Time.deltaTime);
 
             // Re-record the map grid position of the unit's current tile, before it is removed.
             currTile = new Vector2(path[0].x, path[0].z);
@@ -456,7 +456,7 @@ public class Unit : MonoBehaviour
         damageText.SetText(damage.ToString());
 
         // Over time, fade out the unit's damage taken.
-        for (float f = 3f; f >= -0.01f; f -= 0.01f)
+        for (float f = 3f; f >= -0.01f; f -= 3f * Time.deltaTime)
         {
             Color barColour = damageSprite.GetComponent<Image>().color;
             Color textColour = damageText.color;

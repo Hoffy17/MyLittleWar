@@ -498,11 +498,11 @@ MonoBehaviour:
   totalHealth: 6
   currentHealth: 0
   moveSpeed: 3
-  lerpSpeed: 0.15
+  lerpSpeed: 15
   lerpSpeedCurrent: 0
-  lerpSpeedFast: 0.5
+  lerpSpeedFast: 50
   movementState: 0
-  mesh: {fileID: 0}
+  mesh: {fileID: 8896845619126113399}
   animator: {fileID: 0}
   unitMat: {fileID: 0}
   unitMatWait: {fileID: 2100000, guid: 8aba690f865090c4f8c4516cb06cf9e6, type: 2}

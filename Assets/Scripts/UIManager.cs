@@ -50,6 +50,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The text showing the current player's turn.")]
     [SerializeField]
     private TMP_Text textCurrentTeam;
+    [Tooltip("The button a player can press to end their turn.")]
+    [SerializeField]
+    public Button endTurnButton;
     [Tooltip("The colour of the Blue Team's name.")]
     [SerializeField]
     private Color blueTeamColour;

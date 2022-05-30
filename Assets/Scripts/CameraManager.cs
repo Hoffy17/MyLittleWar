@@ -86,7 +86,7 @@ public class CameraManager : MonoBehaviour
         // Lerp the camera's transform to its gameplay position.
         if (lerpCam)
         {
-            transform.position = Vector3.Lerp(transform.position, gamePos, lerpSpeed);
+            transform.position = Vector3.Lerp(transform.position, gamePos, lerpSpeed * Time.deltaTime);
 
             // When the camera is close enough to its gameplay position, stop lerping and start the game.
             if ((transform.position - gamePos).sqrMagnitude < 0.001)

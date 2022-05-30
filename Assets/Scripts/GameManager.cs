@@ -93,10 +93,11 @@ public class GameManager : MonoBehaviour
         {
             // Switch to the other player's team.
             SwitchCurrentTeam();
-
             uIManager.PrintCurrentTurn();
-            //UpdateUITeamHealthBarColour();
             uIManager.PrintCurrentTeam();
+
+            // Disable the End Turn button so the player can't spam it.
+            uIManager.endTurnButton.interactable = false;
         }
     }
 

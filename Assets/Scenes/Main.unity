@@ -228,11 +228,6 @@ Transform:
   m_Father: {fileID: 792634048}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &39736107 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8896845619126113399, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
-  m_PrefabInstance: {fileID: 1234482173592832334}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &41610591
 GameObject:
   m_ObjectHideFlags: 0
@@ -1603,7 +1598,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh19672
+  m_Name: pb_Mesh223134
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1877,18 +1872,6 @@ PrefabInstance:
       propertyPath: portrait
       value: 
       objectReference: {fileID: 21300000, guid: e69d377ecb7aa484fa92702f1d523e87, type: 3}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: unitName
-      value: Infantry
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: lerpSpeed
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: attackRange
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: audioManager
       value: 
@@ -3048,18 +3031,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: e69d377ecb7aa484fa92702f1d523e87, type: 3}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: unitName
-      value: Infantry
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: lerpSpeed
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: attackRange
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: audioManager
       value: 
       objectReference: {fileID: 892703199}
@@ -3862,7 +3833,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh20216
+  m_Name: pb_Mesh224674
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -4555,11 +4526,6 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2296815916332786455, guid: 4d0976503200bc745a0c68f6c3e30178, type: 3}
   m_PrefabInstance: {fileID: 283141525}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &662477871 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8896845619126113399, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
-  m_PrefabInstance: {fileID: 1694555761}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &664328509 stripped
 Transform:
@@ -6090,6 +6056,7 @@ MonoBehaviour:
   gameUI: {fileID: 1953422335}
   textCurrentDay: {fileID: 1111887133}
   textCurrentTeam: {fileID: 762237357}
+  endTurnButton: {fileID: 1632287734}
   blueTeamColour: {r: 0.3529412, g: 0.4156863, b: 0.8196079, a: 1}
   redTeamColour: {r: 0.9960785, g: 0.47058827, b: 0.22352943, a: 1}
   canvasPause: {fileID: 1857877588}
@@ -6549,19 +6516,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 39356d2655e454aa4b3b6b9c123e2910, type: 3}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: unitName
-      value: Infantry
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: lerpSpeed
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: teamNumber
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: attackRange
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
@@ -7802,19 +7757,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 39356d2655e454aa4b3b6b9c123e2910, type: 3}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: unitName
-      value: Infantry
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: lerpSpeed
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: teamNumber
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: attackRange
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
@@ -8584,7 +8527,7 @@ MonoBehaviour:
   uIManager: {fileID: 792634051}
   mainMenuPos: {x: -3.6390872, y: 5.75, z: 4.139087}
   gamePos: {x: 0.25, y: 5.75, z: 0.25}
-  lerpSpeed: 0.025
+  lerpSpeed: 7.5
   lerpCam: 0
   fadeTime: 3
   fadeColor: {r: 0, g: 0, b: 0, a: 1}
@@ -8629,19 +8572,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 39356d2655e454aa4b3b6b9c123e2910, type: 3}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: unitName
-      value: Infantry
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: lerpSpeed
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
       propertyPath: teamNumber
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
-      propertyPath: attackRange
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5882035700250922298, guid: 7ab9913c398e681449c283e5fc6025f0, type: 3}
@@ -9974,7 +9905,7 @@ RectTransform:
   - {fileID: 1552377937}
   - {fileID: 1783420823}
   m_Father: {fileID: 1974340999}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
@@ -12914,7 +12845,7 @@ MonoBehaviour:
     m_HighlightedSprite: {fileID: 0}
     m_PressedSprite: {fileID: 21300000, guid: d1cbced849ad1994b9456c804b95bc92, type: 3}
     m_SelectedSprite: {fileID: 0}
-    m_DisabledSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 21300000, guid: d1cbced849ad1994b9456c804b95bc92, type: 3}
   m_AnimationTriggers:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
@@ -13040,10 +12971,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
-      propertyPath: mesh
-      value: 
-      objectReference: {fileID: 662477871}
     - target: {fileID: 5882035700250922298, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
       propertyPath: unitMat
       value: 
@@ -14429,7 +14356,7 @@ RectTransform:
   - {fileID: 1500298356}
   - {fileID: 140395104}
   m_Father: {fileID: 1974340999}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -15181,7 +15108,7 @@ RectTransform:
   - {fileID: 687756869}
   - {fileID: 1632287733}
   m_Father: {fileID: 1974340999}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -15318,10 +15245,10 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 464174925}
-  - {fileID: 1953422336}
   - {fileID: 1135473197}
   - {fileID: 1857877584}
   - {fileID: 2068149898}
+  - {fileID: 1953422336}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -17054,7 +16981,7 @@ RectTransform:
   - {fileID: 1552293996}
   - {fileID: 1352813838}
   m_Father: {fileID: 1974340999}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -17853,10 +17780,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 5882035700250922298, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
-      propertyPath: mesh
-      value: 
-      objectReference: {fileID: 39736107}
     - target: {fileID: 5882035700250922298, guid: db54eb16f71bd634a8babc2a5b2ade68, type: 3}
       propertyPath: unitMat
       value: 

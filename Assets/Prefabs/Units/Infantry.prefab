@@ -498,9 +498,9 @@ MonoBehaviour:
   totalHealth: 5
   currentHealth: 0
   moveSpeed: 5
-  lerpSpeed: 0.15
+  lerpSpeed: 15
   lerpSpeedCurrent: 0
-  lerpSpeedFast: 0.5
+  lerpSpeedFast: 50
   movementState: 0
   mesh: {fileID: 7406656620844064510}
   animator: {fileID: 0}
