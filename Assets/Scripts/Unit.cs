@@ -409,7 +409,7 @@ public class Unit : MonoBehaviour
             if ((transform.position - currNode).sqrMagnitude < 0.001)
             {
                 RotateMoving(currTile);
-                audioManager.PlayMoveSFX();
+                audioManager.PlayMoveSFX(unitName);
             }
 
             // Lerp the unit from its current worldspace position, to the position of the next node in its path.

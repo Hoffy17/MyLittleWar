@@ -88,17 +88,21 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void EndTurn()
     {
-        // If there is no currently selected unit...
-        if (selectedUnitManager.selectedUnit == null)
+        // If a unit was selected, set its animation to idle and deselect it.
+        if (selectedUnitManager.selectedUnit != null)
         {
-            // Switch to the other player's team.
-            SwitchCurrentTeam();
-            uIManager.PrintCurrentTurn();
-            uIManager.PrintCurrentTeam();
-
-            // Disable the End Turn button so the player can't spam it.
-            uIManager.endTurnButton.interactable = false;
+            selectedUnitManager.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+            selectedUnitManager.DeselectUnit();
         }
+
+        // Switch to the other player's team.
+        SwitchCurrentTeam();
+        uIManager.PrintCurrentTurn();
+        uIManager.PrintCurrentTeam();
+
+        // Disable the End Turn button for a moment so the player can't spam it.
+        uIManager.endTurnButton.interactable = false;
+        StartCoroutine(uIManager.ResetEndTurnButton());
     }
 
     /// <summary>

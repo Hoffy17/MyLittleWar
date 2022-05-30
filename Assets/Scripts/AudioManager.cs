@@ -35,6 +35,9 @@ public class AudioManager : MonoBehaviour
     [Tooltip("The sound effect played when an infantry unit moves between tiles.")]
     [SerializeField]
     private AudioSource sFXMoveInfantry;
+    [Tooltip("The sound effect played when an tank unit moves between tiles.")]
+    [SerializeField]
+    private AudioSource sFXMoveTank;
 
     #endregion
 
@@ -72,9 +75,12 @@ public class AudioManager : MonoBehaviour
 
     #region SFX - Unit
 
-    public void PlayMoveSFX()
+    public void PlayMoveSFX(string unitType)
     {
-        sFXMoveInfantry.Play();
+        if (unitType == "Infantry")
+            sFXMoveInfantry.Play();
+        else if (unitType == "Tank")
+            sFXMoveTank.Play();
     }
 
     #endregion

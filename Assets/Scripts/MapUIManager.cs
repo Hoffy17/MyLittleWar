@@ -173,9 +173,12 @@ public class MapUIManager : MonoBehaviour
                 }
             }
         }
-        // Otherwise, turn off the previously highlighted tile.
+        // Otherwise, turn off the previously highlighted tile and set the highlighted tile to null.
         else
+        {
             quadUICursor[highlightedTileX, highlightedTileZ].GetComponent<MeshRenderer>().enabled = false;
+            highlightedTile = null;
+        }
     }
 
     /// <summary>

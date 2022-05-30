@@ -95,7 +95,7 @@ public class MapManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 selectedUnitManager.SelectUnit();
-                //Debug.Log("Tile Clicked: " + gameManager.highlightedTile.GetComponent<Tile>().tileX + ", " + gameManager.highlightedTile.GetComponent<Tile>().tileZ);
+                //Debug.Log("Tile Clicked: " + mapUIManager.highlightedTile.GetComponent<Tile>().tileX + ", " + mapUIManager.highlightedTile.GetComponent<Tile>().tileZ);
             }
 
             // On right-mouse click, deselect units.
@@ -166,11 +166,12 @@ public class MapManager : MonoBehaviour
         tiles[2, 8] = 1;
         tiles[2, 9] = 1;
         tiles[3, 0] = 1;
+        tiles[3, 2] = 1;
         tiles[3, 4] = 1;
-        tiles[4, 2] = 1;
         tiles[4, 6] = 1;
         tiles[5, 0] = 1;
         tiles[5, 3] = 1;
+        tiles[5, 4] = 1;
         tiles[5, 5] = 1;
         tiles[5, 7] = 1;
         tiles[6, 0] = 1;
@@ -188,7 +189,7 @@ public class MapManager : MonoBehaviour
         tiles[1, 9] = 2;
         tiles[4, 0] = 2;
         tiles[4, 7] = 2;
-        tiles[5, 2] = 2;
+        tiles[5, 3] = 2;
         tiles[5, 6] = 2;
         tiles[6, 9] = 2;
         tiles[7, 0] = 2;

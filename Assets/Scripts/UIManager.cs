@@ -53,6 +53,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The button a player can press to end their turn.")]
     [SerializeField]
     public Button endTurnButton;
+    [Tooltip("The number of seconds that pass before the End Turn button can be pressed, after a turn ends.")]
+    [SerializeField]
+    private float endTurnResetTime;
     [Tooltip("The colour of the Blue Team's name.")]
     [SerializeField]
     private Color blueTeamColour;
@@ -64,6 +67,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The canvas displayed when the game is paused.")]
     [SerializeField]
     private Canvas canvasPause;
+    [Tooltip("A UI button used to pause the game.")]
+    [SerializeField]
+    private GameObject pauseButton;
     [Tooltip("The icon displayed on the pause button while the game is playing.")]
     [SerializeField]
     private Image iconPause;
@@ -135,8 +141,10 @@ public class UIManager : MonoBehaviour
         // Turn on the main menu.
         canvasMainMenu.enabled = true;
         mainMenuActive = true;
+
         // Turn off the game UI.
         gameUI.SetActive(false);
+        pauseButton.SetActive(false);
         displayingUnitInfo = false;
 
         // Find the animator components for various UI elements.
@@ -187,11 +195,16 @@ public class UIManager : MonoBehaviour
 
         // Turn on the game UI and units' health bars.
         gameUI.SetActive(true);
+        pauseButton.SetActive(true);
         UpdateUIUnitHealthBar();
 
         // Notify the current player's turn.
         PrintCurrentTurn();
         PrintCurrentTeam();
+
+        // Disable the End Turn button briefly.
+        endTurnButton.interactable = false;
+        StartCoroutine(ResetEndTurnButton());
 
         // Allow the player to pause.
         canPause = true;
@@ -268,20 +281,22 @@ public class UIManager : MonoBehaviour
                 PrintUnitInfo(unit);
             }
         }
-        // Otherwise if the cusor is casting to a unit that is not the currently highlighted unit...
+        // Otherwise if unit info is displaying, and the cursor is casting to a unit that is not the currently highlighted unit...
         else if (gameManager.hit.transform.gameObject.CompareTag("Unit")
             && gameManager.hit.transform.parent.gameObject != mapUIManager.highlightedUnit)
         {
             // Turn off the canvas displaying the previously highlighted unit's stats.
+            mapUIManager.highlightedUnit = null;
             canvasUnitInfo.enabled = false;
             displayingUnitInfo = false;
         }
-        // Or if the cursor is casting to a tile...
+        // Or if unit info is displaying, and the cursor is casting to a tile...
         else if (gameManager.hit.transform.gameObject.CompareTag("Tile"))
         {
             // And that tile is not occupied, turn off the canvas displaying units' stats.
             if (gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile == null)
             {
+                mapUIManager.highlightedUnit = null;
                 canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;
             }
@@ -289,9 +304,17 @@ public class UIManager : MonoBehaviour
             // Turn off the canvas displaying units' stats.
             else if (gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile != mapUIManager.highlightedUnit)
             {
+                mapUIManager.highlightedUnit = null;
                 canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;
             }
+        }
+        //If the cursor is casting to anything else, turn off the unit info canvas.
+        else
+        {
+            mapUIManager.highlightedUnit = null;
+            canvasUnitInfo.enabled = false;
+            displayingUnitInfo = false;
         }
     }
 
@@ -395,6 +418,8 @@ public class UIManager : MonoBehaviour
         gamePaused = true;
         canPause = false;
 
+        pauseButton.SetActive(false);
+
         canvasGameOver.enabled = true;
         textGameOver.SetText(winner);
 
@@ -403,6 +428,21 @@ public class UIManager : MonoBehaviour
             textGameOver.color = blueTeamColour;
         else if (team == gameManager.team2)
             textGameOver.color = redTeamColour;
+    }
+
+    #endregion
+
+
+    #region Coroutines
+
+    /// <summary>
+    /// Re-enables the End Turn button after a period of time after a turn ends.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator ResetEndTurnButton()
+    {
+        yield return new WaitForSeconds(endTurnResetTime);
+        endTurnButton.interactable = true;
     }
 
     #endregion
