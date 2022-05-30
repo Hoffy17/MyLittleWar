@@ -66,7 +66,8 @@ public class GameManager : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit))
         {
-            if (uIManager.gamePaused == true)
+            if (uIManager.gamePaused ||
+                uIManager.mainMenuActive)
                 return;
 
             // Check if the cursor is highlighting a tile and/or a unit.

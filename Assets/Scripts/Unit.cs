@@ -196,7 +196,7 @@ public class Unit : MonoBehaviour
     /// Returns true if a unit's health has fallen to zero.
     /// </summary>
     /// <returns></returns>
-    public bool CheckUnitDead()
+    public bool CheckDead()
     {
         if (currentHealth <= 0)
             return true;
@@ -220,7 +220,7 @@ public class Unit : MonoBehaviour
     /// Rotates the unit as it moves between tiles on its movement path.
     /// </summary>
     /// <param name="startTile">The map grid position of the previous tile in the unit's path. This is being repeatedly updated in the <see cref="MoveOverTime(GameObject, Node)"/> coroutine.</param>
-    private void RotateUnitMoving(Vector2 startTile)
+    private void RotateMoving(Vector2 startTile)
     {
         for (int i = 0; i < path.Count; i++)
         {
@@ -292,7 +292,7 @@ public class Unit : MonoBehaviour
     /// </summary>
     /// <param name="attackerTile">The map grid position of the attacker.</param>
     /// <param name="defenderTile">The map grid position of the defender.</param>
-    public void RotateUnitAttacking(Vector2 attackerTile, Vector2 defenderTile)
+    public void RotateAttacking(Vector2 attackerTile, Vector2 defenderTile)
     {
         // Calculate the vector between the attacker and defender.
         Vector2 unitDirection = VectorDirection(attackerTile, defenderTile);
@@ -328,6 +328,14 @@ public class Unit : MonoBehaviour
             return Vector2.down;
         else
             return new Vector2();
+    }
+
+    public void HealthBarToggle()
+    {
+        if (healthBarCanvas.enabled)
+            healthBarCanvas.enabled = false;
+        else
+            healthBarCanvas.enabled = true;
     }
 
     /// <summary>
@@ -400,7 +408,7 @@ public class Unit : MonoBehaviour
             // If the unit is close enough to its current node, play a sound and rotate the unit.
             if ((transform.position - currNode).sqrMagnitude < 0.001)
             {
-                RotateUnitMoving(currTile);
+                RotateMoving(currTile);
                 audioManager.PlayMoveSFX();
             }
 

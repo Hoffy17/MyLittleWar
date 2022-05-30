@@ -88,7 +88,8 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        if (uIManager.gamePaused == false)
+        if (!uIManager.gamePaused &&
+            !uIManager.mainMenuActive)
         {
             // On left-mouse click, select units or tiles.
             if (Input.GetMouseButtonDown(0))

@@ -19,7 +19,7 @@ public class BattleManager : MonoBehaviour
     private UIManager uIManager;
     [Tooltip("The CameraShake script.")]
     [SerializeField]
-    private CameraShake cameraShake;
+    private CameraManager cameraManager;
 
     [Tooltip("Checks whether a battle has taken place and has finished.")]
     [NonSerialized]
@@ -54,7 +54,7 @@ public class BattleManager : MonoBehaviour
             defenderUnit.TakeDamage(attackerDamage);
 
             // Check if the defending unit dies.
-            if (defenderUnit.CheckUnitDead())
+            if (defenderUnit.CheckDead())
             {
                 DefenderDies(attacker, defender, defenderUnit);
                 return;
@@ -64,7 +64,7 @@ public class BattleManager : MonoBehaviour
             attackerUnit.TakeDamage(defenderDamage);
 
             //Check if the attacking unit dies.
-            if (attackerUnit.CheckUnitDead())
+            if (attackerUnit.CheckDead())
             {
                 AttackerDies(attacker, defender, attackerUnit);
                 return;
@@ -76,7 +76,7 @@ public class BattleManager : MonoBehaviour
             //PlayParticles(defenderUnit);
             defenderUnit.TakeDamage(attackerDamage);
 
-            if (defenderUnit.CheckUnitDead())
+            if (defenderUnit.CheckDead())
             {
                 DefenderDies(attacker, defender, defenderUnit);
                 return;
@@ -174,8 +174,8 @@ public class BattleManager : MonoBehaviour
         // Animate the attacker's attack and have the two units face each other.
         attacker.GetComponent<Unit>().SetAnimMoving();
         defender.GetComponent<Unit>().SetAnimSelected();
-        attacker.GetComponent<Unit>().RotateUnitAttacking(attackerTile, defenderTile);
-        defender.GetComponent<Unit>().RotateUnitAttacking(defenderTile, attackerTile);
+        attacker.GetComponent<Unit>().RotateAttacking(attackerTile, defenderTile);
+        defender.GetComponent<Unit>().RotateAttacking(defenderTile, attackerTile);
 
         while (elapsedTime < 0.25f)
         {
@@ -192,7 +192,7 @@ public class BattleManager : MonoBehaviour
         while (isBattling)
         {
             // Shake the camera.
-            StartCoroutine(cameraShake.ShakeCamera(0.2f, attacker.GetComponent<Unit>().attackDamage, GetAttackDirection(attacker, defender)));
+            StartCoroutine(cameraManager.ShakeCamera(0.2f, attacker.GetComponent<Unit>().attackDamage, GetAttackDirection(attacker, defender)));
 
             // If the attacking and defending units have the same attack range,
             // And the defender has health remaining after being attacked...

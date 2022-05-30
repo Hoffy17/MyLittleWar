@@ -26,7 +26,24 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private AudioManager audioManager;
 
+    [Header("Cameras")]
+    [SerializeField]
+    private CameraManager mainCamera;
+
+    [Header("Main Menu UI")]
+    [Tooltip("The canvas displayed at the beginning of the game.")]
+    [SerializeField]
+    private Canvas canvasMainMenu;
+    [Tooltip("The animator that controls the main menu sliding out of the screen.")]
+    [NonSerialized]
+    private Animator mainMenuAnim;
+    [HideInInspector]
+    public bool mainMenuActive;
+
     [Header("Game UI")]
+    [Tooltip("The UI elements displayed during gameplay.")]
+    [SerializeField]
+    private GameObject gameUI;
     [Tooltip("The text showing the current turn number.")]
     [SerializeField]
     private TMP_Text textCurrentDay;
@@ -112,19 +129,23 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        // Reset the canvas showing unit information.
+        // Turn on the main menu.
+        canvasMainMenu.enabled = true;
+        mainMenuActive = true;
+        // Turn off the game UI.
+        gameUI.SetActive(false);
         displayingUnitInfo = false;
 
-        // Find the components that display the current player's turn.
+        // Find the animator components for various UI elements.
+        mainMenuAnim = canvasMainMenu.gameObject.GetComponent<Animator>();
         playerTurnAnim = playerTurnTransition.GetComponent<Animator>();
 
-        // Display the current player's turn.
-        PrintCurrentTurn();
-        PrintCurrentTeam();
-        UpdateUITeamHealthBarColour();
+        // Turn off units' health bars while the main menu is active.
+        UpdateUIUnitHealthBar();
 
+        // Do not allow the player to pause while the main menu is active.
         gamePaused = false;
-        canPause = true;
+        canPause = false;
     }
 
     private void Update()
@@ -139,36 +160,81 @@ public class UIManager : MonoBehaviour
     #region Custom Functions
 
     /// <summary>
+    /// Sets a bool that lerps the camera from its position on the main menu to its position during gameplay.
+    /// </summary>
+    public void LerpCamera()
+    {
+        if (!mainCamera.lerpCam)
+        {
+            mainCamera.lerpCam = true;
+
+            // Slide the main menu out to the left.
+            mainMenuAnim.SetTrigger("Slide Left");
+        }
+    }
+
+    /// <summary>
+    /// Sets up UI for gameplay.
+    /// </summary>
+    public void StartGame()
+    {
+        // Turn off the main menu.
+        canvasMainMenu.enabled = false;
+        mainMenuActive = false;
+
+        // Turn on the game UI and units' health bars.
+        gameUI.SetActive(true);
+        UpdateUIUnitHealthBar();
+
+        // Notify the current player's turn.
+        PrintCurrentTurn();
+        PrintCurrentTeam();
+
+        // Allow the player to pause.
+        canPause = true;
+    }
+
+    /// <summary>
     /// Pauses and unpauses the game.
     /// </summary>
     public void PauseGame()
     {
-        // Pause
-        if (!gamePaused)
+        // The player cannot pause while the main menu is active.
+        if (!mainMenuActive)
         {
-            canvasPause.enabled = true;
-            gamePaused = true;
-
-            // Set the icon for the pause button.
-            iconPause.enabled = false;
-            iconPlay.enabled = true;
-
-            // If a unit was selected, set its animation to idle and deselect it.
-            if (selectedUnitManager.selectedUnit != null)
+            // Pause
+            if (!gamePaused)
             {
-                selectedUnitManager.selectedUnit.GetComponent<Unit>().SetAnimIdle();
-                selectedUnitManager.DeselectUnit();
-            }
-        }
-        // Unpause
-        else if (gamePaused)
-        {
-            canvasPause.enabled = false;
-            gamePaused = false;
+                canvasPause.enabled = true;
+                gamePaused = true;
 
-            // Set the icon for the pause button.
-            iconPause.enabled = true;
-            iconPlay.enabled = false;
+                // Set the icon for the pause button.
+                iconPause.enabled = false;
+                iconPlay.enabled = true;
+
+                // If a unit was selected, set its animation to idle and deselect it.
+                if (selectedUnitManager.selectedUnit != null)
+                {
+                    selectedUnitManager.selectedUnit.GetComponent<Unit>().SetAnimIdle();
+                    selectedUnitManager.DeselectUnit();
+                }
+
+                // Turn off units' health bars.
+                UpdateUIUnitHealthBar();
+            }
+            // Unpause
+            else if (gamePaused)
+            {
+                canvasPause.enabled = false;
+                gamePaused = false;
+
+                // Set the icon for the pause button.
+                iconPause.enabled = true;
+                iconPlay.enabled = false;
+
+                // Turn on units' health bars.
+                UpdateUIUnitHealthBar();
+            }
         }
     }
 
@@ -227,23 +293,29 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the colour of units' health bars, depending on the current team.
+    /// Sets the colour of units' health bars, depending on the current team, and toggles them on or off.
     /// </summary>
-    public void UpdateUITeamHealthBarColour()
+    public void UpdateUIUnitHealthBar()
     {
         for (int i = 0; i < gameManager.numberOfTeams; i++)
         {
             GameObject team = gameManager.GetCurrentTeam(i);
 
-            if (team == gameManager.GetCurrentTeam(gameManager.currentTeam))
+            if (team == gameManager.GetCurrentTeam(0))
             {
                 foreach (Transform unit in team.transform)
+                {
                     unit.GetComponent<Unit>().healthBar.color = blueTeamColour;
+                    unit.GetComponent<Unit>().HealthBarToggle();
+                }
             }
-            else
+            else if (team == gameManager.GetCurrentTeam(1))
             {
                 foreach (Transform unit in team.transform)
+                {
                     unit.GetComponent<Unit>().healthBar.color = redTeamColour;
+                    unit.GetComponent<Unit>().HealthBarToggle();
+                }
             }
         }
     }
