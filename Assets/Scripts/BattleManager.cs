@@ -20,6 +20,9 @@ public class BattleManager : MonoBehaviour
     [Tooltip("The CameraShake script.")]
     [SerializeField]
     private CameraManager cameraManager;
+    [Tooltip("The AudioManager script.")]
+    [SerializeField]
+    public AudioManager audioManager;
 
     [Tooltip("Checks whether a battle has taken place and has finished.")]
     [NonSerialized]
@@ -158,10 +161,9 @@ public class BattleManager : MonoBehaviour
     public IEnumerator StartAttack(GameObject attacker, GameObject defender)
     {
         uIManager.canPause = false;
+        uIManager.TogglePauseButton(false);
 
         isBattling = true;
-
-        float elapsedTime = 0;
 
         // Get the attacker's and defender's map grid positions.
         Vector2 attackerTile = new Vector2(attacker.GetComponent<Unit>().tileX, attacker.GetComponent<Unit>().tileZ);
@@ -172,22 +174,25 @@ public class BattleManager : MonoBehaviour
         Vector3 endPos = defender.transform.position;
 
         // Animate the attacker's attack and have the two units face each other.
-        attacker.GetComponent<Unit>().SetAnimMoving();
-        defender.GetComponent<Unit>().SetAnimSelected();
+        attacker.GetComponent<Unit>().SetAnimAttacking();
+        defender.GetComponent<Unit>().SetAnimAttacking();
         attacker.GetComponent<Unit>().RotateAttacking(attackerTile, defenderTile);
         defender.GetComponent<Unit>().RotateAttacking(defenderTile, attackerTile);
+        audioManager.PlayAttackSFX();
 
-        while (elapsedTime < 0.25f)
-        {
-            // Lerp the attacker's position towards the defender.
-            attacker.transform.position = Vector3.Lerp
-                (startPos,
-                startPos + ((endPos - startPos) / (endPos - startPos).magnitude).normalized * 0.5f,
-                elapsedTime / 0.25f);
-            elapsedTime += Time.deltaTime;
+        // This code lerped the attacker's position towards the defender, but is no longer used.
+        //float elapsedTime = 0;
+        //while (elapsedTime < 0.25f)
+        //{
+        //    attacker.transform.position = Vector3.Lerp
+        //        (startPos,
+        //        startPos + ((endPos - startPos) / (endPos - startPos).magnitude).normalized * 0.5f,
+        //        elapsedTime / 0.25f);
+        //    elapsedTime += Time.deltaTime;
+        //    yield return new WaitForEndOfFrame();
+        //}
 
-            yield return new WaitForEndOfFrame();
-        }
+        yield return new WaitForSeconds(0.25f);
 
         while (isBattling)
         {
@@ -217,7 +222,10 @@ public class BattleManager : MonoBehaviour
         if (attacker != null)
             StartCoroutine(FinishAttack(attacker, defender, startPos));
         else
+        {
             uIManager.canPause = true;
+            uIManager.TogglePauseButton(true);
+        }
     }
 
     /// <summary>
@@ -242,6 +250,7 @@ public class BattleManager : MonoBehaviour
         defender.GetComponent<Unit>().SetAnimIdle();
 
         uIManager.canPause = true;
+        uIManager.TogglePauseButton(true);
     }
 
     #endregion

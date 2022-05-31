@@ -69,7 +69,7 @@ public class UIManager : MonoBehaviour
     private Canvas canvasPause;
     [Tooltip("A UI button used to pause the game.")]
     [SerializeField]
-    private GameObject pauseButton;
+    public GameObject pauseButton;
     [Tooltip("The icon displayed on the pause button while the game is playing.")]
     [SerializeField]
     private Image iconPause;
@@ -157,6 +157,7 @@ public class UIManager : MonoBehaviour
         // Do not allow the player to pause while the main menu is active.
         gamePaused = false;
         canPause = false;
+        TogglePauseButton(false);
     }
 
     private void Update()
@@ -208,6 +209,7 @@ public class UIManager : MonoBehaviour
 
         // Allow the player to pause.
         canPause = true;
+        TogglePauseButton(true);
     }
 
     /// <summary>
@@ -252,6 +254,15 @@ public class UIManager : MonoBehaviour
                 UpdateUIUnitHealthBar();
             }
         }
+    }
+
+    /// <summary>
+    /// Toggles the pause UI button's interactability.
+    /// </summary>
+    /// <param name="state">True if the button is interactable, false if not.</param>
+    public void TogglePauseButton(bool state)
+    {
+        pauseButton.GetComponent<Button>().interactable = state;
     }
 
     /// <summary>
@@ -332,7 +343,7 @@ public class UIManager : MonoBehaviour
                 foreach (Transform unit in team.transform)
                 {
                     unit.GetComponent<Unit>().healthBar.color = blueTeamColour;
-                    unit.GetComponent<Unit>().HealthBarToggle();
+                    unit.GetComponent<Unit>().ToggleHealthBar();
                 }
             }
             else if (team == gameManager.GetCurrentTeam(1))
@@ -340,7 +351,7 @@ public class UIManager : MonoBehaviour
                 foreach (Transform unit in team.transform)
                 {
                     unit.GetComponent<Unit>().healthBar.color = redTeamColour;
-                    unit.GetComponent<Unit>().HealthBarToggle();
+                    unit.GetComponent<Unit>().ToggleHealthBar();
                 }
             }
         }
@@ -417,6 +428,7 @@ public class UIManager : MonoBehaviour
     {
         gamePaused = true;
         canPause = false;
+        TogglePauseButton(false);
 
         pauseButton.SetActive(false);
 
@@ -428,6 +440,8 @@ public class UIManager : MonoBehaviour
             textGameOver.color = blueTeamColour;
         else if (team == gameManager.team2)
             textGameOver.color = redTeamColour;
+
+        audioManager.PlayVictoryFanfare();
     }
 
     #endregion

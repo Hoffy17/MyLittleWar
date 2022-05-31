@@ -30,24 +30,28 @@ public class CameraManager : MonoBehaviour
     public bool lerpCam;
 
     [Header("Fade Settings")]
-    [Tooltip("How fast the texture will be faded out.")]
+    [Tooltip("The duration that a texture will be faded in, or out.")]
     [SerializeField]
     private float fadeTime = 5.0f;
-    [Tooltip("The color that will fill the screen during a fade.")]
+    [Tooltip("The color that will be faded to, or from.")]
     [SerializeField]
     private Color fadeColor = new Color(255.0f, 255.0f, 255.0f, 1.0f);
-    [Tooltip("How long the screen will remain filled during a fade in.")]
+    [Tooltip("How long the screen will remain filled during a fade.")]
     [SerializeField]
     private float timeBeforeFade;
-
-    [NonSerialized]
-    private float alpha = 1.0f;
+    [Tooltip("The image that the camera fades to, or from.")]
     [NonSerialized]
     private Texture2D texture;
+    [Tooltip("The transparency property of the image that is faded to, or from.")]
+    [NonSerialized]
+    private float alpha = 1.0f;
+    [Tooltip("Checks whether the camera should fade in.")]
     [NonSerialized]
     private bool isFadingIn = false;
+    [Tooltip("Checks whether the camera should fade out.")]
     [NonSerialized]
     private bool isFadingOut = false;
+    [Tooltip("The time that has passed since a fade was called.")]
     [NonSerialized]
     private float currentTime = 0;
     [NonSerialized]
@@ -74,10 +78,12 @@ public class CameraManager : MonoBehaviour
         transform.position = mainMenuPos;
         lerpCam = false;
 
-        // Set up the camera fade in.
+        // Create an image to fade to, or from.
         texture = new Texture2D(1, 1);
+        // Set the fade image's colour.
         texture.SetPixel(0, 0, new Color(fadeColor.r, fadeColor.g, fadeColor.b, alpha));
         texture.Apply();
+
         FadeIn();
     }
 
@@ -102,35 +108,55 @@ public class CameraManager : MonoBehaviour
 
     #region Custom Functions
 
-    private void StartFading(bool isFadingIn, bool isFadingOut, Options options = null)
-    {
-        currentTime = 0;
-
-        if (options != null)
-        {
-            fadeTime = (float)options.fadeTime;
-
-            timeBeforeFade = (float)options.timeBeforeFade;
-
-            if (options.fadeColor != null) fadeColor = options.fadeColor;
-        }
-
-        this.isFadingIn = isFadingIn;
-        this.isFadingOut = isFadingOut;
-    }
-
+    /// <summary>
+    /// Fade the camera in from a fully opaque colour.
+    /// </summary>
+    /// <param name="options">The fade time, fade colour and time before fading.</param>
     public void FadeIn(Options options = null)
     {
+        // Set the fade image's transparency as fully opaque and start fading in.
         alpha = 1.0f;
         StartFading(true, false, options);
     }
 
+    /// <summary>
+    /// Fade the camera out from a fully transparent colour.
+    /// </summary>
+    /// <param name="options">The fade time, fade colour and time before fading.</param>
     public void FadeOut(Options options = null)
     {
+        // Set the fade image's transparency as fully transparent and start fading out.
         alpha = 0.0f;
         StartFading(false, true, options);
     }
 
+    /// <summary>
+    /// Gets the settings for fading and resets the timer, before starting to fade.
+    /// </summary>
+    /// <param name="isFadingIn"></param>
+    /// <param name="isFadingOut"></param>
+    /// <param name="options"></param>
+    private void StartFading(bool isFadingIn, bool isFadingOut, Options options = null)
+    {
+        // Reset the timer.
+        currentTime = 0;
+
+        // If the options are not null, get their properties.
+        if (options != null)
+        {
+            fadeTime = options.fadeTime;
+            fadeColor = options.fadeColor;
+            timeBeforeFade = options.timeBeforeFade;
+        }
+
+        // Start fading in, or out.
+        this.isFadingIn = isFadingIn;
+        this.isFadingOut = isFadingOut;
+    }
+
+    /// <summary>
+    /// The fade event is called from OnGUI.
+    /// </summary>
     public void OnGUI()
     {
         if (isFadingIn || isFadingOut)
@@ -139,8 +165,12 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Calculates when and for how long to display the fade image over the camera.
+    /// </summary>
     private void ShowBlackScreen()
     {
+        // If the camera is fading in and the fade image is fully transparent, the camera is no longer fading in.
         if (isFadingIn && alpha <= 0.0f)
         {
             isFadingIn = false;
@@ -148,8 +178,10 @@ public class CameraManager : MonoBehaviour
             return;
         }
 
+        // Draw the fade image over the entire screen.
         GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), texture);
 
+        // If the camera is fading in and the time before fading is greater than zero, keep displaying the fade image until the timer ends.
         if (isFadingIn && timeBeforeFade > 0)
         {
             timeBeforeFade -= Time.deltaTime;
@@ -157,18 +189,28 @@ public class CameraManager : MonoBehaviour
             return;
         }
 
-        if (isFadingOut && alpha >= 1.0f) return;
+        // If the camera is fading out and the fade image is fully opaque, the camera is no longer fading out.
+        if (isFadingOut && alpha >= 1.0f)
+            return;
 
         CalculateTexture();
     }
 
+    /// <summary>
+    /// This function changes the alpha value of the fade image over time.
+    /// </summary>
     private void CalculateTexture()
     {
         currentTime += Time.deltaTime;
 
-        if (isFadingIn) alpha = 1.0f - currentTime / fadeTime;
-        else alpha = currentTime / fadeTime;
+        // If the camera is fading in, the fade image's alpha is reduced over the specified fade time.
+        if (isFadingIn) 
+            alpha = 1.0f - currentTime / fadeTime;
+        // If the camera is fading in, the fade image's alpha is increased over the specified fade time.
+        else 
+            alpha = currentTime / fadeTime;
 
+        // Set the fade image's colour as its alpha value is changed.
         texture.SetPixel(0, 0, new Color(fadeColor.r, fadeColor.g, fadeColor.b, alpha));
         texture.Apply();
     }
@@ -219,7 +261,10 @@ public class CameraManager : MonoBehaviour
 
 public class Options
 {
+    [Tooltip("The duration that a texture will be faded in, or out.")]
     public float fadeTime;
+    [Tooltip("The color that will be faded to, or from.")]
     public Color fadeColor;
+    [Tooltip("How long the screen will remain filled during a fade.")]
     public float timeBeforeFade;
 }

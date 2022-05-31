@@ -99,6 +99,9 @@ public class Unit : MonoBehaviour
     [Tooltip("The sprite image that is displayed when this unit takes damage.")]
     [SerializeField]
     private Image damageSprite;
+    [Tooltip("The background sprite image that is displayed when this unit takes damage.")]
+    [SerializeField]
+    private Image damageBackground;
 
     [Header("Map Grid Position")]
     [Tooltip("This unit's position on the map grid's X axis.")]
@@ -330,7 +333,10 @@ public class Unit : MonoBehaviour
             return new Vector2();
     }
 
-    public void HealthBarToggle()
+    /// <summary>
+    /// Toggle the unit's health bar on and off.
+    /// </summary>
+    public void ToggleHealthBar()
     {
         if (healthBarCanvas.enabled)
             healthBarCanvas.enabled = false;
@@ -350,7 +356,7 @@ public class Unit : MonoBehaviour
     #endregion
 
 
-    #region Animations
+    #region Animations & Effects
 
     /// <summary>
     /// Set this unit's animation state to idle.
@@ -374,6 +380,21 @@ public class Unit : MonoBehaviour
     public void SetAnimMoving()
     {
         animator.SetTrigger("Moving");
+    }
+
+    /// <summary>
+    /// Set this unit's animation state to attacking.
+    /// </summary>
+    public void SetAnimAttacking()
+    {
+        animator.SetTrigger("Attacking");
+
+        PlayParticlesAttack();
+    }
+
+    public void PlayParticlesAttack()
+    {
+        particleDamage.GetComponent<ParticleSystem>().Play();
     }
 
     #endregion
@@ -465,6 +486,7 @@ public class Unit : MonoBehaviour
             textColour.a = f;
 
             damageSprite.GetComponent<Image>().color = barColour;
+            damageBackground.GetComponent<Image>().color = barColour;
             damageText.color = textColour;
 
             yield return new WaitForEndOfFrame();

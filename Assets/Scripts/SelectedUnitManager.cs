@@ -375,8 +375,11 @@ public class SelectedUnitManager : MonoBehaviour
 
             selectedUnit.GetComponent<Unit>().SetAnimMoving();
 
-            // Move the unit on its movement path.
+            // Disable the pause functionality temporarily.
             uIManager.canPause = false;
+            uIManager.TogglePauseButton(false);
+
+            // Move the unit on its movement path.
             selectedUnit.GetComponent<Unit>().Move();
             StartCoroutine(FinaliseMovement());
         }
@@ -476,7 +479,9 @@ public class SelectedUnitManager : MonoBehaviour
             mapUIManager.HighlightMovementRange(GetOccupiedTile());
         }
 
+        // Now that the unit has finished moving, the player can pause.
         uIManager.canPause = true;
+        uIManager.TogglePauseButton(true);
     }
 
     /// <summary>
