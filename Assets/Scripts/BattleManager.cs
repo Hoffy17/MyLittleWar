@@ -176,9 +176,10 @@ public class BattleManager : MonoBehaviour
         // Animate the attacker's attack and have the two units face each other.
         attacker.GetComponent<Unit>().SetAnimAttacking();
         defender.GetComponent<Unit>().SetAnimAttacking();
-        attacker.GetComponent<Unit>().RotateAttacking(attackerTile, defenderTile);
-        defender.GetComponent<Unit>().RotateAttacking(defenderTile, attackerTile);
-        audioManager.PlayAttackSFX();
+        attacker.GetComponent<Unit>().RotateAttacking(defenderTile);
+        defender.GetComponent<Unit>().RotateAttacking(attackerTile);
+        audioManager.PlayAttackSFX(attacker.GetComponent<Unit>().unitName);
+        audioManager.PlayAttackSFX(defender.GetComponent<Unit>().unitName);
 
         // This code lerped the attacker's position towards the defender, but is no longer used.
         //float elapsedTime = 0;
@@ -236,15 +237,16 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     public IEnumerator FinishAttack(GameObject attacker, GameObject defender, Vector3 returnPos)
     {
-        float elapsedTime = 0;
+        // This code lerped the attacker's position back towards where it started, but is no longer used.
+        //float elapsedTime = 0;
+        //while (elapsedTime < 0.3f)
+        //{
+        //    attacker.transform.position = Vector3.Lerp(attacker.transform.position, returnPos, elapsedTime / 0.25f);
+        //    elapsedTime += Time.deltaTime;
+        //    yield return new WaitForEndOfFrame();
+        //}
 
-        // Lerp the attacker's position back towards where it started.
-        while (elapsedTime < 0.3f)
-        {
-            attacker.transform.position = Vector3.Lerp(attacker.transform.position, returnPos, elapsedTime / 0.25f);
-            elapsedTime += Time.deltaTime;
-            yield return new WaitForEndOfFrame();
-        }
+        yield return new WaitForSeconds(0.3f);
 
         attacker.GetComponent<Unit>().SetAnimIdle();
         defender.GetComponent<Unit>().SetAnimIdle();

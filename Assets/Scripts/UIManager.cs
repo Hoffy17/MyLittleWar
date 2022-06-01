@@ -37,6 +37,7 @@ public class UIManager : MonoBehaviour
     [Tooltip("The animator that controls the main menu sliding out of the screen.")]
     [NonSerialized]
     private Animator mainMenuAnim;
+    [Tooltip("Checks whether the main menu is active, for the purposes of pausing the game.")]
     [HideInInspector]
     public bool mainMenuActive;
 
@@ -90,6 +91,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The text showing the winning team.")]
     [SerializeField]
     private TMP_Text textGameOver;
+    [Tooltip("The animator that controls the game over animation at the end of the game.")]
+    [SerializeField]
+    private Animator gameOverAnim;
 
     [Header("Unit Information")]
     [Tooltip("The canvas displayed when a player highlights a unit.")]
@@ -380,6 +384,7 @@ public class UIManager : MonoBehaviour
         }
 
         audioManager.PlayTeamFanfare();
+        StartCoroutine(audioManager.PlayTeamTurn());
     }
 
     /// <summary>
@@ -442,6 +447,7 @@ public class UIManager : MonoBehaviour
             textGameOver.color = redTeamColour;
 
         audioManager.PlayVictoryFanfare();
+        gameOverAnim.SetTrigger("Victory");
     }
 
     #endregion

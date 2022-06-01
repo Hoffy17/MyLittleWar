@@ -60,12 +60,12 @@ public class SelectedUnitManager : MonoBehaviour
     /// </summary>
     private void MovementRange()
     {
-        // A container of nodes representing the tiles that a unit can move to.
+        // A container of nodes representing the tiles that the selected unit can move to.
         HashSet<Node> movementRange = new HashSet<Node>();
         // A container of nodes representing the tiles occupied by enemies in the selected unit's movement range.
         HashSet<Node> enemiesInRange = new HashSet<Node>();
-        //// A container of nodes representing the tiles occupied by enemies in a unit's movement range.
-        //HashSet<Node> enemiesInRange = new HashSet<Node>();
+        // A container of nodes representing the tiles occupied by enemies in a unit's movement range.
+        //HashSet<Node> finalEnemiesInRange = new HashSet<Node>();
 
         // Store the selected unit's start position on the map grid in a local variable.
         Node startNode = mapManager.graph[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ];
@@ -78,16 +78,17 @@ public class SelectedUnitManager : MonoBehaviour
         movementRange = GetMovementRange(movementRange, movespeed, startNode);
         enemiesInRange = GetEnemiesInRange(movementRange, enemiesInRange, attackRange, startNode);
 
+        // This code would add enemy units in range into a hashset, but is no longer used.
         // If the nodes in the selected unit's attack range are occupied...
-        //foreach (Node node in attackableEnemies)
-        //    if (mapTiles[node.x, node.z].GetComponent<ClickableTile>().unitOccupyingTile != null)
+        //foreach (Node node in enemiesInRange)
+        //    if (mapManager.mapTiles[node.x, node.z].GetComponent<Tile>().unitOccupyingTile != null)
         //    {
-        //        GameObject unitOccupyingSelectedTile = mapTiles[node.x, node.z].GetComponent<ClickableTile>().unitOccupyingTile;
+        //        GameObject unitOccupyingSelectedTile = mapManager.mapTiles[node.x, node.z].GetComponent<Tile>().unitOccupyingTile;
 
         //        // And the units occupying those tiles are not on the current player's team...
         //        if (unitOccupyingSelectedTile.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber)
-        //            //Add those nodes to the container of enemies in a unit's movement range.
-        //            enemiesInRange.Add(node);
+        //            // Add those nodes to the container of enemies in a unit's movement range.
+        //            finalEnemiesInRange.Add(node);
         //    }
 
         // Finally, highlight the selected unit's movement range and attackable enemies.
@@ -96,7 +97,7 @@ public class SelectedUnitManager : MonoBehaviour
 
         selectedUnitMoveRange = movementRange;
 
-        //selectedUnitMoveRangeTotal = GetTotalRange(movementRange, attackableEnemies);
+        //selectedUnitMoveRangeTotal = GetTotalRange(movementRange, enemiesInRange);
     }
 
     /// <summary>

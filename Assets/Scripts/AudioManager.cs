@@ -22,6 +22,15 @@ public class AudioManager : MonoBehaviour
     [Tooltip("The music played at the begininng of Team 2's turn.")]
     [SerializeField]
     private AudioSource musicTeam2Fanfare;
+    [Tooltip("The music during Team 1's turn.")]
+    [SerializeField]
+    private AudioSource musicTeam1Turn;
+    [Tooltip("The music during Team 2's turn.")]
+    [SerializeField]
+    private AudioSource musicTeam2Turn;
+    [Tooltip("The time between when one team's background music ends and the other begins.")]
+    [SerializeField]
+    private float bGMTransitionDuration;
     [Tooltip("The music played when a game ends.")]
     [SerializeField]
     private AudioSource musicVictoryFanfare;
@@ -38,12 +47,15 @@ public class AudioManager : MonoBehaviour
     [Tooltip("The sound effect played when an infantry unit moves between tiles.")]
     [SerializeField]
     private AudioSource sFXMoveInfantry;
-    [Tooltip("The sound effect played when an tank unit moves between tiles.")]
+    [Tooltip("The sound effect played when a tank unit moves between tiles.")]
     [SerializeField]
     private AudioSource sFXMoveTank;
     [Tooltip("The sound effect played when an infantry unit attacks another unit.")]
     [SerializeField]
     private AudioSource sFXAttackInfantry;
+    [Tooltip("The sound effect played when a tank unit attacks another unit.")]
+    [SerializeField]
+    private AudioSource sFXAttackTank;
 
     #endregion
 
@@ -56,6 +68,22 @@ public class AudioManager : MonoBehaviour
             musicTeam2Fanfare.Play();
         else if (gameManager.currentTeam == 0)
             musicTeam1Fanfare.Play();
+    }
+
+    public IEnumerator PlayTeamTurn()
+    {
+        if (gameManager.currentTeam == 1)
+        {
+            musicTeam1Turn.Stop();
+            yield return new WaitForSeconds(bGMTransitionDuration);
+            musicTeam2Turn.Play();
+        }
+        else if (gameManager.currentTeam == 0)
+        {
+            musicTeam2Turn.Stop();
+            yield return new WaitForSeconds(bGMTransitionDuration);
+            musicTeam1Turn.Play();
+        }
     }
 
     public void PlayVictoryFanfare()
@@ -94,9 +122,12 @@ public class AudioManager : MonoBehaviour
             sFXMoveTank.Play();
     }
 
-    public void PlayAttackSFX()
+    public void PlayAttackSFX(string unitType)
     {
-        sFXAttackInfantry.Play();
+        if (unitType == "Infantry")
+            sFXAttackInfantry.Play();
+        else if (unitType == "Tank")
+            sFXAttackTank.Play();
     }
 
     #endregion

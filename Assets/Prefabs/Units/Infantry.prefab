@@ -283,8 +283,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4283256223
+  m_fontColor: {r: 0.6226415, g: 0.3025098, b: 0.3025098, a: 1}
   m_enableVertexGradient: 1
   m_colorMode: 2
   m_fontColorGradient:
@@ -1923,13 +1923,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5811a10c006c7ea4ea97eff805227f22, type: 3}
---- !u!1 &5104173677346727737 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1727998061673783878, guid: 5811a10c006c7ea4ea97eff805227f22, type: 3}
-  m_PrefabInstance: {fileID: 5849824065531381119}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4840909064831506602 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1297286123441593813, guid: 5811a10c006c7ea4ea97eff805227f22, type: 3}
+  m_PrefabInstance: {fileID: 5849824065531381119}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5104173677346727737 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1727998061673783878, guid: 5811a10c006c7ea4ea97eff805227f22, type: 3}
   m_PrefabInstance: {fileID: 5849824065531381119}
   m_PrefabAsset: {fileID: 0}

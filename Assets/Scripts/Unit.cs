@@ -184,7 +184,7 @@ public class Unit : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= Mathf.Clamp(damage, 0, currentHealth);
-        UpdateHealthUI();
+        UpdateHealthBar();
     }
 
     /// <summary>
@@ -293,28 +293,22 @@ public class Unit : MonoBehaviour
     /// <summary>
     /// Rotates the unit as it attacks, or is attacked by, another unit.
     /// </summary>
-    /// <param name="attackerTile">The map grid position of the attacker.</param>
-    /// <param name="defenderTile">The map grid position of the defender.</param>
-    public void RotateAttacking(Vector2 attackerTile, Vector2 defenderTile)
+    /// <param name="enemyTile">The map grid position of the other unit.</param>
+    public void RotateAttacking(Vector2 enemyTile)
     {
-        // Calculate the vector between the attacker and defender.
-        Vector2 unitDirection = VectorDirection(attackerTile, defenderTile);
+        // Create a Vector3 position at the location of the enemy's tile.
+        // The height of this Vector3 should be the same as this unit's height.
+        float posY = mesh.transform.position.y;
+        Vector3 enemy = new Vector3(enemyTile.x, posY, enemyTile.y);
 
-        // Rotate the unit.
-        if (unitDirection == Vector2.right)
-            mesh.transform.rotation = Quaternion.Euler(0, 90, 0);
-        else if (unitDirection == Vector2.left)
-            mesh.transform.rotation = Quaternion.Euler(0, 270, 0);
-        else if (unitDirection == Vector2.up)
-            mesh.transform.rotation = Quaternion.Euler(0, 0, 0);
-        else if (unitDirection == Vector2.down)
-            mesh.transform.rotation = Quaternion.Euler(0, 180, 0);
+        // Rotate the unit to look at the enemy.
+        mesh.transform.LookAt(enemy);
     }
 
     /// <summary>
     /// Returns a vector direction between two nodes in this unit's path.
     /// </summary>
-    /// <param name="currVector">The vector direction of a node in this unit's path.</param>
+    /// <param name="currVector">The vector direction of the current node in this unit's path.</param>
     /// <param name="nextVector">The vector direction of the next node in this unit's path.</param>
     /// <returns></returns>
     private Vector2 VectorDirection(Vector2 currVector, Vector2 nextVector)
@@ -345,9 +339,9 @@ public class Unit : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates this unit's UI health bar to reflect its current health points.
+    /// Updates this unit's health bar to reflect its current health points.
     /// </summary>
-    public void UpdateHealthUI()
+    public void UpdateHealthBar()
     {
         healthBar.fillAmount = (float)currentHealth / totalHealth;
         healthText.SetText(currentHealth.ToString());
@@ -392,6 +386,9 @@ public class Unit : MonoBehaviour
         PlayParticlesAttack();
     }
 
+    /// <summary>
+    /// Play this unit's attacking particle system.
+    /// </summary>
     public void PlayParticlesAttack()
     {
         particleDamage.GetComponent<ParticleSystem>().Play();
@@ -474,7 +471,7 @@ public class Unit : MonoBehaviour
 
         // Enable this unit's damage canvas and update the amount of damage.
         damageCanvas.enabled = true;
-        damageText.SetText(damage.ToString());
+        damageText.SetText("-" + damage.ToString());
 
         // Over time, fade out the unit's damage taken.
         for (float f = 3f; f >= -0.01f; f -= 3f * Time.deltaTime)
