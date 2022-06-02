@@ -72,17 +72,22 @@ public class AudioManager : MonoBehaviour
 
     public IEnumerator PlayTeamTurn()
     {
+        musicTeam1Turn.Stop();
+        musicTeam2Turn.Stop();
+
+        yield return new WaitForSeconds(bGMTransitionDuration);
+
+        // If it's Team 2's turn and their music isn't playing, play it.
         if (gameManager.currentTeam == 1)
         {
-            musicTeam1Turn.Stop();
-            yield return new WaitForSeconds(bGMTransitionDuration);
-            musicTeam2Turn.Play();
+            if (!musicTeam2Turn.isPlaying)
+                musicTeam2Turn.Play();
         }
+        // If it's Team 1's turn and their music isn't playing, play it.
         else if (gameManager.currentTeam == 0)
         {
-            musicTeam2Turn.Stop();
-            yield return new WaitForSeconds(bGMTransitionDuration);
-            musicTeam1Turn.Play();
+            if (!musicTeam1Turn.isPlaying)
+                musicTeam1Turn.Play();
         }
     }
 

@@ -88,15 +88,21 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void EndTurn()
     {
-        // If a unit was selected, set its animation to idle and deselect it.
+        // If a unit was selected...
         if (selectedUnitManager.selectedUnit != null)
         {
+            // Set its animation to idle and deselect it.
             selectedUnitManager.selectedUnit.GetComponent<Unit>().SetAnimIdle();
             selectedUnitManager.DeselectUnit();
         }
 
+        // If the current team is wiped out on its own turn, exit the function.
+        if (GetCurrentTeam(currentTeam).transform.childCount == 0)
+            return;
+
         // Switch to the other player's team.
         SwitchCurrentTeam();
+
         uIManager.PrintCurrentTurn();
         uIManager.PrintCurrentTeam();
 
@@ -145,6 +151,7 @@ public class GameManager : MonoBehaviour
     private void SwitchCurrentTeam()
     {
         ResetTeam(GetCurrentTeam(currentTeam));
+
         currentTeam++;
 
         // If the current team exceeds the number of teams, revert back to zero.
