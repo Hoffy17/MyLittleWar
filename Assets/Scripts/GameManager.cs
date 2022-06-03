@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
     [Tooltip("The current turn number.")]
     [HideInInspector]
     public int currentDay;
+    [Tooltip("True if both teams have completed a turn.")]
+    [HideInInspector]
+    public bool newDay;
 
     [Header("Map")]
     [HideInInspector]
@@ -57,6 +60,7 @@ public class GameManager : MonoBehaviour
         // Reset the current team and day.
         currentTeam = 0;
         currentDay = 0;
+        newDay = true;
     }
 
     private void Update()
@@ -96,7 +100,7 @@ public class GameManager : MonoBehaviour
             selectedUnitManager.DeselectUnit();
         }
 
-        // If the current team is wiped out on its own turn, exit the function.
+        // If the current team is wiped out on its own turn, the game is over and there is no need to switch teams.
         if (GetCurrentTeam(currentTeam).transform.childCount == 0)
             return;
 

@@ -80,7 +80,7 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public GameObject particleDamage;
 
-    [Header("UI")]
+    [Header("UI - Health Bar")]
     [Tooltip("The canvas object containing this unit's health bar, which should be a child of this game object.")]
     [SerializeField]
     private Canvas healthBarCanvas;
@@ -90,6 +90,12 @@ public class Unit : MonoBehaviour
     [Tooltip("The sprite image that is filled according to this unit's current health points.")]
     [SerializeField]
     public Image healthBar;
+
+    [Header("UI - Attack or Wait")]
+    [SerializeField]
+    public Canvas attackOrWaitCanvas;
+
+    [Header("UI - Damage")]
     [Tooltip("The canvas object containing this unit's damage indicator, which should be a child of this game object.")]
     [SerializeField]
     private Canvas damageCanvas;
@@ -156,8 +162,9 @@ public class Unit : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Have the unit's health and damage canvases face the camera.
+        // Have the unit's UI canvases face the camera.
         healthBarCanvas.transform.forward = Camera.main.transform.forward;
+        attackOrWaitCanvas.transform.forward = Camera.main.transform.forward;
         damageCanvas.transform.forward = Camera.main.transform.forward;
     }
 

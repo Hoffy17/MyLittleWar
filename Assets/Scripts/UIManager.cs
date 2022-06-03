@@ -366,7 +366,10 @@ public class UIManager : MonoBehaviour
     /// </summary>
     public void PrintCurrentTurn()
     {
-        gameManager.currentDay++;
+        // If it's a new day, increase the current day.
+        if (gameManager.newDay)
+            gameManager.currentDay++;
+
         playerTurnDayText.SetText("Day " + gameManager.currentDay);
 
         // Animate the message communicating the current player's turn.
@@ -385,6 +388,12 @@ public class UIManager : MonoBehaviour
 
         audioManager.PlayTeamFanfare();
         StartCoroutine(audioManager.PlayTeamTurn());
+
+        // Every second time this function is called, it's a new day.
+        if (gameManager.newDay)
+            gameManager.newDay = false;
+        else
+            gameManager.newDay = true;
     }
 
     /// <summary>
