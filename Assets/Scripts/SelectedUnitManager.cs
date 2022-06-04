@@ -369,7 +369,7 @@ public class SelectedUnitManager : MonoBehaviour
         }
         // If a unit has already finished its move, we want to set up the unit to attack or wait.
         else if (selectedUnit.GetComponent<Unit>().movementState == MovementState.Moved)
-            AttackOrWait();
+            AttackWaitSelection();
     }
 
     /// <summary>
@@ -445,9 +445,9 @@ public class SelectedUnitManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Sets the unit's tile as occupied after moving, and sets them up to attack.
+    /// Sets the unit's tile as occupied after moving, and sets them up to attack or wait.
     /// </summary>
-    private void PrepareAttack()
+    public void HighlightAttackWaitRange()
     {
         // Set the selected unit's tile as occupied by the selected unit.
         mapManager.mapTiles[selectedUnit.GetComponent<Unit>().tileX, selectedUnit.GetComponent<Unit>().tileZ]
@@ -456,22 +456,22 @@ public class SelectedUnitManager : MonoBehaviour
         // Set the selected unit's state to moved.
         selectedUnit.GetComponent<Unit>().movementState = MovementState.Moved;
 
+        // Now that the unit has finished moving, the player can pause.
+        uIManager.canPause = true;
+        uIManager.TogglePauseButton(true);
+
         // Highlight the selected unit's atttackable tiles, and occupied tile.
         if (selectedUnit != null)
         {
             mapUIManager.HighlightAttackRange(GetAttackRangeAfterMoving());
             mapUIManager.HighlightMovementRange(GetOccupiedTile());
         }
-
-        // Now that the unit has finished moving, the player can pause.
-        uIManager.canPause = true;
-        uIManager.TogglePauseButton(true);
     }
 
     /// <summary>
     /// This function controls the player's choice after moving a unit, i.e. waiting or attacking.
     /// </summary>
-    private void AttackOrWait()
+    private void AttackWaitSelection()
     {
         // Raycast the cursor's position.
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -493,26 +493,12 @@ public class SelectedUnitManager : MonoBehaviour
 
                 // If that unit is the selected unit...
                 if (unit == selectedUnit)
-                {
-                    // Disable highlight quads showing their movement path.
-                    mapUIManager.DisableQuadUIUnitPath();
-
-                    //Set the selected unit to wait and deselect the unit.
-                    selectedUnit.GetComponent<Unit>().Wait();
-                    selectedUnit.GetComponent<Unit>().SetAnimIdle();
-                    selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
-                    DeselectUnit();
-                    CheckTeamWaiting();
-                }
+                    Wait();
                 // If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
                     && attackableTiles.Contains(mapManager.graph[unitX, unitZ])
                     && unit.GetComponent<Unit>().currentHealth > 0)
-                {
-                    // Commence the selected unit's attack on the enemy unit, and deselect the unit.
-                    StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
-                    StartCoroutine(DeselectUnitAfterAttack(selectedUnit, unit));
-                }
+                    Attack(unit);
             }
             // If the cursor casts to a unit...
             else if (hit.transform.parent != null
@@ -525,28 +511,41 @@ public class SelectedUnitManager : MonoBehaviour
 
                 // If the unit is the selected unit...
                 if (unit == selectedUnit)
-                {
-                    // Disable highlight quads showing their movement path.
-                    mapUIManager.DisableQuadUIUnitPath();
-
-                    // Set the selected unit to wait and deselect the unit.
-                    selectedUnit.GetComponent<Unit>().Wait();
-                    selectedUnit.GetComponent<Unit>().SetAnimIdle();
-                    selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
-                    DeselectUnit();
-                    CheckTeamWaiting();
-                }
+                    Wait();
                 // If that unit is a unit from the enemy team, that unit is attackable and it has remaining health points...
                 else if (unit.GetComponent<Unit>().teamNumber != selectedUnit.GetComponent<Unit>().teamNumber
                     && attackableTiles.Contains(mapManager.graph[unitX, unitZ])
                     && unit.GetComponent<Unit>().currentHealth > 0)
-                {
-                    // Commence the selected unit's attack on the enemy unit, and deselect the unit.
-                    StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
-                    StartCoroutine(DeselectUnitAfterAttack(selectedUnit, unit));
-                }
+                    Attack(unit);
             }
         }
+    }
+
+    /// <summary>
+    /// Sets the selected unit to attack another unit.
+    /// </summary>
+    /// <param name="unit">The unit that the selected unit is attacking.</param>
+    private void Attack(GameObject unit)
+    {
+        // Commence the selected unit's attack on the enemy unit, and deselect the unit.
+        StartCoroutine(battleManager.StartAttack(selectedUnit, unit));
+        StartCoroutine(DeselectUnitAfterAttack(selectedUnit, unit));
+    }
+
+    /// <summary>
+    /// Sets the selected unit to wait.
+    /// </summary>
+    public void Wait()
+    {
+        // Disable highlight quads showing their movement path.
+        mapUIManager.DisableQuadUIUnitPath();
+
+        //Set the selected unit to wait and deselect the unit.
+        selectedUnit.GetComponent<Unit>().ChangeMatWait();
+        selectedUnit.GetComponent<Unit>().SetAnimIdle();
+        selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
+        DeselectUnit();
+        CheckTeamWaiting();
     }
 
     /// <summary>
@@ -592,7 +591,8 @@ public class SelectedUnitManager : MonoBehaviour
         while (selectedUnit.GetComponent<Unit>().movementQueue.Count != 0)
             yield return new WaitForEndOfFrame();
 
-        PrepareAttack();
+        HighlightAttackWaitRange();
+
         selectedUnit.GetComponent<Unit>().SetAnimSelected();
     }
 
@@ -620,7 +620,7 @@ public class SelectedUnitManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
         // Change the unit's movement state to wait.
-        selectedUnit.GetComponent<Unit>().Wait();
+        selectedUnit.GetComponent<Unit>().ChangeMatWait();
         selectedUnit.GetComponent<Unit>().movementState = MovementState.Waiting;
 
         DeselectUnit();

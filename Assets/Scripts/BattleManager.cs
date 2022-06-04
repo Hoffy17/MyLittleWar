@@ -14,6 +14,9 @@ public class BattleManager : MonoBehaviour
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
+    [Tooltip("The MapManager script.")]
+    [SerializeField]
+    private MapManager mapManager;
     [Tooltip("The UIManager script.")]
     [SerializeField]
     private UIManager uIManager;
@@ -42,11 +45,11 @@ public class BattleManager : MonoBehaviour
     {
         isBattling = true;
 
-        // Get the attacking unit and defending unit, and their attack damage stats.
+        // Get the attacking unit and defending unit, and the amount of attack they inflict on each other.
         Unit attackerUnit = attacker.GetComponent<Unit>();
         Unit defenderUnit = defender.GetComponent<Unit>();
-        int attackerDamage = attackerUnit.attackDamage;
-        int defenderDamage = defenderUnit.attackDamage;
+        int attackerDamage = CalculateDamage(attacker, defender);
+        int defenderDamage = CalculateDamage(defender, attacker);
 
         // If the attacking and defending units have the same attack ranges...
         if(attackerUnit.attackRange == defenderUnit.attackRange)
@@ -150,6 +153,29 @@ public class BattleManager : MonoBehaviour
     #endregion
 
 
+    #region Calculations
+
+    /// <summary>
+    /// Calculates the amount of damage a unit inflicts on another unit, based on the attacker's attack bonus and defender's defence bonus.
+    /// </summary>
+    /// <param name="attacker">The unit that initiated the attack.</param>
+    /// <param name="defender">The unit that received the attack.</param>
+    /// <returns></returns>
+    private int CalculateDamage(GameObject attacker, GameObject defender)
+    {
+        Unit attackerUnit = attacker.GetComponent<Unit>();
+        Unit defenderUnit = defender.GetComponent<Unit>();
+
+        int damage = attackerUnit.attackDamage
+            + mapManager.GetTileAttackBonus(attackerUnit.tileX, attackerUnit.tileZ)
+            - mapManager.GetTileDefenceBonus(defenderUnit.tileX, defenderUnit.tileZ);
+
+        return damage;
+    }
+
+    #endregion
+
+
     #region Coroutines
 
     /// <summary>
@@ -197,21 +223,25 @@ public class BattleManager : MonoBehaviour
 
         while (isBattling)
         {
+            // Calculate the total damage inflicted by each unit, based on their attack and defence bonuses.
+            int attackerDamage = CalculateDamage(attacker, defender);
+            int defenderDamage = CalculateDamage(defender, attacker);
+
             // Shake the camera.
-            StartCoroutine(cameraManager.ShakeCamera(0.2f, attacker.GetComponent<Unit>().attackDamage, GetAttackDirection(attacker, defender)));
+            StartCoroutine(cameraManager.ShakeCamera(0.2f, attackerDamage, GetAttackDirection(attacker, defender)));
 
             // If the attacking and defending units have the same attack range,
             // And the defender has health remaining after being attacked...
             if (attacker.GetComponent<Unit>().attackRange == defender.GetComponent<Unit>().attackRange &&
-                defender.GetComponent<Unit>().currentHealth - attacker.GetComponent<Unit>().attackDamage > 0)
+                defender.GetComponent<Unit>().currentHealth - attackerDamage > 0)
             {
                 // Display the amount of damage that both units take as a result of the attack.
-                StartCoroutine(attacker.GetComponent<Unit>().DisplayDamage(defender.GetComponent<Unit>().attackDamage));
-                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
+                StartCoroutine(attacker.GetComponent<Unit>().DisplayDamage(defenderDamage));
+                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attackerDamage));
             }
             // Otherwise, display only the amount of damage the defending unit takes as a result of the attack.
             else
-                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attacker.GetComponent<Unit>().attackDamage));
+                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attackerDamage));
 
             // Calculate damage taken and check if units have died.
             Battle(attacker, defender);

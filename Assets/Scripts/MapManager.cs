@@ -156,6 +156,7 @@ public class MapManager : MonoBehaviour
         //1 = Forest
         //2 = Mountain
         //3 = Base
+        //4 = City
 
         //Forest
         tiles[0, 1] = 1;
@@ -173,7 +174,6 @@ public class MapManager : MonoBehaviour
         tiles[5, 3] = 1;
         tiles[5, 4] = 1;
         tiles[5, 5] = 1;
-        tiles[5, 7] = 1;
         tiles[6, 0] = 1;
         tiles[6, 3] = 1;
         tiles[6, 6] = 1;
@@ -182,7 +182,7 @@ public class MapManager : MonoBehaviour
         tiles[8, 0] = 1;
         tiles[9, 0] = 1;
 
-        //Mountain Range
+        //Mountain
         tiles[0, 0] = 2;
         tiles[0, 8] = 2;
         tiles[0, 9] = 2;
@@ -197,6 +197,12 @@ public class MapManager : MonoBehaviour
 
         //Base
         tiles[9, 4] = 3;
+
+        //City
+        tiles[0, 6] = 4;
+        tiles[4, 3] = 4;
+        tiles[5, 7] = 4;
+        tiles[9, 6] = 4;
 
         #endregion
     }
@@ -530,6 +536,81 @@ public class MapManager : MonoBehaviour
     public Vector3 GetTileWorldSpace(int x, int z)
     {
         return new Vector3(x, 0, z);
+    }
+
+    /// <summary>
+    /// Returns the attack bonus of any tile on the map, based on that tile's type.
+    /// </summary>
+    /// <param name="x">The tile's position on the X axis.</param>
+    /// <param name="z">The tile's position on the Z axis.</param>
+    /// <returns></returns>
+    public int GetTileAttackBonus(int x, int z)
+    {
+        return tileTypes[tiles[x, z]].attackBonus;
+    }
+
+    /// <summary>
+    /// Returns the defence bonus of any tile on the map, based on that tile's type.
+    /// </summary>
+    /// <param name="x">The tile's position on the X axis.</param>
+    /// <param name="z">The tile's position on the Z axis.</param>
+    /// <returns></returns>
+    public int GetTileDefenceBonus(int x, int z)
+    {
+        return tileTypes[tiles[x, z]].defenceBonus;
+    }
+
+    /// <summary>
+    /// Checks if the unit's occupied tile offers an attack or defence bonus.
+    /// </summary>
+    /// <param name="x">The unit's map grid position on the X axis.</param>
+    /// <param name="z">The unit's map grid position on the Z axis.</param>
+    /// <returns></returns>
+    public bool CheckTerrainBonus(int x, int z)
+    {
+        if (tileTypes[tiles[x, z]].attackBonus > 0 ||
+            tileTypes[tiles[x, z]].defenceBonus > 0)
+            return true;
+        else
+            return false;
+    }
+
+    /// <summary>
+    /// Returns the name of the unit's occupied tile (i.e. grass, forest, etc.).
+    /// </summary>
+    /// <param name="x">The unit's map grid position on the X axis.</param>
+    /// <param name="z">The unit's map grid position on the Z axis.</param>
+    /// <returns></returns>
+    public string GetTerrainName(int x, int z)
+    {
+        return tileTypes[tiles[x, z]].name;
+    }
+
+    /// <summary>
+    /// Returns the sprite image attached to the unit's occupied tile.
+    /// </summary>
+    /// <param name="x">The unit's map grid position on the X axis.</param>
+    /// <param name="z">The unit's map grid position on the Z axis.</param>
+    /// <returns></returns>
+    public Sprite GetTerrainImage(int x, int z)
+    {
+        return tileTypes[tiles[x, z]].uIImage;
+    }
+
+    /// <summary>
+    /// Returns a string containing the attack or defence bonus of the unit's occupied tile.
+    /// </summary>
+    /// <param name="x">The unit's map grid position on the X axis.</param>
+    /// <param name="z">The unit's map grid position on the Z axis.</param>
+    /// <returns></returns>
+    public string GetTerrainBonusText(int x, int z)
+    {
+        if (tileTypes[tiles[x, z]].attackBonus > 0)
+            return "+" + tileTypes[tiles[x, z]].attackBonus + " Attack";
+        else if (tileTypes[tiles[x, z]].defenceBonus > 0)
+            return "+" + tileTypes[tiles[x, z]].defenceBonus + " Defence";
+        else
+            return null;
     }
 
     /// <summary>

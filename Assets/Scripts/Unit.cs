@@ -91,10 +91,6 @@ public class Unit : MonoBehaviour
     [SerializeField]
     public Image healthBar;
 
-    [Header("UI - Attack or Wait")]
-    [SerializeField]
-    public Canvas attackOrWaitCanvas;
-
     [Header("UI - Damage")]
     [Tooltip("The canvas object containing this unit's damage indicator, which should be a child of this game object.")]
     [SerializeField]
@@ -164,7 +160,6 @@ public class Unit : MonoBehaviour
     {
         // Have the unit's UI canvases face the camera.
         healthBarCanvas.transform.forward = Camera.main.transform.forward;
-        attackOrWaitCanvas.transform.forward = Camera.main.transform.forward;
         damageCanvas.transform.forward = Camera.main.transform.forward;
     }
 
@@ -197,7 +192,7 @@ public class Unit : MonoBehaviour
     /// <summary>
     /// Changes the unit's material, to show that it has finished its turn.
     /// </summary>
-    public void Wait()
+    public void ChangeMatWait()
     {
         gameObject.GetComponentInChildren<Renderer>().material = unitMatWait;
     }

@@ -16,6 +16,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The GameManager script.")]
     [SerializeField]
     private GameManager gameManager;
+    [Tooltip("The MapManager script.")]
+    [SerializeField]
+    private MapManager mapManager;
     [Tooltip("The MapUIManager script.")]
     [SerializeField]
     private MapUIManager mapUIManager;
@@ -120,6 +123,16 @@ public class UIManager : MonoBehaviour
     [Tooltip("Checks whether a unit's information is being displayed to the canvas.")]
     [NonSerialized]
     private bool displayingUnitInfo;
+
+    [Header("Unit - Terrain Information")]
+    [SerializeField]
+    private Image imageTerrain;
+    [SerializeField]
+    private TMP_Text textTerrainName;
+    [SerializeField]
+    private GameObject terrainBonus;
+    [SerializeField]
+    private TMP_Text textTerrainBonus;
 
     [Header("Player Turn Transition")]
     [Tooltip("The message displayed when a player's turn ends and the other player's turn begins.")]
@@ -432,6 +445,18 @@ public class UIManager : MonoBehaviour
         textUnitAttackDamage.SetText(unit.attackDamage.ToString());
         textUnitAttackRange.SetText(unit.attackRange.ToString());
         textUnitMoveSpeed.SetText(unit.moveSpeed.ToString());
+
+        // Display the unit's terrain information.
+        imageTerrain.sprite = mapManager.GetTerrainImage(unit.tileX, unit.tileZ);
+        textTerrainName.SetText(mapManager.GetTerrainName(unit.tileX, unit.tileZ));
+        terrainBonus.SetActive(false);
+
+        // If there is a terrain bonus, display it.
+        if (mapManager.CheckTerrainBonus(unit.tileX, unit.tileZ))
+        {
+            terrainBonus.SetActive(true);
+            textTerrainBonus.SetText(mapManager.GetTerrainBonusText(unit.tileX, unit.tileZ));
+        }
     }
 
     /// <summary>
