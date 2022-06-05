@@ -156,7 +156,7 @@ public class MapManager : MonoBehaviour
         //1 = Forest
         //2 = Mountain
         //3 = Base
-        //4 = City
+        //4 = Fort
 
         //Forest
         tiles[0, 1] = 1;
@@ -188,9 +188,9 @@ public class MapManager : MonoBehaviour
         tiles[0, 9] = 2;
         tiles[1, 9] = 2;
         tiles[4, 0] = 2;
-        tiles[4, 7] = 2;
-        tiles[5, 3] = 2;
+        tiles[4, 3] = 2;
         tiles[5, 6] = 2;
+        tiles[5, 7] = 2;
         tiles[6, 9] = 2;
         tiles[7, 0] = 2;
         tiles[8, 9] = 2;
@@ -198,10 +198,10 @@ public class MapManager : MonoBehaviour
         //Base
         tiles[9, 4] = 3;
 
-        //City
+        //Fort
         tiles[0, 6] = 4;
-        tiles[4, 3] = 4;
-        tiles[5, 7] = 4;
+        tiles[4, 7] = 4;
+        tiles[5, 3] = 4;
         tiles[9, 6] = 4;
 
         #endregion
@@ -627,6 +627,12 @@ public class MapManager : MonoBehaviour
             float rotY = UnityEngine.Random.Range(0, 360);
 
             tile.transform.GetChild(0).rotation = Quaternion.Euler(0, rotY, 0);
+        }
+        else if (tiles[x, z] == 4)
+        {
+            float rotY = UnityEngine.Random.Range(0, 4);
+
+            tile.transform.GetChild(0).rotation = Quaternion.Euler(0, 90 * rotY, 0);
         }
     }
 
