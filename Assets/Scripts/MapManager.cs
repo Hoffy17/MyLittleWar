@@ -95,7 +95,7 @@ public class MapManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 selectedUnitManager.SelectUnit();
-                //Debug.Log("Tile Clicked: " + mapUIManager.highlightedTile.GetComponent<Tile>().tileX + ", " + mapUIManager.highlightedTile.GetComponent<Tile>().tileZ);
+                Debug.Log("Tile Clicked: " + mapUIManager.highlightedTile.GetComponent<Tile>().tileX + ", " + mapUIManager.highlightedTile.GetComponent<Tile>().tileZ);
             }
 
             // On right-mouse click, deselect units.
@@ -159,28 +159,25 @@ public class MapManager : MonoBehaviour
         //4 = Fort
 
         //Forest
-        tiles[0, 1] = 1;
         tiles[0, 7] = 1;
         tiles[1, 0] = 1;
-        tiles[1, 7] = 1;
         tiles[1, 8] = 1;
         tiles[2, 8] = 1;
         tiles[2, 9] = 1;
-        tiles[3, 0] = 1;
-        tiles[3, 2] = 1;
-        tiles[3, 4] = 1;
-        tiles[4, 6] = 1;
+        tiles[3, 3] = 1;
+        tiles[4, 4] = 1;
+        tiles[4, 5] = 1;
         tiles[5, 0] = 1;
         tiles[5, 3] = 1;
         tiles[5, 4] = 1;
         tiles[5, 5] = 1;
         tiles[6, 0] = 1;
-        tiles[6, 3] = 1;
         tiles[6, 6] = 1;
         tiles[7, 8] = 1;
         tiles[7, 9] = 1;
         tiles[8, 0] = 1;
         tiles[9, 0] = 1;
+        tiles[9, 1] = 1;
 
         //Mountain
         tiles[0, 0] = 2;
@@ -199,10 +196,12 @@ public class MapManager : MonoBehaviour
         tiles[9, 4] = 3;
 
         //Fort
-        tiles[0, 6] = 4;
+        tiles[0, 1] = 4;
+        tiles[1, 7] = 4;
         tiles[4, 7] = 4;
         tiles[5, 3] = 4;
-        tiles[9, 6] = 4;
+        tiles[8, 1] = 4;
+        tiles[9, 7] = 4;
 
         #endregion
     }

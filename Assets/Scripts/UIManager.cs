@@ -315,7 +315,6 @@ public class UIManager : MonoBehaviour
         {
             // Turn off the canvas displaying the previously highlighted unit's stats.
             mapUIManager.highlightedUnit = null;
-            canvasUnitInfo.enabled = false;
             displayingUnitInfo = false;
         }
         // Or if unit info is displaying, and the cursor is casting to a tile...
@@ -333,7 +332,6 @@ public class UIManager : MonoBehaviour
             else if (gameManager.hit.transform.GetComponent<Tile>().unitOccupyingTile != mapUIManager.highlightedUnit)
             {
                 mapUIManager.highlightedUnit = null;
-                canvasUnitInfo.enabled = false;
                 displayingUnitInfo = false;
             }
         }

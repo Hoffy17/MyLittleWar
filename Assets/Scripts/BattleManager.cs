@@ -51,7 +51,7 @@ public class BattleManager : MonoBehaviour
         int attackerDamage = CalculateDamage(attacker, defender);
         int defenderDamage = CalculateDamage(defender, attacker);
 
-        // If the attacking and defending units have the same attack ranges...
+        // If the attacking and defending units have the same attack range...
         if(attackerUnit.attackRange == defenderUnit.attackRange)
         {
             //PlayParticles(defenderUnit);
@@ -191,21 +191,29 @@ public class BattleManager : MonoBehaviour
 
         isBattling = true;
 
+        Unit attackerUnit = attacker.GetComponent<Unit>();
+        Unit defenderUnit = defender.GetComponent<Unit>();
+
         // Get the attacker's and defender's map grid positions.
-        Vector2 attackerTile = new Vector2(attacker.GetComponent<Unit>().tileX, attacker.GetComponent<Unit>().tileZ);
-        Vector2 defenderTile = new Vector2(defender.GetComponent<Unit>().tileX, defender.GetComponent<Unit>().tileZ);
+        Vector2 attackerTile = new Vector2(attackerUnit.tileX, attackerUnit.tileZ);
+        Vector2 defenderTile = new Vector2(defenderUnit.tileX, defenderUnit.tileZ);
 
         // Get the attacker's and defender's transform positions as the start and end points for the attack.
         Vector3 startPos = attacker.transform.position;
-        Vector3 endPos = defender.transform.position;
+        //Vector3 endPos = defender.transform.position;
 
         // Animate the attacker's attack and have the two units face each other.
-        attacker.GetComponent<Unit>().SetAnimAttacking();
-        defender.GetComponent<Unit>().SetAnimAttacking();
-        attacker.GetComponent<Unit>().RotateAttacking(defenderTile);
-        defender.GetComponent<Unit>().RotateAttacking(attackerTile);
-        audioManager.PlayAttackSFX(attacker.GetComponent<Unit>().unitName);
-        audioManager.PlayAttackSFX(defender.GetComponent<Unit>().unitName);
+        attackerUnit.RotateAttacking(defenderTile);
+        defenderUnit.RotateAttacking(attackerTile);
+        attackerUnit.SetAnimAttacking();
+        audioManager.PlayAttackSFX(attackerUnit.unitName);
+
+        // If the units have the same attack range, the defender is also animated.
+        if (attackerUnit.attackRange == defenderUnit.attackRange)
+        {
+            defenderUnit.SetAnimAttacking();
+            audioManager.PlayAttackSFX(defenderUnit.unitName);
+        }
 
         // This code lerped the attacker's position towards the defender, but is no longer used.
         //float elapsedTime = 0;
@@ -232,16 +240,16 @@ public class BattleManager : MonoBehaviour
 
             // If the attacking and defending units have the same attack range,
             // And the defender has health remaining after being attacked...
-            if (attacker.GetComponent<Unit>().attackRange == defender.GetComponent<Unit>().attackRange &&
-                defender.GetComponent<Unit>().currentHealth - attackerDamage > 0)
+            if (attackerUnit.attackRange == defenderUnit.attackRange &&
+                defenderUnit.currentHealth - attackerDamage > 0)
             {
                 // Display the amount of damage that both units take as a result of the attack.
-                StartCoroutine(attacker.GetComponent<Unit>().DisplayDamage(defenderDamage));
-                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attackerDamage));
+                StartCoroutine(attackerUnit.DisplayDamage(defenderDamage));
+                StartCoroutine(defenderUnit.DisplayDamage(attackerDamage));
             }
             // Otherwise, display only the amount of damage the defending unit takes as a result of the attack.
             else
-                StartCoroutine(defender.GetComponent<Unit>().DisplayDamage(attackerDamage));
+                StartCoroutine(defenderUnit.DisplayDamage(attackerDamage));
 
             // Calculate damage taken and check if units have died.
             Battle(attacker, defender);

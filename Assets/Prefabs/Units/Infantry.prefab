@@ -490,7 +490,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07c9c3547b8b4459a922cd7a041b17a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedUnitManager: {fileID: 0}
   audioManager: {fileID: 0}
   teamNumber: 0
   portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
