@@ -95,7 +95,7 @@ public class MapManager : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 selectedUnitManager.SelectUnit();
-                Debug.Log("Tile Clicked: " + mapUIManager.highlightedTile.GetComponent<Tile>().tileX + ", " + mapUIManager.highlightedTile.GetComponent<Tile>().tileZ);
+                //Debug.Log("Tile Clicked: " + mapUIManager.highlightedTile.GetComponent<Tile>().tileX + ", " + mapUIManager.highlightedTile.GetComponent<Tile>().tileZ);
             }
 
             // On right-mouse click, deselect units.
