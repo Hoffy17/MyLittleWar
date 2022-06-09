@@ -28,6 +28,9 @@ public class UIManager : MonoBehaviour
     [Tooltip("The AudioManager script.")]
     [SerializeField]
     private AudioManager audioManager;
+    [Tooltip("The VolumeManager script.")]
+    [SerializeField]
+    private VolumeManager volumeManager;
 
     [Header("Cameras")]
     [SerializeField]
@@ -80,12 +83,20 @@ public class UIManager : MonoBehaviour
     [Tooltip("The icon displayed on the pause button while the game is paused.")]
     [SerializeField]
     private Image iconPlay;
+    [Tooltip("The horizontal banner displayed on the Pause menu.")]
+    [SerializeField]
+    private GameObject pauseBanner;
     [Tooltip("Checks whether the game is paused.")]
     [HideInInspector]
     public bool gamePaused;
     [Tooltip("Checks whether the player is allowed to pause and unpause the game.")]
     [HideInInspector]
     public bool canPause;
+
+    [Header("Options UI")]
+    [Tooltip("The canvas displayed for the Options menu.")]
+    [SerializeField]
+    private Canvas canvasOptions;
 
     [Header("Game Over UI")]
     [Tooltip("The canvas displayed when a game ends.")]
@@ -195,6 +206,9 @@ public class UIManager : MonoBehaviour
     {
         if (!mainCamera.lerpCam)
         {
+            volumeManager.SavePlayerPrefs();
+            canvasOptions.enabled = false;
+
             mainCamera.lerpCam = true;
 
             // Slide the main menu out to the left.
@@ -241,6 +255,7 @@ public class UIManager : MonoBehaviour
             if (!gamePaused)
             {
                 canvasPause.enabled = true;
+                pauseBanner.SetActive(true);
                 gamePaused = true;
 
                 // Set the icon for the pause button.
@@ -263,6 +278,9 @@ public class UIManager : MonoBehaviour
                 canvasPause.enabled = false;
                 gamePaused = false;
 
+                volumeManager.SavePlayerPrefs();
+                canvasOptions.enabled = false;
+
                 // Set the icon for the pause button.
                 iconPause.enabled = true;
                 iconPlay.enabled = false;
@@ -280,6 +298,42 @@ public class UIManager : MonoBehaviour
     public void TogglePauseButton(bool state)
     {
         pauseButton.GetComponent<Button>().interactable = state;
+    }
+
+    /// <summary>
+    /// Toggles the Options menu on and off.
+    /// </summary>
+    public void ToggleOptions()
+    {
+        if (canvasOptions.enabled)
+        {
+            if (gamePaused)
+                pauseBanner.SetActive(true);
+
+            volumeManager.SavePlayerPrefs();
+            canvasOptions.enabled = false;
+        }
+        else
+        {
+            if (gamePaused)
+                pauseBanner.SetActive(false);
+
+            canvasOptions.enabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Adjusts the position of the Options menu in game before toggling it on or off.
+    /// </summary>
+    public void ToggleOptionsInGame()
+    {
+        RectTransform rectTransform = canvasOptions.GetComponent<RectTransform>();
+
+        rectTransform.anchoredPosition = Vector3.zero;
+        rectTransform.anchorMin = new Vector2((float)0.5, (float)0.5);
+        rectTransform.anchorMax = new Vector2((float)0.5, (float)0.5);
+
+        ToggleOptions();
     }
 
     /// <summary>

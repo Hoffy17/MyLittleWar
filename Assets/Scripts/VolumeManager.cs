@@ -35,11 +35,11 @@ public class VolumeManager : MonoBehaviour
 
     private void Awake()
     {
-        //musicVolumeSlider.onValueChanged.AddListener(MusicVolumeSliderControls);
-        //musicMuteToggle.onValueChanged.AddListener(MusicMuteToggleControls);
+        musicVolumeSlider.onValueChanged.AddListener(MusicVolumeSliderControls);
+        musicMuteToggle.onValueChanged.AddListener(MusicMuteToggleControls);
 
-        //sFXVolumeSlider.onValueChanged.AddListener(SFXVolumeSliderControls);
-        //sFXMuteToggle.onValueChanged.AddListener(SFXMuteToggleControls);
+        sFXVolumeSlider.onValueChanged.AddListener(SFXVolumeSliderControls);
+        sFXMuteToggle.onValueChanged.AddListener(SFXMuteToggleControls);
     }
 
     private void Start()
@@ -51,13 +51,13 @@ public class VolumeManager : MonoBehaviour
     private void Update()
     {
         if (musicVolumeSlider.value == 0f)
-            musicMuteToggle.isOn = false;
+            musicMuteToggle.isOn = true;
 
         if (sFXVolumeSlider.value == 0f)
-            sFXMuteToggle.isOn = false;
+            sFXMuteToggle.isOn = true;
     }
 
-    private void OnDisable()
+    public void SavePlayerPrefs()
     {
         PlayerPrefs.SetFloat(musicVolume, musicVolumeSlider.value);
         PlayerPrefs.SetFloat(sFXVolume, sFXVolumeSlider.value);
@@ -69,45 +69,55 @@ public class VolumeManager : MonoBehaviour
         {
             audioMixer.SetFloat(musicVolume, Mathf.Log10(volume) * volumeMultiplier);
             musicSliderMuted = true;
-            musicMuteToggle.isOn = musicVolumeSlider.value > musicVolumeSlider.minValue;
+            musicMuteToggle.isOn = false;
             musicSliderMuted = false;
         }
         else
+        {
             audioMixer.SetFloat(musicVolume, -80f);
+            musicSliderMuted = true;
+            musicMuteToggle.isOn = true;
+            musicSliderMuted = false;
+        }
     }
 
-    private void MusicMuteToggleControls(bool enableMusic)
+    private void MusicMuteToggleControls(bool muted)
     {
         if (musicSliderMuted)
             return;
 
-        if (enableMusic)
-            musicVolumeSlider.value = musicVolumeSlider.maxValue;
-        else
+        if (muted)
             musicVolumeSlider.value = musicVolumeSlider.minValue;
+        else
+            musicVolumeSlider.value = musicVolumeSlider.maxValue;
     }
 
     private void SFXVolumeSliderControls(float volume)
     {
         if (sFXVolumeSlider.value > 0.001)
         {
-            audioMixer.SetFloat(musicVolume, Mathf.Log10(volume) * volumeMultiplier);
+            audioMixer.SetFloat(sFXVolume, Mathf.Log10(volume) * volumeMultiplier);
             sFXSliderMuted = true;
-            sFXMuteToggle.isOn = sFXVolumeSlider.value > sFXVolumeSlider.minValue;
+            sFXMuteToggle.isOn = false;
             sFXSliderMuted = false;
         }
         else
+        {
             audioMixer.SetFloat(sFXVolume, -80f);
+            sFXSliderMuted = true;
+            sFXMuteToggle.isOn = true;
+            sFXSliderMuted = false;
+        }
     }
 
-    private void SFXMuteToggleControls(bool enableSFX)
+    private void SFXMuteToggleControls(bool muted)
     {
         if (sFXSliderMuted)
             return;
 
-        if (enableSFX)
-            sFXVolumeSlider.value = sFXVolumeSlider.maxValue;
-        else
+        if (muted)
             sFXVolumeSlider.value = sFXVolumeSlider.minValue;
+        else
+            sFXVolumeSlider.value = sFXVolumeSlider.maxValue;
     }
 }
