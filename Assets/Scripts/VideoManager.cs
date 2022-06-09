@@ -16,42 +16,49 @@ public class VideoManager : MonoBehaviour
     private Button setResolution;
 
     [NonSerialized]
-    private Resolution[] resolutions;
+    private Resolution[] _resolutions = null;
+
     [NonSerialized]
     private int resolutionIndex = 0;
-    [NonSerialized]
-    private List<string> resolutionStrings = new List<string>();
+    //[NonSerialized]
+    //private List<string> resolutionStrings = new List<string>();
 
     private void Awake()
     {
-        // Get a list of all resolutions.
-        resolutions = Screen.resolutions;
-
-        // Cache current resolution for use in comparison.
-        Resolution currentResolution = Screen.currentResolution;
-
-        // Generate list of resolution strings.
-        for (int i = 0; i < resolutions.Length; i++)
-        {
-            string option = resolutions[i].ToString();
-            string optionWithoutAt = option.Replace("@", "");
-            string optionWithoutHz = optionWithoutAt.Substring(0, optionWithoutAt.Length - 6);
-            string optionTrimmed = optionWithoutHz.Trim();
-
-            if (!resolutionStrings.Contains(optionTrimmed))
-                resolutionStrings.Add(optionTrimmed);
-
-            // Set the current resolution index because the current iteration is the same as the current resolution.
-            if (resolutions[i].width == currentResolution.width &&
-                resolutions[i].height == currentResolution.height &&
-                resolutions[i].refreshRate == currentResolution.refreshRate)
-                resolutionIndex = i;
-        }
-
         // Clear dropdown.
         resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(resolutionStrings);
-        resolutionDropdown.SetValueWithoutNotify(resolutionIndex);
+
+        // Get a list of all resolutions.
+        _resolutions = Screen.resolutions;
+
+        Resolution[] resolutions = Screen.resolutions;
+        List<Resolution> uniqueRes = new List<Resolution>();
+        List<string> options = new List<string>();
+        int currentResolution = 0;
+
+        // Cache current resolution for use in comparison.
+        //Resolution currentResolution = Screen.currentResolution;
+
+        // Generate list of resolution strings.
+        for (int i = 0; i < _resolutions.Length; i++)
+        {
+            string option = _resolutions[i].ToString();
+            option = option.Replace("@", "");
+            option = option.Substring(0, option.Length - 6);
+
+            if (!options.Contains(option))
+            {
+                options.Add(option);
+                uniqueRes.Add(resolutions[i]);
+            }
+        }
+
+        resolutionDropdown.AddOptions(options);
+        resolutionDropdown.value = currentResolution;
+        resolutionDropdown.RefreshShownValue();
+        _resolutions = uniqueRes.ToArray();
+
+        //resolutionDropdown.SetValueWithoutNotify(resolutionIndex);
 
         // Add set resolution index to the dropdown.
         resolutionDropdown.onValueChanged.AddListener(SetResolutionIndex);
@@ -75,10 +82,10 @@ public class VideoManager : MonoBehaviour
 
     private void UpdateResolution()
     {
-        Screen.SetResolution(resolutions[resolutionIndex].width,
-            resolutions[resolutionIndex].height,
-            fullScreenToggle.isOn,
-            resolutions[resolutionIndex].refreshRate);
-        resolutionIndex = resolutionStrings.IndexOf(Screen.currentResolution.ToString());
+        Screen.SetResolution(_resolutions[resolutionIndex].width,
+            _resolutions[resolutionIndex].height,
+            fullScreenToggle.isOn);
+            //_resolutions[resolutionIndex].refreshRate);
+        //resolutionIndex = resolutionStrings.IndexOf(Screen.currentResolution.ToString());
     }
 }
