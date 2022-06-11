@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour
     public int attackRange = 1;
     [Tooltip("This unit's maximum health points.")]
     [SerializeField]
-    private int totalHealth = 5;
+    public int totalHealth = 5;
     [Tooltip("This unit's current health points at any time, which are reduced when this unit is attacked.")]
     [HideInInspector]
     public int currentHealth;

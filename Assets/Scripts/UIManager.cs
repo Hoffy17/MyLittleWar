@@ -493,7 +493,7 @@ public class UIManager : MonoBehaviour
         // Pass the units' stats into the canvas' UI elements.
         imageUnitPortrait.sprite = unit.portrait;
         textUnitName.SetText(unit.unitName.ToString());
-        textUnitHealth.SetText(unit.currentHealth.ToString());
+        textUnitHealth.SetText(unit.totalHealth.ToString());
         textUnitAttackDamage.SetText(unit.attackDamage.ToString());
         textUnitAttackRange.SetText(unit.attackRange.ToString());
         textUnitMoveSpeed.SetText(unit.moveSpeed.ToString());
